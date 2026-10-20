@@ -7,11 +7,11 @@ import {
 export const ManualsAndDocs: React.FC = () => {
   const manuals = [
     {
-      title: 'Manual de Instalação e Esquema Elétrico Central Outfire VTS 32S3',
-      type: 'PDF Oficial de Fábrica',
-      size: '939 KB',
+      title: 'Manual Técnico e Esquema Elétrico Central Outfire 2026',
+      type: 'PDF Oficial de Engenharia',
+      size: '733 KB',
       description: 'Diagrama completo de ligação dos bornes, ligação dos relés de gás e exaustão, sensores reguláveis, dampers e alimentação 12V/Bateria.',
-      link: '/assets/manual-instalacao-central-outfire.pdf',
+      link: '/assets/Manual_Tecnico_OutFire_2026.pdf',
       featured: true
     },
     {

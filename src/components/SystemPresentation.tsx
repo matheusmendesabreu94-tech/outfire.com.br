@@ -1,11 +1,333 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { 
   Cpu, Shield, Volume2, Calendar, AlertTriangle, 
-  Layers, CheckCircle, Radio, Gauge, Power, ArrowRight 
+  Layers, CheckCircle, Radio, Gauge, Power, ArrowRight,
+  Download, Eye, RotateCcw, Zap, Battery, Sparkles
 } from 'lucide-react';
 
 export const SystemPresentation: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'ihm' | 'interno' | 'instalado'>('ihm');
+  const [activeTab, setActiveTab] = useState<'3d' | 'interno' | 'instalado'>('3d');
+
+  // 3D Central Enclosure State
+  const canvas3DRef = useRef<HTMLCanvasElement>(null);
+  const container3DRef = useRef<HTMLDivElement>(null);
+  const [isPsuOpen, setIsPsuOpen] = useState(false);
+  const isPsuOpenRef = useRef(false);
+  isPsuOpenRef.current = isPsuOpen;
+
+  const [isBatteryOpen, setIsBatteryOpen] = useState(false);
+  const isBatteryOpenRef = useRef(false);
+  isBatteryOpenRef.current = isBatteryOpen;
+
+  const [hoveredPart, setHoveredPart] = useState<string | null>(null);
+
+  // References for 3D animation
+  const psuGroupRef = useRef<THREE.Group | null>(null);
+  const batteryDrawerGroupRef = useRef<THREE.Group | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+
+  // Toggle PSU Drawer (Sobe a gaveta da fonte)
+  const togglePsuDrawer = () => {
+    setIsPsuOpen(prev => !prev);
+  };
+
+  // Toggle Battery Drawer (Desce a gaveta de baterias)
+  const toggleBatteryDrawer = () => {
+    setIsBatteryOpen(prev => !prev);
+  };
+
+  // Reset 3D camera
+  const resetCamera = () => {
+    if (controlsRef.current && cameraRef.current) {
+      cameraRef.current.position.set(1.8, 1.2, 2.2);
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.update();
+    }
+  };
+
+  // 3D Cabinet Viewer Effect
+  useEffect(() => {
+    if (activeTab !== '3d' || !canvas3DRef.current || !container3DRef.current) return;
+
+    const width = container3DRef.current.clientWidth;
+    const height = container3DRef.current.clientHeight;
+
+    // 1. Scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0e1117);
+
+    // 2. Camera
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+    camera.position.set(1.8, 1.2, 2.2);
+    cameraRef.current = camera;
+
+    // 3. Renderer
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas3DRef.current,
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    // 4. OrbitControls (Smooth 360° mouse & touch orbit)
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 1.2;
+    controls.maxDistance = 6.0;
+    controls.target.set(0, 0, 0);
+    controlsRef.current = controls;
+
+    // 5. Lighting
+    const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.85);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    keyLight.position.set(3, 4, 3);
+    keyLight.castShadow = true;
+    scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xd4af37, 0.8);
+    rimLight.position.set(-3, -2, -3);
+    scene.add(rimLight);
+
+    // Ground Grid Helper for CAD look
+    const grid = new THREE.GridHelper(4, 20, 0xd4af37, 0x27272a);
+    grid.position.y = -0.75;
+    scene.add(grid);
+
+    // --- MATERIALS ---
+    const textureLoader = new THREE.TextureLoader();
+    const frontCoverTexture = textureLoader.load('/assets/tampa-central-moderna.png');
+    frontCoverTexture.colorSpace = THREE.SRGBColorSpace;
+
+    const matSteelEnclosure = new THREE.MeshStandardMaterial({
+      color: 0x181a1f,
+      metalness: 0.8,
+      roughness: 0.35
+    });
+
+    const matFrontCover = new THREE.MeshStandardMaterial({
+      map: frontCoverTexture,
+      metalness: 0.25,
+      roughness: 0.35
+    });
+
+    // Cabinet Dimensions: Width 1.4, Height 1.0, Depth 0.58
+    const boxMaterials = [
+      matSteelEnclosure, // right
+      matSteelEnclosure, // left
+      matSteelEnclosure, // top
+      matSteelEnclosure, // bottom
+      matFrontCover,     // FRONT: Official modern cover from PDF!
+      matSteelEnclosure  // back
+    ];
+
+    const cabinetMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 1.0, 0.58),
+      boxMaterials
+    );
+    cabinetMesh.castShadow = true;
+    cabinetMesh.receiveShadow = true;
+    scene.add(cabinetMesh);
+
+    // Rear Mounting Holes (Keyhole Slots)
+    const slotMat = new THREE.MeshBasicMaterial({ color: 0x07080a });
+    const slot1 = new THREE.Mesh(new THREE.PlaneGeometry(0.04, 0.12), slotMat);
+    slot1.rotation.y = Math.PI;
+    slot1.position.set(-0.5, 0.3, -0.291);
+    scene.add(slot1);
+
+    const slot2 = new THREE.Mesh(new THREE.PlaneGeometry(0.04, 0.12), slotMat);
+    slot2.rotation.y = Math.PI;
+    slot2.position.set(0.5, 0.3, -0.291);
+    scene.add(slot2);
+
+    // --- TOP PSU DRAWER (GAVETA DA FONTE - SUBIDA / DESCIDA) ---
+    const psuGroup = new THREE.Group();
+    psuGroup.position.set(0, 0, -0.05);
+    scene.add(psuGroup);
+    psuGroupRef.current = psuGroup;
+
+    // PSU Cover plate on top
+    const psuCoverMat = new THREE.MeshStandardMaterial({
+      color: 0x22262e,
+      metalness: 0.7,
+      roughness: 0.4
+    });
+    const psuCover = new THREE.Mesh(
+      new THREE.BoxGeometry(0.95, 0.02, 0.24),
+      psuCoverMat
+    );
+    psuCover.position.set(0, 0.51, 0);
+    psuCover.userData = { isPsu: true, name: 'Tampa da Fonte de Alimentação' };
+    psuGroup.add(psuCover);
+
+    // PSU Aluminum Casing (Andeli MS-350-24)
+    const psuBoxMat = new THREE.MeshStandardMaterial({
+      color: 0xd4d4d8,
+      metalness: 0.9,
+      roughness: 0.2
+    });
+    const psuBox = new THREE.Mesh(
+      new THREE.BoxGeometry(0.85, 0.45, 0.20),
+      psuBoxMat
+    );
+    psuBox.position.set(0, 0.74, 0);
+    psuBox.userData = { isPsu: true, name: 'Fonte de Alimentação Andeli MS-350-24 (24V Industrial)' };
+    psuGroup.add(psuBox);
+
+    // PSU Caution Label
+    const psuLabelMat = new THREE.MeshBasicMaterial({ color: 0xeab308 });
+    const psuLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.08), psuLabelMat);
+    psuLabel.position.set(0, 0.74, 0.101);
+    psuGroup.add(psuLabel);
+
+    // --- BOTTOM BATTERY DRAWER (GAVETA DE BATERIA - DESCIDA / SUBIDA) ---
+    const batteryDrawerGroup = new THREE.Group();
+    batteryDrawerGroup.position.set(0, 0, -0.05);
+    scene.add(batteryDrawerGroup);
+    batteryDrawerGroupRef.current = batteryDrawerGroup;
+
+    // Bottom Battery Cover plate
+    const batCoverMat = new THREE.MeshStandardMaterial({
+      color: 0x22262e,
+      metalness: 0.7,
+      roughness: 0.4
+    });
+    const batCover = new THREE.Mesh(
+      new THREE.BoxGeometry(0.74, 0.02, 0.24),
+      batCoverMat
+    );
+    batCover.position.set(0, -0.51, 0);
+    batCover.userData = { isBattery: true, name: 'Tampa da Gaveta de Baterias' };
+    batteryDrawerGroup.add(batCover);
+
+    // Two 12V 7Ah Pionero Batteries
+    const batBodyMat = new THREE.MeshStandardMaterial({ color: 0x090a0d, roughness: 0.5 });
+    const bat1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.40, 0.18), batBodyMat);
+    bat1.position.set(-0.18, -0.72, 0);
+    bat1.userData = { isBattery: true, name: 'Bateria Pionero 12V 7Ah (Banco de Backup)' };
+    batteryDrawerGroup.add(bat1);
+
+    const bat2 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.40, 0.18), batBodyMat);
+    bat2.position.set(0.18, -0.72, 0);
+    bat2.userData = { isBattery: true, name: 'Bateria Pionero 12V 7Ah (Banco de Backup)' };
+    batteryDrawerGroup.add(bat2);
+
+    // Terminals
+    const termMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.8 });
+    const t1 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.03), termMat);
+    t1.position.set(-0.24, -0.51, 0.05);
+    batteryDrawerGroup.add(t1);
+
+    const t2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.03), termMat);
+    t2.position.set(0.12, -0.51, 0.05);
+    batteryDrawerGroup.add(t2);
+
+    // --- RAYCASTER FOR CLICK & HOVER ---
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const onPointerMove = (e: MouseEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects([psuGroup, batteryDrawerGroup, cabinetMesh], true);
+
+      if (intersects.length > 0) {
+        let hit = intersects[0].object;
+        if (hit.userData?.isPsu) {
+          renderer.domElement.style.cursor = 'pointer';
+          setHoveredPart(isPsuOpenRef.current ? '⚡ Fonte Aberta (Clique para recolher)' : '⚡ Fonte de Alimentação (Clique para subir gaveta)');
+          return;
+        } else if (hit.userData?.isBattery) {
+          renderer.domElement.style.cursor = 'pointer';
+          setHoveredPart(isBatteryOpenRef.current ? '🔋 Baterias Abertas (Clique para recolher)' : '🔋 Baterias de Backup (Clique para descer gaveta)');
+          return;
+        } else {
+          renderer.domElement.style.cursor = 'grab';
+          setHoveredPart('Gabinete Central Outfire (Arraste para girar 360°)');
+          return;
+        }
+      }
+      renderer.domElement.style.cursor = 'default';
+      setHoveredPart(null);
+    };
+
+    const onClick = (e: MouseEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects([psuGroup, batteryDrawerGroup], true);
+
+      if (intersects.length > 0) {
+        const hit = intersects[0].object;
+        if (hit.userData?.isPsu) {
+          setIsPsuOpen(prev => !prev);
+        } else if (hit.userData?.isBattery) {
+          setIsBatteryOpen(prev => !prev);
+        }
+      }
+    };
+
+    renderer.domElement.addEventListener('mousemove', onPointerMove);
+    renderer.domElement.addEventListener('click', onClick);
+
+    // --- RESIZE ---
+    const handleResize = () => {
+      if (!container3DRef.current || !renderer || !camera) return;
+      const w = container3DRef.current.clientWidth;
+      const h = container3DRef.current.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener('resize', handleResize);
+
+    // --- ANIMATION LOOP ---
+    let animId: number;
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+
+      // Smooth slide of PSU drawer
+      const targetPsuY = isPsuOpenRef.current ? 0.48 : 0;
+      if (psuGroupRef.current) {
+        psuGroupRef.current.position.y += (targetPsuY - psuGroupRef.current.position.y) * 0.12;
+      }
+
+      // Smooth slide of Battery drawer
+      const targetBatY = isBatteryOpenRef.current ? -0.48 : 0;
+      if (batteryDrawerGroupRef.current) {
+        batteryDrawerGroupRef.current.position.y += (targetBatY - batteryDrawerGroupRef.current.position.y) * 0.12;
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      renderer.domElement.removeEventListener('mousemove', onPointerMove);
+      renderer.domElement.removeEventListener('click', onClick);
+      renderer.dispose();
+    };
+  }, [activeTab]);
 
   const features = [
     {
@@ -69,19 +391,65 @@ export const SystemPresentation: React.FC = () => {
         {/* Interactive Hardware Showcase Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-20">
           
-          {/* Real Photo Viewer with View Switcher */}
+          {/* Real Photo Viewer / 3D Interactive Enclosure */}
           <div className="lg:col-span-7 flex flex-col items-center">
-            <div className="relative w-full max-w-xl aspect-[4/3] rounded-3xl bg-gradient-to-br from-[#14171e] to-[#0a0b0e] border border-[#d4af37]/30 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex items-center justify-center overflow-hidden group">
+            <div 
+              ref={container3DRef}
+              className="relative w-full max-w-xl aspect-[4/3] rounded-3xl bg-gradient-to-br from-[#14171e] to-[#0a0b0e] border border-[#d4af37]/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex items-center justify-center overflow-hidden group"
+            >
               
-              {/* Active Photo */}
-              {activeTab === 'ihm' && (
-                <img 
-                  src="/assets/central-outfire-fundo-removido.png" 
-                  alt="Central Outfire VTS 32S3" 
-                  className="max-h-full max-w-full object-contain filter drop-shadow-[0_20px_35px_rgba(212,175,55,0.25)] transition-all duration-500 group-hover:scale-105"
-                />
+              {/* 1. INTERACTIVE 3D CAD CABINET (ORBIT 360° + SLIDING DRAWERS) */}
+              {activeTab === '3d' && (
+                <div className="relative w-full h-full">
+                  <canvas ref={canvas3DRef} className="w-full h-full block outline-none cursor-grab active:cursor-grabbing" />
+                  
+                  {/* Floating Tooltip */}
+                  {hoveredPart && (
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-3.5 py-1.5 rounded-full bg-black/90 backdrop-blur-md border border-[#d4af37]/50 text-xs text-[#f3e5ab] font-bold shadow-glow-gold">
+                      {hoveredPart}
+                    </div>
+                  )}
+
+                  {/* 3D Action Controls */}
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-auto">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={togglePsuDrawer}
+                        className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                          isPsuOpen 
+                            ? 'bg-amber-500 text-black border-amber-400 shadow-glow-gold' 
+                            : 'bg-black/80 hover:bg-black text-[#f3e5ab] border-[#d4af37]/40'
+                        }`}
+                      >
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>{isPsuOpen ? 'Recolher Fonte' : 'Subir Fonte'}</span>
+                      </button>
+
+                      <button
+                        onClick={toggleBatteryDrawer}
+                        className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${
+                          isBatteryOpen 
+                            ? 'bg-amber-500 text-black border-amber-400 shadow-glow-gold' 
+                            : 'bg-black/80 hover:bg-black text-[#f3e5ab] border-[#d4af37]/40'
+                        }`}
+                      >
+                        <Battery className="w-3.5 h-3.5" />
+                        <span>{isBatteryOpen ? 'Recolher Baterias' : 'Descer Baterias'}</span>
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={resetCamera}
+                      title="Resetar Câmera"
+                      className="p-1.5 rounded-lg bg-black/80 hover:bg-black text-[#f3e5ab] border border-[#d4af37]/30 transition-all"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               )}
 
+              {/* 2. REAL INTERNAL PHOTOS */}
               {activeTab === 'interno' && (
                 <img 
                   src="/assets/central-outfire-interno.jpg" 
@@ -90,6 +458,7 @@ export const SystemPresentation: React.FC = () => {
                 />
               )}
 
+              {/* 3. REAL KITCHEN INSTALLATION */}
               {activeTab === 'instalado' && (
                 <img 
                   src="/assets/central-outfire-instalada.jpg" 
@@ -99,24 +468,25 @@ export const SystemPresentation: React.FC = () => {
               )}
 
               {/* Tag indicator */}
-              <div className="absolute bottom-4 left-4 bg-[#08090b]/90 backdrop-blur-md border border-[#d4af37]/30 px-3 py-1.5 rounded-lg text-xs font-mono text-[#f3e5ab]">
-                {activeTab === 'ihm' && 'Vista Frontal do Gabinete & IHM'}
+              <div className="absolute top-4 left-4 bg-[#08090b]/90 backdrop-blur-md border border-[#d4af37]/30 px-3 py-1.5 rounded-lg text-xs font-mono text-[#f3e5ab] pointer-events-none">
+                {activeTab === '3d' && 'Gabinete 3D Interativo (Gire 360° com o mouse/toque)'}
                 {activeTab === 'interno' && 'Eletrônica Robusta, Relés de Potência & Bornes'}
                 {activeTab === 'instalado' && 'Instalação Real em Cozinha Profissional'}
               </div>
             </div>
 
-            {/* Photo Selector Pills */}
+            {/* Photo & 3D Selector Pills */}
             <div className="flex items-center gap-2 mt-4 bg-[#12141a] p-1.5 rounded-2xl border border-[#d4af37]/25 shadow-md">
               <button
-                onClick={() => setActiveTab('ihm')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'ihm'
+                onClick={() => setActiveTab('3d')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === '3d'
                     ? 'bg-[#d4af37] text-black shadow-glow-gold'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                Gabinete & IHM Touch
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Gabinete 3D Interativo</span>
               </button>
               <button
                 onClick={() => setActiveTab('interno')}
@@ -162,7 +532,7 @@ export const SystemPresentation: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-[#d4af37] shrink-0 mt-0.5" />
                   <span className="text-gray-300">
-                    <strong>Dupla Ação de Supressão:</strong> Saponificante na cocção + CO2 e Dampers no duto.
+                    <strong>Dupla Ação de Supressão:</strong> Saponificante na cocção + CO2 no duto e fechamento automático dos dampers.
                   </span>
                 </div>
 
@@ -193,6 +563,13 @@ export const SystemPresentation: React.FC = () => {
                     <strong>Menu protegido por senha:</strong> Previne alterações indevidas por pessoas não autorizadas.
                   </span>
                 </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#d4af37] shrink-0 mt-0.5" />
+                  <span className="text-gray-300">
+                    <strong>Opção de Anular Disparo:</strong> Sistema inteligente com botão de cancelamento na IHM para evitar disparos acidentais ou alarmes falsos.
+                  </span>
+                </div>
               </div>
 
               <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3">
@@ -204,12 +581,16 @@ export const SystemPresentation: React.FC = () => {
                   <ArrowRight className="w-4 h-4 fill-black" />
                 </a>
 
+                {/* Baixar Manual Técnico Oficial 2026 */}
                 <a
-                  href="/assets/manual-instalacao-central-outfire.pdf"
+                  href="/assets/Manual_Tecnico_OutFire_2026.pdf"
+                  download="Manual_Tecnico_OutFire_2026.pdf"
                   target="_blank"
-                  className="py-3 px-4 bg-[#14171e] hover:bg-[#1f2430] text-[#f3e5ab] font-bold text-center text-sm rounded-xl border border-[#d4af37]/30 transition-all"
+                  rel="noopener noreferrer"
+                  className="py-3 px-4 bg-[#14171e] hover:bg-[#1f2430] text-[#f3e5ab] font-bold text-center text-sm rounded-xl border border-[#d4af37]/30 transition-all flex items-center justify-center gap-2"
                 >
-                  Baixar Manual Técnico
+                  <Download className="w-4 h-4 text-[#d4af37]" />
+                  <span>Baixar Manual Técnico</span>
                 </a>
               </div>
 
