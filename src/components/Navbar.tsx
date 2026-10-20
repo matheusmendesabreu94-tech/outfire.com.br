@@ -56,16 +56,11 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
           
           {/* Authentic Outfire Brand Logo */}
           <a href="#" className="flex items-center gap-3 group">
-            <div className="flex items-center gap-2">
-              <img 
-                src="/assets/logo-outfire-gold.png" 
-                alt="OUTFIRE - Sistemas contra Incêndio" 
-                className="h-10 sm:h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-[0_2px_10px_rgba(212,175,55,0.3)]"
-              />
-              <span className="hidden sm:inline-block text-[10px] bg-[#1a170e] text-[#e5c05d] border border-[#d4af37]/40 px-2 py-0.5 rounded font-mono font-bold tracking-wider">
-                VTS 32S3
-              </span>
-            </div>
+            <img 
+              src="/assets/logo-outfire-gold.png" 
+              alt="OUTFIRE - Sistemas contra Incêndio" 
+              className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-[0_2px_10px_rgba(212,175,55,0.3)]"
+            />
           </a>
 
           {/* Desktop Navigation */}
