@@ -93,33 +93,33 @@ export const WhyOutfire: React.FC = () => {
           </div>
 
           {/* Option 3: Outfire Classe K + CO2 */}
-          <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/40 bg-gradient-to-b from-emerald-950/30 via-emerald-950/10 to-black/50 relative flex flex-col justify-between shadow-2xl">
+          <div className="glass-panel-gold p-6 sm:p-8 rounded-3xl border border-[#d4af37]/60 bg-gradient-to-b from-[#1a170e]/80 via-[#0e1015] to-[#08090c] relative flex flex-col justify-between shadow-glow-gold">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
-                  SOLUÇÃO DEFINITIVA
+                <span className="text-xs font-mono font-black bg-[#d4af37] text-black px-3 py-1 rounded-full shadow-glow-gold">
+                  SOLUÇÃO DEFINITIVA OUTFIRE
                 </span>
-                <CheckCircle2 className="w-7 h-7 text-emerald-400" />
+                <CheckCircle2 className="w-7 h-7 text-[#d4af37]" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2 font-sans">
+              <h3 className="text-xl font-black text-white mb-2 font-sans">
                 Sistema Automatizado Outfire
               </h3>
               <p className="text-sm text-gray-300 leading-relaxed mb-6">
                 Ao disparar, o agente saponificante reage quimicamente com os ácidos graxos do óleo quente em um processo chamado <strong>saponificação</strong>.
               </p>
 
-              <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-800/40 text-xs text-emerald-300 space-y-2">
-                <div className="flex items-center gap-2 font-bold">
-                  <Sparkles className="w-4 h-4 text-emerald-400" />
+              <div className="p-4 rounded-xl bg-[#14171e] border border-[#d4af37]/30 text-xs text-[#f3e5ab] space-y-2">
+                <div className="flex items-center gap-2 font-bold text-[#e5c05d]">
+                  <Sparkles className="w-4 h-4 text-[#d4af37]" />
                   Manta Espumosa e Resfriamento:
                 </div>
-                <p>
+                <p className="text-gray-300">
                   Cria uma espessa manta de sabão alcalino que bloqueia o oxigênio, impede a liberação de vapores inflamáveis e resfria o óleo rapidamente. O CO2 protege o duto sem deixar resíduos.
                 </p>
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-emerald-900/30 text-xs font-mono text-emerald-400 font-bold">
+            <div className="mt-6 pt-4 border-t border-[#d4af37]/30 text-xs font-mono text-[#e5c05d] font-bold">
               Resultado: Fogo 100% Extinto & Cozinha Salva
             </div>
           </div>

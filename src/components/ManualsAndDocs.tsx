@@ -59,13 +59,13 @@ export const ManualsAndDocs: React.FC = () => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/10 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wide mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wide mb-4">
             <BookOpen className="w-3.5 h-3.5" />
             Engenharia & Suporte
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans">
             Central de Manuais Técnicos & <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-amber-400 to-yellow-400">
+            <span className="gold-gradient-text">
               Documentos de Instalação
             </span>
           </h2>
@@ -82,7 +82,7 @@ export const ManualsAndDocs: React.FC = () => {
               key={i}
               className={`p-6 sm:p-8 rounded-3xl border flex flex-col justify-between transition-all ${
                 man.featured 
-                  ? 'glass-panel-glow border-red-500/40 bg-gradient-to-b from-[#181112] to-[#0e1014]' 
+                  ? 'glass-panel-gold border-amber-500/40 bg-gradient-to-b from-[#1a1710] to-[#0e1014] shadow-glow-gold' 
                   : 'glass-panel border-white/10'
               }`}
             >
@@ -91,7 +91,7 @@ export const ManualsAndDocs: React.FC = () => {
                   <span className="text-[10px] font-mono font-bold bg-white/10 text-gray-300 px-2.5 py-1 rounded-md">
                     {man.type}
                   </span>
-                  <FileText className={`w-6 h-6 ${man.featured ? 'text-red-500' : 'text-gray-400'}`} />
+                  <FileText className={`w-6 h-6 ${man.featured ? 'text-amber-400' : 'text-gray-400'}`} />
                 </div>
 
                 <h3 className="text-lg font-bold text-white mb-2 font-sans">
@@ -114,7 +114,7 @@ export const ManualsAndDocs: React.FC = () => {
                   rel="noopener noreferrer"
                   className={`py-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                     man.featured 
-                      ? 'bg-red-600 hover:bg-red-500 text-white shadow-glow-red' 
+                      ? 'gold-gradient hover:brightness-110 text-black font-extrabold shadow-glow-gold' 
                       : 'bg-white/10 hover:bg-white/20 text-white'
                   }`}
                 >
@@ -138,7 +138,7 @@ export const ManualsAndDocs: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {steps.map((st, idx) => (
               <div key={idx} className="p-4 bg-white/5 rounded-2xl border border-white/5 relative">
-                <span className="text-2xl font-black text-red-500 font-mono block mb-2 opacity-80">
+                <span className="text-2xl font-black text-amber-400 font-mono block mb-2 opacity-90">
                   {st.step}
                 </span>
                 <h4 className="text-sm font-bold text-white mb-1.5 font-sans">

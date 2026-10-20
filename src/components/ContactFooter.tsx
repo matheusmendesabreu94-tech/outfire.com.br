@@ -45,14 +45,14 @@ export const ContactFooter: React.FC = () => {
           
           {/* Left Column: Direct Contact Info & Engineering Support */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/10 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wide">
-              <Phone className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#e5c05d] text-xs font-bold uppercase tracking-wide">
+              <Phone className="w-3.5 h-3.5 text-[#d4af37]" />
               Canais Diretos de Engenharia & Vendas
             </div>
 
             <h3 className="text-3xl sm:text-4xl font-black text-white font-sans tracking-tight">
               Fale com um Especialista <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f3e5ab] via-[#d4af37] to-[#b89628]">
                 em Supressão Outfire
               </span>
             </h3>
@@ -223,9 +223,9 @@ export const ContactFooter: React.FC = () => {
 
                   <button
                     type="submit"
-                    className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl shadow-glow-red transition-all flex items-center justify-center gap-2 group"
+                    className="w-full py-4 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black font-black text-sm rounded-xl shadow-glow-gold transition-all flex items-center justify-center gap-2 group"
                   >
-                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform fill-black" />
                     <span>Enviar para a Engenharia Outfire</span>
                   </button>
                 </form>
@@ -238,12 +238,14 @@ export const ContactFooter: React.FC = () => {
       </div>
 
       {/* Bottom Bar: Copyright & Navigation */}
-      <div className="border-t border-white/5 py-8 bg-[#050608]">
+      <div className="border-t border-[#d4af37]/20 py-8 bg-[#050608]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-white font-sans text-sm">
-              OUT<span className="text-red-500">FIRE</span>.com.br
-            </span>
+            <img 
+              src="/assets/logo-outfire-gold.png" 
+              alt="OUTFIRE" 
+              className="h-8 w-auto object-contain"
+            />
             <span>&copy; {new Date().getFullYear()} Outfire Sistemas contra Incêndio. Todos os direitos reservados.</span>
           </div>
 

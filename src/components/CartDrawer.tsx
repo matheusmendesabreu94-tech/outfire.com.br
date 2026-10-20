@@ -71,9 +71,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         <div className="w-screen max-w-md bg-[#0f1115] border-l border-white/10 flex flex-col justify-between shadow-2xl relative">
           
           {/* Header */}
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-red-500" />
+              <ShoppingBag className="w-5 h-5 text-[#d4af37]" />
               <h2 className="text-lg font-bold text-white font-sans">
                 Seu Carrinho de Compras
               </h2>
@@ -198,9 +198,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                 <button
                   onClick={() => setCheckoutModalOpen(true)}
-                  className="w-full py-3 px-4 bg-red-600 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow-glow-red transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black font-black text-xs rounded-xl shadow-glow-gold transition-all flex items-center justify-center gap-2"
                 >
-                  <CreditCard className="w-4 h-4" />
+                  <CreditCard className="w-4 h-4 fill-black" />
                   <span>Finalizar Pagamento Online (Pix / Cartão)</span>
                 </button>
               </div>

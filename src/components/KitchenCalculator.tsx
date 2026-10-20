@@ -238,13 +238,13 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/10 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wide mb-4">
-            <Calculator className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#e5c05d] text-xs font-bold uppercase tracking-wide mb-4">
+            <Calculator className="w-3.5 h-3.5 text-[#d4af37]" />
             Engenharia sob Medida
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans">
             Calculadora de Supressão & <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-amber-400 to-yellow-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f3e5ab] via-[#d4af37] to-[#b89628]">
               Diagrama Automatizado da sua Cozinha
             </span>
           </h2>
@@ -261,10 +261,10 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
           <div className="lg:col-span-5 space-y-6">
             
             {/* Step 1: Number of Hoods */}
-            <div className="glass-panel p-6 rounded-2xl border border-white/10">
+            <div className="glass-panel-gold p-6 rounded-2xl border border-[#d4af37]/30">
               <label className="text-sm font-bold text-white block mb-3 flex items-center justify-between">
                 <span>1. Quantidade de Coifas Independentes:</span>
-                <span className="text-xs font-mono text-red-400">Até 3 simultâneas</span>
+                <span className="text-xs font-mono text-[#e5c05d]">Até 3 simultâneas</span>
               </label>
 
               <div className="grid grid-cols-3 gap-2">
@@ -274,7 +274,7 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                     onClick={() => handleSetHoodCount(num)}
                     className={`py-3 px-4 rounded-xl text-sm font-bold flex flex-col items-center gap-1 transition-all ${
                       hoodCount === num
-                        ? 'bg-red-600 text-white shadow-glow-red border border-red-400'
+                        ? 'bg-[#d4af37] text-black shadow-glow-gold border border-[#e5c05d]'
                         : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
                     }`}
                   >
@@ -374,7 +374,7 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                         <div className="flex items-center gap-2 text-gray-200">
                           <span className="text-base">{app.icon}</span>
                           <span className="font-medium">{app.name}</span>
-                          <span className="text-[10px] bg-red-950 text-red-400 px-1.5 py-0.5 rounded border border-red-900 font-mono">
+                          <span className="text-[10px] bg-[#1a170e] text-[#e5c05d] px-2 py-0.5 rounded border border-[#d4af37]/40 font-mono font-bold">
                             1 bico Saponificante
                           </span>
                         </div>
@@ -394,33 +394,33 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                     <button
                       onClick={() => addAppliance(hIndex, 'fritadeira')}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
+                      className="p-2 rounded-lg bg-white/5 hover:bg-[#d4af37]/15 text-gray-300 hover:text-[#f3e5ab] text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
                     >
-                      <Plus className="w-3 h-3 text-red-400" />
+                      <Plus className="w-3 h-3 text-[#d4af37]" />
                       <span>+ Fritadeira</span>
                     </button>
 
                     <button
                       onClick={() => addAppliance(hIndex, 'fogao')}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
+                      className="p-2 rounded-lg bg-white/5 hover:bg-[#d4af37]/15 text-gray-300 hover:text-[#f3e5ab] text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
                     >
-                      <Plus className="w-3 h-3 text-red-400" />
+                      <Plus className="w-3 h-3 text-[#d4af37]" />
                       <span>+ Fogão</span>
                     </button>
 
                     <button
                       onClick={() => addAppliance(hIndex, 'chapa')}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
+                      className="p-2 rounded-lg bg-white/5 hover:bg-[#d4af37]/15 text-gray-300 hover:text-[#f3e5ab] text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
                     >
-                      <Plus className="w-3 h-3 text-red-400" />
+                      <Plus className="w-3 h-3 text-[#d4af37]" />
                       <span>+ Chapa</span>
                     </button>
 
                     <button
                       onClick={() => addAppliance(hIndex, 'charbroiler')}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
+                      className="p-2 rounded-lg bg-white/5 hover:bg-[#d4af37]/15 text-gray-300 hover:text-[#f3e5ab] text-[11px] font-medium flex items-center justify-center gap-1 border border-white/5 transition-all"
                     >
-                      <Plus className="w-3 h-3 text-red-400" />
+                      <Plus className="w-3 h-3 text-[#d4af37]" />
                       <span>+ Grelha</span>
                     </button>
                   </div>
@@ -685,9 +685,9 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
 
                 <button
                   onClick={handleAddCustomKitToCart}
-                  className="py-4 px-6 bg-red-600 hover:bg-red-500 text-white font-bold rounded-2xl shadow-glow-red transition-all flex items-center justify-center gap-2"
+                  className="py-4 px-6 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black font-black rounded-2xl shadow-glow-gold transition-all flex items-center justify-center gap-2"
                 >
-                  <Box className="w-5 h-5" />
+                  <Box className="w-5 h-5 fill-black" />
                   <span>Comprar Kit na Loja</span>
                 </button>
               </div>

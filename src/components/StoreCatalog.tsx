@@ -38,18 +38,18 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
   };
 
   return (
-    <section id="loja" className="py-24 bg-[#0d0f13] relative">
+    <section id="loja" className="py-24 bg-[#08090c] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/10 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wide mb-4">
-            <ShoppingCart className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#e5c05d] text-xs font-bold uppercase tracking-wide mb-4">
+            <ShoppingCart className="w-3.5 h-3.5 text-[#d4af37]" />
             Loja Oficial Outfire
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans">
             Sistemas Completos & <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-amber-400 to-yellow-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f3e5ab] via-[#d4af37] to-[#b89628]">
               Peças de Reposição Certificadas
             </span>
           </h2>
@@ -70,7 +70,7 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                   selectedCategory === cat.id
-                    ? 'bg-red-600 text-white shadow-glow-red'
+                    ? 'bg-[#d4af37] text-black shadow-glow-gold'
                     : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white border border-white/5'
                 }`}
               >
@@ -87,7 +87,7 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
               placeholder="Buscar bicos, sensores, cilindros..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#14161c] border border-white/10 text-white text-xs rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-red-500 transition-colors"
+              className="w-full bg-[#12141a] border border-[#d4af37]/20 text-white text-xs rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#d4af37] transition-colors"
             />
           </div>
 
@@ -98,27 +98,27 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
           {filteredProducts.map((product) => (
             <div 
               key={product.id}
-              className="glass-panel rounded-3xl border border-white/10 hover:border-red-500/40 transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1"
+              className="glass-panel-gold rounded-3xl border border-[#d4af37]/25 hover:border-[#d4af37]/60 transition-all duration-300 flex flex-col justify-between overflow-hidden group hover:-translate-y-1 shadow-lg"
             >
               <div>
                 
                 {/* Product Image Box */}
-                <div className="relative w-full h-56 bg-gradient-to-br from-[#1b1e25] to-[#0f1115] p-6 flex items-center justify-center overflow-hidden border-b border-white/5">
+                <div className="relative w-full h-56 bg-gradient-to-br from-[#171a22] to-[#0a0c10] p-6 flex items-center justify-center overflow-hidden border-b border-white/5">
                   <img 
                     src={product.image} 
                     alt={product.name}
-                    className="max-h-full max-w-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] group-hover:scale-105 transition-transform duration-500" 
+                    className="max-h-full max-w-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.7)] group-hover:scale-105 transition-transform duration-500" 
                   />
 
                   {/* Badges */}
                   <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                     {product.featured && (
-                      <span className="bg-gradient-to-r from-red-600 to-amber-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" />
+                      <span className="bg-gradient-to-r from-[#d4af37] to-[#e5c05d] text-black text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-glow-gold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 fill-black" />
                         Mais Vendido
                       </span>
                     )}
-                    <span className="bg-black/70 backdrop-blur-md text-gray-300 text-[10px] font-mono px-2 py-0.5 rounded border border-white/10">
+                    <span className="bg-black/80 backdrop-blur-md text-[#f3e5ab] text-[10px] font-mono px-2 py-0.5 rounded border border-[#d4af37]/30">
                       SKU: {product.sku}
                     </span>
                   </div>
@@ -141,7 +141,7 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
                   <div className="space-y-1.5 mb-6">
                     {product.specs.slice(0, 3).map((spec, i) => (
                       <div key={i} className="flex items-start gap-2 text-[11px] text-gray-300">
-                        <Check className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+                        <Check className="w-3.5 h-3.5 text-[#d4af37] shrink-0 mt-0.5" />
                         <span className="line-clamp-1">{spec}</span>
                       </div>
                     ))}
@@ -155,11 +155,11 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
                 <div className="flex items-baseline justify-between mb-4 pt-4 border-t border-white/10">
                   <div>
                     <span className="text-[10px] text-gray-400 block">Preço à vista ou faturado</span>
-                    <span className="text-2xl font-black text-white font-mono">
+                    <span className="text-2xl font-black text-[#f3e5ab] font-mono">
                       R$ {product.priceBRL.toLocaleString('pt-BR')},00
                     </span>
                   </div>
-                  <span className="text-xs text-emerald-400 font-medium">
+                  <span className="text-xs text-[#e5c05d] font-bold">
                     Em até 12x
                   </span>
                 </div>
@@ -167,9 +167,9 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => onAddToCart(product)}
-                    className="py-2.5 px-3 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl shadow-glow-red transition-all flex items-center justify-center gap-1.5"
+                    className="py-2.5 px-3 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black rounded-xl shadow-glow-gold transition-all flex items-center justify-center gap-1.5"
                   >
-                    <ShoppingCart className="w-3.5 h-3.5" />
+                    <ShoppingCart className="w-3.5 h-3.5 fill-black" />
                     <span>Adicionar</span>
                   </button>
 

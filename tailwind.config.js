@@ -8,25 +8,28 @@ export default {
     extend: {
       colors: {
         outfire: {
-          red: '#e62429',
-          'red-dark': '#b31519',
-          'red-glow': '#ff4d4d',
           gold: '#d4af37',
           'gold-light': '#f3e5ab',
-          dark: '#0c0d0e',
-          card: '#16181b',
-          border: '#282c34',
-          metal: '#9da7b3',
-          'metal-light': '#e2e8f0',
+          'gold-bright': '#e5c05d',
+          'gold-dark': '#997b1a',
+          'gold-deep': '#785d0d',
+          dark: '#08090b',
+          'dark-card': '#0e1014',
+          'dark-elevated': '#14171e',
+          border: '#242831',
+          'gold-border': 'rgba(212, 175, 55, 0.3)',
+          red: '#dc2626',
+          'red-dark': '#991b1b',
         }
       },
       fontFamily: {
         sans: ['Outfit', 'Inter', 'sans-serif'],
       },
       boxShadow: {
-        'glow-red': '0 0 25px rgba(230, 36, 41, 0.45)',
         'glow-gold': '0 0 25px rgba(212, 175, 55, 0.35)',
-        'metal': 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 30px rgba(0, 0, 0, 0.5)',
+        'glow-gold-lg': '0 0 45px rgba(212, 175, 55, 0.5)',
+        'glow-red': '0 0 25px rgba(220, 38, 38, 0.45)',
+        'metal': 'inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 30px rgba(0, 0, 0, 0.6)',
       },
       animation: {
         'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -42,3 +45,4 @@ export default {
   },
   plugins: [],
 }
+

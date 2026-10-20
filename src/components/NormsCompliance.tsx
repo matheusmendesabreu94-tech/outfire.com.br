@@ -45,18 +45,18 @@ export const NormsCompliance: React.FC = () => {
   ];
 
   return (
-    <section id="normas" className="py-24 bg-[#0d0f13] relative">
+    <section id="normas" className="py-24 bg-[#08090c] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wide mb-4">
-            <Scale className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#e5c05d] text-xs font-bold uppercase tracking-wide mb-4">
+            <Scale className="w-3.5 h-3.5 text-[#d4af37]" />
             Conformidade Regulatória Obrigatória
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans">
             Normas Técnicas & Exigências <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-emerald-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f3e5ab] via-[#d4af37] to-[#b89628]">
               do Corpo de Bombeiros (AVCB)
             </span>
           </h2>
@@ -71,20 +71,20 @@ export const NormsCompliance: React.FC = () => {
           {norms.map((norm, index) => (
             <div 
               key={index}
-              className="glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 hover:border-blue-500/30 transition-all flex flex-col justify-between"
+              className="glass-panel-gold p-6 sm:p-8 rounded-3xl border border-[#d4af37]/25 hover:border-[#d4af37]/60 transition-all flex flex-col justify-between shadow-lg"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono font-bold bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full border border-blue-500/30">
+                  <span className="text-xs font-mono font-bold bg-[#d4af37]/15 text-[#e5c05d] px-3 py-1 rounded-full border border-[#d4af37]/30">
                     {norm.code}
                   </span>
-                  <FileCheck2 className="w-6 h-6 text-blue-400" />
+                  <FileCheck2 className="w-6 h-6 text-[#d4af37]" />
                 </div>
 
                 <h3 className="text-xl font-bold text-white mb-1 font-sans">
                   {norm.title}
                 </h3>
-                <span className="text-xs text-gray-400 block mb-4 font-medium">
+                <span className="text-xs text-[#e5c05d] block mb-4 font-mono font-bold">
                   {norm.authority}
                 </span>
 
@@ -95,7 +95,7 @@ export const NormsCompliance: React.FC = () => {
                 <div className="space-y-2.5 pt-4 border-t border-white/10">
                   {norm.highlights.map((h, i) => (
                     <div key={i} className="flex items-start gap-2.5 text-xs text-gray-300">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#d4af37] shrink-0 mt-0.5" />
                       <span>{h}</span>
                     </div>
                   ))}

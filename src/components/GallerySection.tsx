@@ -37,13 +37,13 @@ export const GallerySection: React.FC = () => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wide mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wide mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             Casos Reais & Engenharia em Campo
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans">
             Instalações Reais do <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
+            <span className="gold-gradient-text">
               Sistema Outfire em Ação
             </span>
           </h2>
@@ -59,7 +59,7 @@ export const GallerySection: React.FC = () => {
             <div
               key={idx}
               onClick={() => setActiveModalImg(item)}
-              className="glass-panel rounded-3xl border border-white/10 hover:border-emerald-500/30 overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1"
+              className="glass-panel rounded-3xl border border-white/10 hover:border-amber-500/40 hover:shadow-glow-gold overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1"
             >
               <div className="relative h-72 sm:h-80 bg-black/50 overflow-hidden flex items-center justify-center">
                 <img
@@ -70,12 +70,12 @@ export const GallerySection: React.FC = () => {
                 
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm">
-                  <Eye className="w-5 h-5 text-emerald-400" />
+                  <Eye className="w-5 h-5 text-amber-400" />
                   <span>Clique para Ampliar Foto</span>
                 </div>
 
                 <div className="absolute top-4 left-4">
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-black/80 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-black/80 backdrop-blur-md text-amber-400 px-3 py-1 rounded-full border border-amber-500/30">
                     {item.category}
                   </span>
                 </div>
@@ -84,7 +84,7 @@ export const GallerySection: React.FC = () => {
               <div className="p-6">
                 <h3 className="text-lg font-bold text-white mb-2 font-sans flex items-center justify-between">
                   <span>{item.title}</span>
-                  <Maximize2 className="w-4 h-4 text-gray-400 group-hover:text-emerald-400 transition-colors" />
+                  <Maximize2 className="w-4 h-4 text-gray-400 group-hover:text-amber-400 transition-colors" />
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
                   {item.desc}
