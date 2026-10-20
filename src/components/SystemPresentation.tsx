@@ -87,22 +87,29 @@ export const SystemPresentation: React.FC = () => {
     controlsRef.current = controls;
 
     // 5. Lighting
-    const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.85);
+    // 5. Lighting
+    const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.9);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
     keyLight.position.set(3, 4, 3);
     keyLight.castShadow = true;
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xd4af37, 0.8);
+    const rimLight = new THREE.DirectionalLight(0xd4af37, 0.85);
     rimLight.position.set(-3, -2, -3);
     scene.add(rimLight);
 
-    // Ground Grid Helper for CAD look
-    const grid = new THREE.GridHelper(4, 20, 0xd4af37, 0x27272a);
-    grid.position.y = -0.75;
-    scene.add(grid);
+    // Soft Ambient Floor Shadow (sem grade)
+    const shadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.35
+    });
+    const shadowPlane = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.4), shadowMat);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.set(0, -0.65, 0);
+    scene.add(shadowPlane);
 
     // --- MATERIALS ---
     const textureLoader = new THREE.TextureLoader();
@@ -110,14 +117,14 @@ export const SystemPresentation: React.FC = () => {
     frontCoverTexture.colorSpace = THREE.SRGBColorSpace;
 
     const matSteelEnclosure = new THREE.MeshStandardMaterial({
-      color: 0x181a1f,
-      metalness: 0.8,
+      color: 0x14161b,
+      metalness: 0.85,
       roughness: 0.35
     });
 
     const matFrontCover = new THREE.MeshStandardMaterial({
       map: frontCoverTexture,
-      metalness: 0.25,
+      metalness: 0.2,
       roughness: 0.35
     });
 
@@ -127,7 +134,7 @@ export const SystemPresentation: React.FC = () => {
       matSteelEnclosure, // left
       matSteelEnclosure, // top
       matSteelEnclosure, // bottom
-      matFrontCover,     // FRONT: Official modern cover from PDF!
+      matFrontCover,     // FRONT: Official modern cover (clean, without white line)
       matSteelEnclosure  // back
     ];
 
@@ -138,6 +145,94 @@ export const SystemPresentation: React.FC = () => {
     cabinetMesh.castShadow = true;
     cabinetMesh.receiveShadow = true;
     scene.add(cabinetMesh);
+
+    // Top & Bottom Interior Slot Openings in Cabinet Sheet Metal
+    const slotInteriorMat = new THREE.MeshBasicMaterial({ color: 0x07080a });
+    const topSlotHole = new THREE.Mesh(new THREE.PlaneGeometry(0.88, 0.22), slotInteriorMat);
+    topSlotHole.rotation.x = -Math.PI / 2;
+    topSlotHole.position.set(0, 0.501, -0.05);
+    scene.add(topSlotHole);
+
+    const bottomSlotHole = new THREE.Mesh(new THREE.PlaneGeometry(0.70, 0.22), slotInteriorMat);
+    bottomSlotHole.rotation.x = Math.PI / 2;
+    bottomSlotHole.position.set(0, -0.501, -0.05);
+    scene.add(bottomSlotHole);
+
+    // Front Touchscreen IHM Display
+    const ihmCanvas = document.createElement('canvas');
+    ihmCanvas.width = 512;
+    ihmCanvas.height = 360;
+    const ihmCtx = ihmCanvas.getContext('2d');
+    if (ihmCtx) {
+      ihmCtx.fillStyle = '#061317';
+      ihmCtx.fillRect(0, 0, 512, 360);
+      ihmCtx.strokeStyle = '#3f3f46';
+      ihmCtx.lineWidth = 4;
+      ihmCtx.strokeRect(2, 2, 508, 356);
+
+      ihmCtx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ihmCtx.fillRect(0, 0, 512, 44);
+      ihmCtx.fillStyle = '#94a3b8';
+      ihmCtx.font = 'bold 16px monospace';
+      ihmCtx.fillText('OUTFIRE VTS 32S3', 18, 28);
+      ihmCtx.fillStyle = '#10b981';
+      ihmCtx.textAlign = 'right';
+      ihmCtx.fillText('BAT: 100% [27.6V]', 494, 28);
+
+      ihmCtx.textAlign = 'center';
+      ihmCtx.fillStyle = '#10b981';
+      ihmCtx.font = 'bold 24px sans-serif';
+      ihmCtx.fillText('● SISTEMA MONITORADO', 256, 100);
+
+      ihmCtx.fillStyle = '#cbd5e1';
+      ihmCtx.font = '13px monospace';
+      ihmCtx.fillText('SUPRESSÃO AUTOMÁTICA NBR 14518', 256, 128);
+
+      // Status Panels
+      ihmCtx.fillStyle = '#0a231f';
+      ihmCtx.fillRect(24, 150, 464, 46);
+      ihmCtx.fillStyle = '#6ee7b7';
+      ihmCtx.font = 'bold 14px sans-serif';
+      ihmCtx.textAlign = 'left';
+      ihmCtx.fillText('LINHAS DE DETECÇÃO (COIFAS):', 38, 178);
+      ihmCtx.textAlign = 'right';
+      ihmCtx.fillText('NORMAL (145°C / 300°C)', 474, 178);
+
+      ihmCtx.fillStyle = '#0a231f';
+      ihmCtx.fillRect(24, 206, 464, 46);
+      ihmCtx.fillStyle = '#6ee7b7';
+      ihmCtx.textAlign = 'left';
+      ihmCtx.fillText('VÁLVULA SOLENOIDE DE GÁS:', 38, 234);
+      ihmCtx.textAlign = 'right';
+      ihmCtx.fillStyle = '#34d399';
+      ihmCtx.fillText('ABERTA / LIBERADA', 474, 234);
+
+      ihmCtx.fillStyle = '#0a231f';
+      ihmCtx.fillRect(24, 262, 464, 46);
+      ihmCtx.fillStyle = '#6ee7b7';
+      ihmCtx.textAlign = 'left';
+      ihmCtx.fillText('STATUS EXAUSTÃO & DAMPERS:', 38, 290);
+      ihmCtx.textAlign = 'right';
+      ihmCtx.fillText('SUPERVISIONADO', 474, 290);
+
+      ihmCtx.fillStyle = '#d4af37';
+      ihmCtx.font = 'bold 12px monospace';
+      ihmCtx.textAlign = 'center';
+      ihmCtx.fillText('TOQUE PARA ACESSAR O MENU DE CONFIGURAÇÃO', 256, 335);
+    }
+
+    const ihmTexture = new THREE.CanvasTexture(ihmCanvas);
+    ihmTexture.colorSpace = THREE.SRGBColorSpace;
+    const ihmMat = new THREE.MeshBasicMaterial({ map: ihmTexture });
+    const ihmScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.27), ihmMat);
+    ihmScreen.position.set(0.18, 0.02, 0.292);
+    scene.add(ihmScreen);
+
+    // Screen Bezel Border Frame
+    const screenBezelMat = new THREE.MeshStandardMaterial({ color: 0x181a20, metalness: 0.9, roughness: 0.3 });
+    const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.29, 0.008), screenBezelMat);
+    screenFrame.position.set(0.18, 0.02, 0.288);
+    scene.add(screenFrame);
 
     // Rear Mounting Holes (Keyhole Slots)
     const slotMat = new THREE.MeshBasicMaterial({ color: 0x07080a });
@@ -151,87 +246,132 @@ export const SystemPresentation: React.FC = () => {
     slot2.position.set(0.5, 0.3, -0.291);
     scene.add(slot2);
 
+    // Common Bolt Material for lids
+    const boltMat = new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: 0.9, roughness: 0.2 });
+    const boltGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.015, 8);
+
     // --- TOP PSU DRAWER (GAVETA DA FONTE - SUBIDA / DESCIDA) ---
+    // Em repouso (fechada): A fonte fica DENTRO da central, e a tampa fica em cima (face superior da central).
+    // Quando acionada (subir): O conjunto sobe, com a tampa na PARTE DE CIMA da fonte!
     const psuGroup = new THREE.Group();
     psuGroup.position.set(0, 0, -0.05);
     scene.add(psuGroup);
     psuGroupRef.current = psuGroup;
 
-    // PSU Cover plate on top
+    // 1. PSU Cover plate (Tampa da Fonte na parte SUPERIOR)
     const psuCoverMat = new THREE.MeshStandardMaterial({
-      color: 0x22262e,
-      metalness: 0.7,
-      roughness: 0.4
+      color: 0x1f232b,
+      metalness: 0.8,
+      roughness: 0.35
     });
     const psuCover = new THREE.Mesh(
-      new THREE.BoxGeometry(0.95, 0.02, 0.24),
+      new THREE.BoxGeometry(0.95, 0.02, 0.25),
       psuCoverMat
     );
-    psuCover.position.set(0, 0.51, 0);
+    // Flush at top face of cabinet (Y = 0.50) when closed
+    psuCover.position.set(0, 0.505, 0);
     psuCover.userData = { isPsu: true, name: 'Tampa da Fonte de Alimentação' };
     psuGroup.add(psuCover);
 
-    // PSU Aluminum Casing (Andeli MS-350-24)
+    // Screws/bolts on PSU top lid
+    [
+      [-0.43, 0.518, -0.09],
+      [-0.43, 0.518, 0.09],
+      [0.43, 0.518, -0.09],
+      [0.43, 0.518, 0.09],
+    ].forEach(([bx, by, bz]) => {
+      const bolt = new THREE.Mesh(boltGeo, boltMat);
+      bolt.position.set(bx, by, bz);
+      psuGroup.add(bolt);
+    });
+
+    // 2. PSU Aluminum Casing (Andeli MS-350-24 Industrial 24V)
+    // Fica DENTRO da central (abaixo da tampa) quando fechada
     const psuBoxMat = new THREE.MeshStandardMaterial({
       color: 0xd4d4d8,
       metalness: 0.9,
       roughness: 0.2
     });
     const psuBox = new THREE.Mesh(
-      new THREE.BoxGeometry(0.85, 0.45, 0.20),
+      new THREE.BoxGeometry(0.85, 0.44, 0.20),
       psuBoxMat
     );
-    psuBox.position.set(0, 0.74, 0);
+    // Top of psuBox touches underside of psuCover (0.495)
+    psuBox.position.set(0, 0.27, 0);
     psuBox.userData = { isPsu: true, name: 'Fonte de Alimentação Andeli MS-350-24 (24V Industrial)' };
     psuGroup.add(psuBox);
 
-    // PSU Caution Label
+    // PSU Caution / Spec Label
     const psuLabelMat = new THREE.MeshBasicMaterial({ color: 0xeab308 });
     const psuLabel = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.08), psuLabelMat);
-    psuLabel.position.set(0, 0.74, 0.101);
+    psuLabel.position.set(0, 0.27, 0.101);
     psuGroup.add(psuLabel);
 
     // --- BOTTOM BATTERY DRAWER (GAVETA DE BATERIA - DESCIDA / SUBIDA) ---
+    // Em repouso (fechada): As baterias ficam DENTRO da central, e a tampa fica embaixo (face inferior da central).
+    // Quando acionada (descer): O conjunto desce, com a tampa na PARTE DE BAIXO da bateria!
     const batteryDrawerGroup = new THREE.Group();
     batteryDrawerGroup.position.set(0, 0, -0.05);
     scene.add(batteryDrawerGroup);
     batteryDrawerGroupRef.current = batteryDrawerGroup;
 
-    // Bottom Battery Cover plate
+    // 1. Bottom Battery Cover plate (Tampa da Gaveta na parte INFERIOR)
     const batCoverMat = new THREE.MeshStandardMaterial({
-      color: 0x22262e,
-      metalness: 0.7,
-      roughness: 0.4
+      color: 0x1f232b,
+      metalness: 0.8,
+      roughness: 0.35
     });
     const batCover = new THREE.Mesh(
       new THREE.BoxGeometry(0.74, 0.02, 0.24),
       batCoverMat
     );
-    batCover.position.set(0, -0.51, 0);
+    // Flush at bottom face of cabinet (Y = -0.50) when closed
+    batCover.position.set(0, -0.505, 0);
     batCover.userData = { isBattery: true, name: 'Tampa da Gaveta de Baterias' };
     batteryDrawerGroup.add(batCover);
 
-    // Two 12V 7Ah Pionero Batteries
+    // Screws/bolts on Battery bottom lid
+    [
+      [-0.33, -0.518, -0.09],
+      [-0.33, -0.518, 0.09],
+      [0.33, -0.518, -0.09],
+      [0.33, -0.518, 0.09],
+    ].forEach(([bx, by, bz]) => {
+      const bolt = new THREE.Mesh(boltGeo, boltMat);
+      bolt.position.set(bx, by, bz);
+      batteryDrawerGroup.add(bolt);
+    });
+
+    // 2. Two 12V 7Ah Pionero Backup Batteries (Ficam DENTRO da central em cima da tampa quando fechada)
     const batBodyMat = new THREE.MeshStandardMaterial({ color: 0x090a0d, roughness: 0.5 });
-    const bat1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.40, 0.18), batBodyMat);
-    bat1.position.set(-0.18, -0.72, 0);
+    const bat1 = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.38, 0.18), batBodyMat);
+    bat1.position.set(-0.18, -0.305, 0);
     bat1.userData = { isBattery: true, name: 'Bateria Pionero 12V 7Ah (Banco de Backup)' };
     batteryDrawerGroup.add(bat1);
 
-    const bat2 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.40, 0.18), batBodyMat);
-    bat2.position.set(0.18, -0.72, 0);
+    const bat2 = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.38, 0.18), batBodyMat);
+    bat2.position.set(0.18, -0.305, 0);
     bat2.userData = { isBattery: true, name: 'Bateria Pionero 12V 7Ah (Banco de Backup)' };
     batteryDrawerGroup.add(bat2);
 
-    // Terminals
+    // Battery Terminals (polos positivo/negativo)
     const termMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.8 });
+    const termRedMat = new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.8 });
     const t1 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.03), termMat);
-    t1.position.set(-0.24, -0.51, 0.05);
+    t1.position.set(-0.24, -0.10, 0.05);
     batteryDrawerGroup.add(t1);
 
-    const t2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.03), termMat);
-    t2.position.set(0.12, -0.51, 0.05);
+    const t2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.03), termRedMat);
+    t2.position.set(-0.12, -0.10, 0.05);
     batteryDrawerGroup.add(t2);
+
+    const t3 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.03), termMat);
+    t3.position.set(0.12, -0.10, 0.05);
+    batteryDrawerGroup.add(t3);
+
+    const t4 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.03), termRedMat);
+    t4.position.set(0.24, -0.10, 0.05);
+    batteryDrawerGroup.add(t4);
 
     // --- RAYCASTER FOR CLICK & HOVER ---
     const raycaster = new THREE.Raycaster();
@@ -303,13 +443,13 @@ export const SystemPresentation: React.FC = () => {
       animId = requestAnimationFrame(animate);
 
       // Smooth slide of PSU drawer
-      const targetPsuY = isPsuOpenRef.current ? 0.48 : 0;
+      const targetPsuY = isPsuOpenRef.current ? 0.52 : 0;
       if (psuGroupRef.current) {
         psuGroupRef.current.position.y += (targetPsuY - psuGroupRef.current.position.y) * 0.12;
       }
 
       // Smooth slide of Battery drawer
-      const targetBatY = isBatteryOpenRef.current ? -0.48 : 0;
+      const targetBatY = isBatteryOpenRef.current ? -0.52 : 0;
       if (batteryDrawerGroupRef.current) {
         batteryDrawerGroupRef.current.position.y += (targetBatY - batteryDrawerGroupRef.current.position.y) * 0.12;
       }
