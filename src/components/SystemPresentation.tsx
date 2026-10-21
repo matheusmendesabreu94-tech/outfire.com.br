@@ -6,6 +6,7 @@ import {
   Layers, CheckCircle, Radio, Gauge, Power, ArrowRight,
   Download, Eye, RotateCcw, Zap, Battery, Sparkles
 } from 'lucide-react';
+import { createNormalizedIhmScreenCanvas } from '../utils/ihmScreen';
 
 export const SystemPresentation: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'3d' | 'interno' | 'instalado'>('3d');
@@ -159,9 +160,9 @@ export const SystemPresentation: React.FC = () => {
     scene.add(bottomSlotHole);
 
     // Front Touchscreen IHM Display (2.8" QVGA 320x240 no centro da tampa 36cm x 26cm)
-    // Dimensões físicas: 2.8 polegadas = 5.69cm x 4.27cm (proporção 4:3)
-    // Na escala 36cm = 1.385 (ou 1.4) e 26cm = 1.0 -> tela = 0.219 de largura x 0.164 de altura
-    const screenDisplayTexture = textureLoader.load('/assets/tela-ihm-display.jpg');
+    // Cores normalizadas: 3 luzes superiores VERDES, 4 botões inferiores AZUIS
+    const ihmCanvas = createNormalizedIhmScreenCanvas();
+    const screenDisplayTexture = new THREE.CanvasTexture(ihmCanvas);
     screenDisplayTexture.colorSpace = THREE.SRGBColorSpace;
 
     const ihmMat = new THREE.MeshStandardMaterial({
@@ -170,7 +171,7 @@ export const SystemPresentation: React.FC = () => {
       metalness: 0.05,
       emissive: 0xffffff,
       emissiveMap: screenDisplayTexture,
-      emissiveIntensity: 0.22 // Backlight suave de display TFT ligado
+      emissiveIntensity: 0.9 // Backlight nítido e iluminado da IHM
     });
 
     // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0) logo abaixo do logo Outfire

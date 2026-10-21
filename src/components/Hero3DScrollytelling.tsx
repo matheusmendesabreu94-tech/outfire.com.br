@@ -6,6 +6,7 @@ import {
   RotateCcw, Sparkles, BellRing, Eye, Camera, CheckCircle2,
   ChevronDown, Radio, XCircle
 } from 'lucide-react';
+import { createNormalizedIhmScreenCanvas } from '../utils/ihmScreen';
 
 type SimStage = 'STANDBY' | 'HEATING' | 'FIRE_ALARM' | 'SUPPRESSION' | 'EXTINGUISHED';
 
@@ -746,8 +747,9 @@ export const Hero3DScrollytelling: React.FC = () => {
     const frontCoverTexture = textureLoader.load('/assets/tampa-central-moderna.png');
     frontCoverTexture.colorSpace = THREE.SRGBColorSpace;
 
-    // Load authentic Standby Screen photo
-    const standbyScreenTexture = textureLoader.load('/assets/tela-ihm-display.jpg');
+    // Standby Screen normalizada: 3 luzes verdes em cima e 4 botões azuis embaixo
+    const standbyCanvas = createNormalizedIhmScreenCanvas();
+    const standbyScreenTexture = new THREE.CanvasTexture(standbyCanvas);
     standbyScreenTexture.colorSpace = THREE.SRGBColorSpace;
     standbyScreenTextureRef.current = standbyScreenTexture;
 
