@@ -420,20 +420,22 @@ export const Hero3DScrollytelling: React.FC = () => {
     renderer.domElement.style.touchAction = 'pan-y';
     rendererRef.current = renderer;
 
-    // 4. OrbitControls (NUNCA trava rolagem vertical nem em desktop nem em celular)
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = false; // NEVER trap page wheel scroll
-    controls.enablePan = false;
-    controls.maxPolarAngle = Math.PI / 2 + 0.05;
-    if (isMobile) {
-      // No celular, 1 toque com o dedo desliza a página normalmente (não trava o usuário no 3D)
-      controls.touches.ONE = THREE.TOUCH.NONE;
-      controls.touches.TWO = THREE.TOUCH.ROTATE;
+    // 4. OrbitControls (Ativado SOMENTE em Desktop; no Mobile fica desativado para garantir scroll nativo suave)
+    let controls: OrbitControls | null = null;
+    if (!isMobile) {
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.enableZoom = false; // NEVER trap page wheel scroll
+      controls.enablePan = false;
+      controls.maxPolarAngle = Math.PI / 2 + 0.05;
+      controls.target.set(0, 1.4, 0);
+      controlsRef.current = controls;
+    } else {
+      // Em celulares: SEM OrbitControls no canvas.
+      // O navegador mantém 100% o controle nativo da rolagem vertical suave ao passar o dedo sobre a tela.
+      controlsRef.current = null;
     }
-    controls.target.set(isMobile ? 0.5 : 0, isMobile ? 1.3 : 1.4, 0);
-    controlsRef.current = controls;
 
     // 5. Lighting
     const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.75);
@@ -1087,8 +1089,12 @@ export const Hero3DScrollytelling: React.FC = () => {
 
       // Smooth camera interpolation
       camera.position.lerp(targetCamPos.current, 0.05);
-      controls.target.lerp(targetCamLook.current, 0.05);
-      controls.update();
+      if (controlsRef.current) {
+        controlsRef.current.target.lerp(targetCamLook.current, 0.05);
+        controlsRef.current.update();
+      } else {
+        camera.lookAt(targetCamLook.current);
+      }
 
       const stage = simStageRef.current;
       const p = scrollProgressRef.current;
@@ -1249,6 +1255,9 @@ export const Hero3DScrollytelling: React.FC = () => {
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('mousemove', onPointerMove);
       renderer.domElement.removeEventListener('click', onPointerDown);
+      if (controlsRef.current) {
+        controlsRef.current.dispose();
+      }
       renderer.dispose();
     };
   }, [handleManualTrigger, updateLcdScreenTexture]);
@@ -1288,17 +1297,48 @@ export const Hero3DScrollytelling: React.FC = () => {
       <section 
         id="hero-3d" 
         ref={containerRef} 
-        className="relative w-full h-[450vh] bg-[#07080a]"
+        className="relative w-full h-[450vh] bg-[#07080a] overflow-x-clip"
+        style={{ touchAction: 'pan-y' }}
       >
         {/* STICKY 3D VIEWPORT PINNED TO SCREEN (100dvh) */}
         <div 
           ref={mountRef} 
-          className="sticky top-0 w-full h-[100dvh] overflow-hidden flex flex-col justify-between select-none"
+          onClick={(e) => {
+            // Em celulares, permite toque na cena para acionar a botoeira ou focar câmera
+            if (window.innerWidth < 768 && cameraRef.current) {
+              const rect = mountRef.current?.getBoundingClientRect();
+              if (!rect) return;
+              const m = new THREE.Vector2(
+                ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                -((e.clientY - rect.top) / rect.height) * 2 + 1
+              );
+              const rc = new THREE.Raycaster();
+              rc.setFromCamera(m, cameraRef.current);
+              const targets = [manualStationMeshRef.current, centralGroupRef.current, fryerGroupRef.current].filter(Boolean) as THREE.Object3D[];
+              const hits = rc.intersectObjects(targets, true);
+              if (hits.length > 0) {
+                let root: THREE.Object3D | null = hits[0].object;
+                while (root && !root.userData?.interactiveType && root.parent) {
+                  root = root.parent;
+                }
+                if (root?.userData?.interactiveType === 'botoeira') {
+                  handleManualTrigger();
+                } else if (root?.userData?.interactiveType === 'central') {
+                  setCameraView('central');
+                } else if (root?.userData?.interactiveType === 'fritadeira') {
+                  setCameraView('fritadeira');
+                }
+              }
+            }
+          }}
+          className="sticky top-0 w-full h-[100dvh] overflow-x-clip flex flex-col justify-between select-none"
+          style={{ touchAction: 'pan-y' }}
         >
-          {/* 1. THREE.JS 3D WEBGL CANVAS */}
+          {/* 1. THREE.JS 3D WEBGL CANVAS (pointer-events-none no mobile para permitir rolagem nativa 100% livre) */}
           <canvas 
             ref={canvasRef} 
-            className="absolute inset-0 w-full h-full block z-0 outline-none"
+            className="absolute inset-0 w-full h-full block z-0 outline-none pointer-events-none md:pointer-events-auto"
+            style={{ touchAction: 'pan-y' }}
           />
 
           {/* 2. TOP FLOATING HUD OVERLAY (STATUS & TELEMETRY) */}

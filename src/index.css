@@ -11,7 +11,7 @@
   body {
     background-color: #08090b;
     color: #f1f5f9;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* Custom scrollbar in Outfire Black & Gold */
