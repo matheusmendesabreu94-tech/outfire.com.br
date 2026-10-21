@@ -184,6 +184,117 @@ export const Hero3DScrollytelling: React.FC = () => {
     window.scrollTo({ top: containerBottom + 10, behavior: 'smooth' });
   };
 
+  // --- TOUCH CONTROLLER CALIBRADO PARA MOBILE (FLUIDO, SUAVE E SEM PULAR FASES) ---
+  const touchStateRef = useRef<{
+    startY: number;
+    lastY: number;
+    startTime: number;
+    lastTime: number;
+    velocity: number;
+    isDragging: boolean;
+    hasMoved: boolean;
+    animId: number;
+  }>({
+    startY: 0,
+    lastY: 0,
+    startTime: 0,
+    lastTime: 0,
+    velocity: 0,
+    isDragging: false,
+    hasMoved: false,
+    animId: 0,
+  });
+
+  const handleMobileTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    const state = touchStateRef.current;
+    cancelAnimationFrame(state.animId);
+
+    state.startY = touch.clientY;
+    state.lastY = touch.clientY;
+    state.startTime = performance.now();
+    state.lastTime = performance.now();
+    state.velocity = 0;
+    state.isDragging = true;
+    state.hasMoved = false;
+  };
+
+  const handleMobileTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const state = touchStateRef.current;
+    if (!state.isDragging || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    const currentY = touch.clientY;
+    const now = performance.now();
+
+    const deltaY = state.lastY - currentY;
+    const timeDelta = Math.max(1, now - state.lastTime);
+
+    if (Math.abs(currentY - state.startY) > 6) {
+      state.hasMoved = true;
+    }
+
+    state.velocity = deltaY / timeDelta;
+    state.lastY = currentY;
+    state.lastTime = now;
+
+    // Rolagem suave 1:1 sincronizada perfeitamente com o polegar (sem travar nem pular etapas)
+    window.scrollBy(0, deltaY);
+  };
+
+  const handleMobileTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const state = touchStateRef.current;
+    if (!state.isDragging) return;
+    state.isDragging = false;
+
+    // 1. Se foi apenas um toque rápido sem arrasto (< 6px), é um TAP na cena 3D (Botoeira ou Central)
+    if (!state.hasMoved) {
+      const touch = e.changedTouches[0];
+      if (touch && cameraRef.current && mountRef.current) {
+        const rect = mountRef.current.getBoundingClientRect();
+        const m = new THREE.Vector2(
+          ((touch.clientX - rect.left) / rect.width) * 2 - 1,
+          -((touch.clientY - rect.top) / rect.height) * 2 + 1
+        );
+        const rc = new THREE.Raycaster();
+        rc.setFromCamera(m, cameraRef.current);
+        const targets = [manualStationMeshRef.current, centralGroupRef.current, fryerGroupRef.current].filter(Boolean) as THREE.Object3D[];
+        const hits = rc.intersectObjects(targets, true);
+        if (hits.length > 0) {
+          let root: THREE.Object3D | null = hits[0].object;
+          while (root && !root.userData?.interactiveType && root.parent) {
+            root = root.parent;
+          }
+          if (root?.userData?.interactiveType === 'botoeira') {
+            handleManualTrigger();
+          } else if (root?.userData?.interactiveType === 'central') {
+            setCameraView('central');
+          } else if (root?.userData?.interactiveType === 'fritadeira') {
+            setCameraView('fritadeira');
+          }
+        }
+      }
+      return;
+    }
+
+    // 2. Se houve flick (arrasto rápido):
+    // Limita estritamente a velocidade máxima para NÃO pular fases!
+    // No máximo avança suavemente cerca de 250px a 350px (~1 fase por vez)
+    const maxVelocity = 1.2; // px/ms
+    let v = Math.max(-maxVelocity, Math.min(maxVelocity, state.velocity * 10));
+
+    if (Math.abs(v) > 0.15) {
+      const friction = 0.90; // Amortecimento suave
+      const stepInertia = () => {
+        if (Math.abs(v) < 0.05) return;
+        window.scrollBy(0, v);
+        v *= friction;
+        state.animId = requestAnimationFrame(stepInertia);
+      };
+      state.animId = requestAnimationFrame(stepInertia);
+    }
+  };
+
   // Efeito do cronômetro da tela de alarme: decrementa segundo a segundo (60s, 59s, 58s... 0s)
   // e faz o cronômetro funcionar em tempo real na tela vermelha da central 3D
   useEffect(() => {
@@ -1252,6 +1363,7 @@ export const Hero3DScrollytelling: React.FC = () => {
 
     return () => {
       cancelAnimationFrame(animId);
+      cancelAnimationFrame(touchStateRef.current.animId);
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('mousemove', onPointerMove);
       renderer.domElement.removeEventListener('click', onPointerDown);
@@ -1303,46 +1415,28 @@ export const Hero3DScrollytelling: React.FC = () => {
         {/* STICKY 3D VIEWPORT PINNED TO SCREEN (100dvh) */}
         <div 
           ref={mountRef} 
-          onClick={(e) => {
-            // Em celulares, permite toque na cena para acionar a botoeira ou focar câmera
-            if (window.innerWidth < 768 && cameraRef.current) {
-              const rect = mountRef.current?.getBoundingClientRect();
-              if (!rect) return;
-              const m = new THREE.Vector2(
-                ((e.clientX - rect.left) / rect.width) * 2 - 1,
-                -((e.clientY - rect.top) / rect.height) * 2 + 1
-              );
-              const rc = new THREE.Raycaster();
-              rc.setFromCamera(m, cameraRef.current);
-              const targets = [manualStationMeshRef.current, centralGroupRef.current, fryerGroupRef.current].filter(Boolean) as THREE.Object3D[];
-              const hits = rc.intersectObjects(targets, true);
-              if (hits.length > 0) {
-                let root: THREE.Object3D | null = hits[0].object;
-                while (root && !root.userData?.interactiveType && root.parent) {
-                  root = root.parent;
-                }
-                if (root?.userData?.interactiveType === 'botoeira') {
-                  handleManualTrigger();
-                } else if (root?.userData?.interactiveType === 'central') {
-                  setCameraView('central');
-                } else if (root?.userData?.interactiveType === 'fritadeira') {
-                  setCameraView('fritadeira');
-                }
-              }
-            }
-          }}
           className="sticky top-0 w-full h-[100dvh] overflow-x-clip flex flex-col justify-between select-none"
           style={{ touchAction: 'pan-y' }}
         >
-          {/* 1. THREE.JS 3D WEBGL CANVAS (pointer-events-none no mobile para permitir rolagem nativa 100% livre) */}
+          {/* 1. THREE.JS 3D WEBGL CANVAS */}
           <canvas 
             ref={canvasRef} 
             className="absolute inset-0 w-full h-full block z-0 outline-none pointer-events-none md:pointer-events-auto"
             style={{ touchAction: 'pan-y' }}
           />
 
+          {/* CAMADA DE TOQUE 100% FLUIDA PARA MOBILE (FOGÃO, COIFA E MEIO DA SIMULAÇÃO) */}
+          <div 
+            className="absolute inset-0 w-full h-full z-10 block md:hidden cursor-grab active:cursor-grabbing select-none"
+            style={{ touchAction: 'none' }}
+            onTouchStart={handleMobileTouchStart}
+            onTouchMove={handleMobileTouchMove}
+            onTouchEnd={handleMobileTouchEnd}
+            onTouchCancel={handleMobileTouchEnd}
+          />
+
           {/* 2. TOP FLOATING HUD OVERLAY (STATUS & TELEMETRY) */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pointer-events-none">
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pointer-events-none">
             
             {/* Left: System Badge & Real-time State */}
             <div className="flex flex-col gap-1.5 pointer-events-auto">
@@ -1446,7 +1540,7 @@ export const Hero3DScrollytelling: React.FC = () => {
           )}
 
           {/* 4. BARRA INFERIOR COM SETA DOURADA PISCANTE E INDICADOR DE FASES */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3">
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3">
             
             {/* BARRA CENTRAL DE FASES E SETA DOURADA */}
             <div className="flex items-center gap-3 bg-black/85 backdrop-blur-md px-5 py-2.5 rounded-full border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full overflow-hidden">
