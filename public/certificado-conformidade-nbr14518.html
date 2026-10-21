@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Certificado de Conformidade Técnica & Memorial Descritivo — OutFire® (NBR 14518)</title>
+<style>
+    @page {
+        size: A4 portrait;
+        margin: 12mm 14mm 14mm 14mm;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f1f5f9;
+        color: #0f172a;
+        line-height: 1.45;
+        margin: 0;
+        padding: 20px 10px;
+        -webkit-font-smoothing: antialiased;
+    }
+    .document-container {
+        max-width: 920px;
+        margin: auto;
+        background: #ffffff;
+        padding: 36px 44px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        border-top: 6px solid #d4af37;
+        position: relative;
+    }
+    
+    /* Top Bar & Action Buttons */
+    .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        border-radius: 9999px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .btn-gold {
+        background: linear-gradient(135deg, #d4af37, #b38728);
+        color: #000;
+        box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    }
+    .btn-gold:hover {
+        background: linear-gradient(135deg, #e6c555, #c59b27);
+        transform: translateY(-1px);
+    }
+    .btn-outline {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+    .btn-outline:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    
+    /* Header Oficial OutFire */
+    .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 24px;
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 16px;
+    }
+    .header-logo {
+        width: 190px;
+        vertical-align: middle;
+    }
+    .header-logo img {
+        max-width: 180px;
+        height: auto;
+        display: block;
+    }
+    .header-info {
+        text-align: right;
+        font-size: 11px;
+        color: #475569;
+        vertical-align: middle;
+        line-height: 1.5;
+    }
+    .header-info strong {
+        color: #0f172a;
+        font-size: 12px;
+    }
+
+    /* Título e Certificação */
+    .title-banner {
+        text-align: center;
+        background: linear-gradient(135deg, #0b0f17 0%, #171f2c 100%);
+        color: #ffffff;
+        padding: 22px 20px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        border-left: 6px solid #d4af37;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+    .doc-badge {
+        display: inline-block;
+        background: rgba(212, 175, 55, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    .title-banner h1 {
+        margin: 4px 0 6px 0;
+        font-size: 21px;
+        font-weight: 900;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+    .title-banner p {
+        margin: 0;
+        font-size: 13px;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* Seções */
+    .section-title {
+        color: #0f172a;
+        font-size: 14.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 24px 0 10px 0;
+        padding-left: 10px;
+        border-left: 4px solid #d4af37;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    /* Tabelas de Dados */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin-bottom: 18px;
+    }
+    .data-table th, .data-table td {
+        border: 1px solid #cbd5e1;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    .data-table th {
+        background-color: #f8fafc;
+        color: #334155;
+        font-weight: 700;
+        width: 25%;
+    }
+    .data-table td {
+        background-color: #ffffff;
+        color: #0f172a;
+    }
+
+    /* Cards Informativos */
+    .grid-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+    .info-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px 16px;
+    }
+    .info-card h4 {
+        margin: 0 0 6px 0;
+        font-size: 12.5px;
+        color: #b45309;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .info-card p {
+        margin: 0;
+        font-size: 11.5px;
+        color: #334155;
+        line-height: 1.45;
+    }
+    .info-card ul {
+        margin: 6px 0 0 0;
+        padding-left: 18px;
+        font-size: 11.5px;
+        color: #334155;
+    }
+    .info-card li { margin-bottom: 3px; }
+
+    /* Tabela de Conformidade NBR 14518 */
+    .norm-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11.5px;
+        margin-bottom: 18px;
+    }
+    .norm-table th {
+        background: #0f172a;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 8px 10px;
+        text-align: left;
+        border: 1px solid #0f172a;
+    }
+    .norm-table td {
+        padding: 7px 10px;
+        border: 1px solid #cbd5e1;
+        vertical-align: top;
+    }
+    .norm-table tr:nth-child(even) { background-color: #f8fafc; }
+    .badge-conforme {
+        display: inline-block;
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #86efac;
+        font-weight: 800;
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    /* Termo de Responsabilidade & Assinaturas */
+    .terms-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        padding: 14px 18px;
+        font-size: 11.5px;
+        color: #78350f;
+        line-height: 1.5;
+        margin-bottom: 24px;
+        text-align: justify;
+    }
+    .signatures-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        margin-top: 36px;
+        padding-top: 10px;
+        page-break-inside: avoid;
+    }
+    .signature-box {
+        text-align: center;
+        border-top: 1px solid #64748b;
+        padding-top: 10px;
+        font-size: 11.5px;
+        color: #334155;
+    }
+    .signature-box strong {
+        display: block;
+        color: #0f172a;
+        font-size: 12.5px;
+        margin-bottom: 2px;
+    }
+
+    /* Selo e Carimbo Oficial */
+    .seal-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px dashed #cbd5e1;
+        font-size: 11px;
+        color: #64748b;
+    }
+    .qr-auth {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .qr-placeholder {
+        width: 60px;
+        height: 60px;
+        background: #0f172a;
+        color: #d4af37;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 10px;
+        border-radius: 6px;
+        border: 2px solid #d4af37;
+        text-align: center;
+        line-height: 1.1;
+    }
+
+    @media print {
+        body { background: #fff; padding: 0; }
+        .document-container {
+            max-width: 100%;
+            padding: 0;
+            box-shadow: none;
+            border-radius: 0;
+            border-top: none;
+        }
+        .no-print { display: none !important; }
+        .page-break { page-break-before: always; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="document-container">
+
+    <!-- Ações Superiores (Não impressas) -->
+    <div class="top-actions no-print">
+        <a href="/" class="btn-action btn-outline">
+            ← Voltar ao Site OutFire
+        </a>
+        <div style="display: flex; gap: 10px;">
+            <a href="/pop-pos-disparo.html" class="btn-action btn-outline">
+                📖 Ver POP Pós-Disparo
+            </a>
+            <button onclick="window.print()" class="btn-action btn-gold">
+                🖨️ Imprimir / Salvar PDF Oficial
+            </button>
+        </div>
+    </div>
+
+    <!-- Cabeçalho Oficial -->
+    <table class="header-table">
+        <tr>
+            <td class="header-logo">
+                <img src="/assets/logo-outfire-gold.png" alt="OutFire Brasil" onerror="this.onerror=null; this.src='/assets/logo-outfire.png';">
+            </td>
+            <td class="header-info">
+                <strong>OUTFIRE SISTEMAS DE SUPRESSÃO E DETECÇÃO LTDA.</strong><br>
+                CNPJ: 34.892.114/0001-08 • Registro Nacional CREA/CFT<br>
+                Departamento de Engenharia e Segurança Contra Incêndio<br>
+                Central de Suporte Nacional: (11) 94732-0947 • contato@outfire.com.br
+            </td>
+        </tr>
+    </table>
+
+    <!-- Banner do Título -->
+    <div class="title-banner">
+        <div class="doc-badge">DOCUMENTAÇÃO TÉCNICA OFICIAL • AVCB / CORPO DE BOMBEIROS</div>
+        <h1>CERTIFICADO DE CONFORMIDADE TÉCNICA & MEMORIAL DESCRITIVO</h1>
+        <p>Sistema Fixo Automático e Manual de Detecção, Alarme e Supressão em Cozinhas Industriais — ABNT NBR 14518:2020 / NFPA 96 & 17A</p>
+    </div>
+
+    <!-- 1. Identificação do Estabelecimento -->
+    <div class="section-title">
+        <span>01.</span> DADOS DO ESTABELECIMENTO / LOCAL DE INSTALAÇÃO
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>Razão Social:</th>
+            <td>[INSERIR RAZÃO SOCIAL DO CLIENTE / RESTAURANTE]</td>
+            <th>Nome Fantasia:</th>
+            <td>[NOME DO ESTABELECIMENTO]</td>
+        </tr>
+        <tr>
+            <th>CNPJ:</th>
+            <td>[00.000.000/0001-00]</td>
+            <th>Inscrição Estadual:</th>
+            <td>[ISENTO / Nº IE]</td>
+        </tr>
+        <tr>
+            <th>Endereço da Cozinha:</th>
+            <td colspan="3">[RUA / AVENIDA, NÚMERO, BAIRRO, CIDADE - UF, CEP]</td>
+        </tr>
+        <tr>
+            <th>Responsável Técnico:</th>
+            <td>Engenharia OutFire • CREA/CFT Especialista</td>
+            <th>Nº ART / RRT:</th>
+            <td>[REGISTRO ART BOMBEIROS Nº 2026/XXXXXX]</td>
+        </tr>
+        <tr>
+            <th>Data de Comissionamento:</th>
+            <td>21 de Outubro de 2026</td>
+            <th>Validade do Certificado:</th>
+            <td><strong>12 Meses (Outubro de 2027)</strong></td>
+        </tr>
+    </table>
+
+    <!-- 2. Memorial Descritivo dos Equipamentos -->
+    <div class="section-title">
+        <span>02.</span> MEMORIAL DESCRITIVO DA CENTRAL OUTFIRE® VTS 32S3
+    </div>
+    <div class="grid-cards">
+        <div class="info-card">
+            <h4>🖥️ Central Microprocessada VTS 32S3</h4>
+            <p>Unidade de comando inteligente instalada na parede da cozinha em altura ergonômica (1,50 m), fora da zona de fogo direto:</p>
+            <ul>
+                <li><strong>Display:</strong> Tela Touchscreen TFT 2.8" QVGA colorida (320x240 pixels) com interface gráfica de alta resolução.</li>
+                <li><strong>Gabinete:</strong> Chapa de aço carbono 1,2 mm cortada a laser e dobrada em CNC, pintura eletrostática microtexturizada preta (RAL 9005), vedação IP54.</li>
+                <li><strong>Alimentação:</strong> Bivolt automático 110V/220V com fonte chaveada industrial interna 12V/24Vcc.</li>
+                <li><strong>Bateria de Backup:</strong> Bateria interna selada de chumbo-ácido (12V 7.0Ah) para autonomia de 72h em standby e 60 min em alarme.</li>
+            </ul>
+        </div>
+
+        <div class="info-card">
+            <h4>⚡ Automação, Intertravamento & Segurança</h4>
+            <p>Intertravamentos mecânicos e elétricos instantâneos no momento do alarme térmico (sem intervenção humana):</p>
+            <ul>
+                <li><strong>Corte de Gás:</strong> Fechamento automático da válvula solenoide de gás em menos de 0,5 segundos.</li>
+                <li><strong>Intertravamento de Exaustão:</strong> Desligamento imediato do motor do exaustor para confinar o combate e evitar propagação de labaredas no duto.</li>
+                <li><strong>Dampers Corta-Fogo:</strong> Fechamento motorizado dos dampers corta-fogo instalados no duto logo acima da coifa.</li>
+                <li><strong>Acionador Manual Remoto:</strong> Botoeira com alavanca de dupla ação posicionada na rota de fuga da cozinha.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 3. Especificação do Sistema de Supressão -->
+    <div class="section-title">
+        <span>03.</span> ESPECIFICAÇÃO DOS AGENTES EXTINTORES E CILINDROS
+    </div>
+    <div class="grid-cards">
+        <div class="info-card">
+            <h4>🧪 Supressão na Cocção (Agente Saponificante Classe K)</h4>
+            <p>Proteção direta e exclusiva sobre fritadeiras, chapas, fogões, charbroilers e filtros labirinto da coifa:</p>
+            <ul>
+                <li><strong>Cilindro:</strong> Aço inoxidável AISI 304 cromado, resistente à corrosão de cloretos e vapores salinos.</li>
+                <li><strong>Agente:</strong> Solução aquosa de sais orgânicos de potássio (pH alcalino controlado), não tóxica e biodegradável.</li>
+                <li><strong>Pressão de Operação:</strong> Pressurização direta com Nitrogênio Seco (N2) a 13,7 bar (198 psi) a 20°C, dotado de manômetro com faixa verde.</li>
+                <li><strong>Mecanismo de Combate:</strong> Reação de saponificação com os ácidos graxos do óleo, gerando espuma sufocante espessa e quebra imediata da reação em cadeia.</li>
+            </ul>
+        </div>
+
+        <div class="info-card">
+            <h4>💨 Supressão no Duto & Plenum (Dióxido de Carbono CO2)</h4>
+            <p>Inertização rápida e asfixia imediata de labaredas no interior da tubulação e plenum de exaustão:</p>
+            <ul>
+                <li><strong>Cilindro:</strong> Cilindro de alta pressão em aço forjado sem costura, acabamento vermelho segurança (RAL 3000), teste hidrostático a 250 bar.</li>
+                <li><strong>Pressão de Carga:</strong> 58 bar a 20°C por autovaporização.</li>
+                <li><strong>Válvula de Disparo:</strong> Válvula de latão forjado de abertura ultra-rápida por solenoide de disparo elétrico 24Vcc e atuador manual.</li>
+                <li><strong>Tubulação e Difusores:</strong> Rede em aço carbono Schedule 40 com bicos cônicos difusores calculados por balanço de volume e vazão NBR 14518.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 4. Matriz de Conformidade Normativa -->
+    <div class="section-title">
+        <span>04.</span> MATRIZ DE CONFORMIDADE — ABNT NBR 14518:2020 & NFPA 96 / 17A
+    </div>
+    <table class="norm-table">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Norma / Item</th>
+                <th style="width: 45%;">Exigência Técnica Regulamentar</th>
+                <th style="width: 30%;">Solução Implementada OutFire®</th>
+                <th style="width: 10%;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>NBR 14518 (5.5)</strong></td>
+                <td>Obrigatoriedade de sistema fixo de extinção de incêndio em coifas de cocção pesada e dutos.</td>
+                <td>Sistema automático misto OutFire com dupla ação (Saponificante na cocção + CO2 no duto).</td>
+                <td><span class="badge-conforme">Conforme</span></td>
+            </tr>
+            <tr>
+                <td><strong>NBR 14518 (5.5.2)</strong></td>
+                <td>O sistema deve cortar automaticamente o suprimento de combustível (gás) ao ser acionado.</td>
+                <td>Válvula solenoide de rearme manual mecânico intertravada aos relés centrais de disparo.</td>
+                <td><span class="badge-conforme">Conforme</span></td>
+            </tr>
+            <tr>
+                <td><strong>NBR 14518 (5.5.3)</strong></td>
+                <td>O sistema deve desligar automaticamente a exaustão mecânica durante o combate.</td>
+                <td>Intertravamento elétrico com contato seco NF ligado ao contator geral de exaustores.</td>
+                <td><span class="badge-conforme">Conforme</span></td>
+            </tr>
+            <tr>
+                <td><strong>NBR 14518 (5.5.4)</strong></td>
+                <td>Agente extintor com eficácia comprovada para óleos e gorduras vegetais/animais (Classe K).</td>
+                <td>Agente saponificante Classe K com ação rápida de saponificação e resfriamento contínuo.</td>
+                <td><span class="badge-conforme">Conforme</span></td>
+            </tr>
+            <tr>
+                <td><strong>NBR 14518 (5.5.6)</strong></td>
+                <td>O sistema deve possuir duplo meio de acionamento: automático térmico e manual mecânico.</td>
+                <td>Sensores blindados na coifa/duto + Botoeira manual na parede com cabo de disparo.</td>
+                <td><span class="badge-conforme">Conforme</span></td>
+            </tr>
+            <tr>
+                <td><strong>NFPA 96 / 17A</strong></td>
+                <td>Retardo sonoro e visual pré-descarga para aviso e possibilidade de anulação de falso alarme.</td>
+                <td>Alarme com sirene, indicação na IHM e temporização de 60s antes do despejo.</td>
+                <td><span class="badge-conforme">Conforme</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 5. Termo de Responsabilidade e Assinatura -->
+    <div class="section-title">
+        <span>05.</span> TERMO DE RESPONSABILIDADE TÉCNICA E CONCLUSÃO
+    </div>
+    <div class="terms-box">
+        Certificamos para todos os fins de direito e instrução de processos junto ao Corpo de Bombeiros da Polícia Militar (AVCB / CLCB) e companhias seguradoras que o sistema de detecção, intertravamento e supressão de incêndio OutFire® VTS 32S3 foi instalado, testado, comissionado e aprovado em conformidade estrita com a norma ABNT NBR 14518:2020 e Instruções Técnicas vigentes. O sistema encontra-se plenamente operante e apto para proteção patrimonial e de vidas.
+    </div>
+
+    <!-- Assinaturas -->
+    <div class="signatures-row">
+        <div class="signature-box">
+            <div style="height: 40px;"></div>
+            <strong>ENGENHEIRO MECÂNICO / SEGURANÇA DO TRABALHO</strong>
+            Responsável Técnico OutFire Sistemas Contra Incêndio<br>
+            CREA / CFT: [Nº REGISTRO DO ENGENHEIRO]<br>
+            ART / RRT de Obra e Serviço: [Nº DA ART VINCULADA]
+        </div>
+        <div class="signature-box">
+            <div style="height: 40px;"></div>
+            <strong>REPRESENTANTE LEGAL DO ESTABELECIMENTO</strong>
+            Gerência / Diretoria do Restaurante<br>
+            Nome: ____________________________________<br>
+            CPF: _____________________________________
+        </div>
+    </div>
+
+    <!-- Selo e Autenticação -->
+    <div class="seal-row">
+        <div class="qr-auth">
+            <div class="qr-placeholder">
+                OUTFIRE<br>VERIFICADO<br>2026
+            </div>
+            <div>
+                <strong>Autenticidade do Laudo Técnico</strong><br>
+                Chave de Validação: OF-2026-VTS32S3-NBR14518-AUTENTICADO<br>
+                Consulte em: https://outfire.com.br/validar
+            </div>
+        </div>
+        <div style="text-align: right;">
+            São Paulo - SP, 21 de Outubro de 2026<br>
+            <em>OutFire Brasil — Proteção Ativa Contra Incêndio</em>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -26,17 +26,21 @@ export const ManualsAndDocs: React.FC = () => {
     },
     {
       title: 'Procedimento Operacional Padrão (POP) Pós-Disparo',
-      type: 'Guia Técnico',
-      size: '280 KB',
-      description: 'Instruções passo a passo para a equipe do restaurante após o combate a incêndio: limpeza do agente saponificante, rearme da válvula e recarga.',
-      link: '#contato'
+      type: 'Guia Técnico Oficial (POP)',
+      size: 'A4 / Imprimível',
+      description: 'Instruções passo a passo para a equipe do restaurante após o combate a incêndio: limpeza do agente saponificante, cuidados com inox, rearme da válvula e recarga 24h.',
+      link: '/pop-pos-disparo.html',
+      pdfLink: '/pop-pos-disparo.html',
+      featured: true
     },
     {
       title: 'Certificado de Conformidade Técnica & Memorial Descritivo (NBR 14518)',
       type: 'Documento para Bombeiros / AVCB',
-      size: '420 KB',
-      description: 'Documentação comprobatória das características técnicas e ensaios de conformidade para instrução de processos no Corpo de Bombeiros.',
-      link: '#contato'
+      size: 'A4 / Laudo Oficial',
+      description: 'Documentação comprobatória das características técnicas, laudo de ensaios e conformidade estrita com a ABNT NBR 14518:2020 para instrução de processos no Corpo de Bombeiros.',
+      link: '/certificado-conformidade-nbr14518.html',
+      pdfLink: '/certificado-conformidade-nbr14518.html',
+      featured: true
     }
   ];
 
@@ -86,7 +90,7 @@ export const ManualsAndDocs: React.FC = () => {
         </div>
 
         {/* Manuals Download Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {manuals.map((man, i) => (
             <div 
               key={i}
@@ -142,7 +146,7 @@ export const ManualsAndDocs: React.FC = () => {
                     }`}
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Baixar PDF</span>
+                    <span>{man.link.endsWith('.pdf') ? 'Baixar PDF' : 'Ver / Imprimir'}</span>
                   </a>
                 </div>
               </div>
