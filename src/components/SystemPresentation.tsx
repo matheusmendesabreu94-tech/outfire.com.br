@@ -4,12 +4,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { 
   Cpu, Shield, Volume2, Calendar, AlertTriangle, 
   Layers, CheckCircle, Radio, Gauge, Power, ArrowRight,
-  Download, Eye, RotateCcw, Zap, Battery, Sparkles
+  Download, Eye, RotateCcw, Zap, Battery, Sparkles, Tv
 } from 'lucide-react';
 import { createNormalizedIhmScreenCanvas } from '../utils/ihmScreen';
+import { IhmEmulator } from './IhmEmulator';
 
 export const SystemPresentation: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'3d' | 'interno' | 'instalado'>('3d');
+  const [activeTab, setActiveTab] = useState<'3d' | 'ihm' | 'instalado'>('3d');
 
   // 3D Central Enclosure State
   const canvas3DRef = useRef<HTMLCanvasElement>(null);
@@ -528,7 +529,7 @@ export const SystemPresentation: React.FC = () => {
           <div className="lg:col-span-7 flex flex-col items-center">
             <div 
               ref={container3DRef}
-              className="relative w-full max-w-xl aspect-[4/3] rounded-3xl bg-gradient-to-br from-[#14171e] to-[#0a0b0e] border border-[#d4af37]/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex items-center justify-center overflow-hidden group"
+              className={`relative w-full max-w-xl ${activeTab === 'ihm' ? 'min-h-[500px] p-2 sm:p-4' : 'aspect-[4/3] overflow-hidden'} rounded-3xl bg-gradient-to-br from-[#14171e] to-[#0a0b0e] border border-[#d4af37]/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex items-center justify-center group`}
             >
               
               {/* 1. INTERACTIVE 3D CAD CABINET (ORBIT 360° + SLIDING DRAWERS) */}
@@ -582,13 +583,11 @@ export const SystemPresentation: React.FC = () => {
                 </div>
               )}
 
-              {/* 2. REAL INTERNAL PHOTOS */}
-              {activeTab === 'interno' && (
-                <img 
-                  src="/assets/central-outfire-interno.jpg" 
-                  alt="Placa e Relés Internos da Central Outfire" 
-                  className="w-full h-full object-cover rounded-2xl transition-all duration-500 group-hover:scale-105"
-                />
+              {/* 2. EMULADOR INTERATIVO IHM OFICIAL SISTEMA 09 */}
+              {activeTab === 'ihm' && (
+                <div className="w-full flex justify-center py-2">
+                  <IhmEmulator compact={true} />
+                </div>
               )}
 
               {/* 3. REAL KITCHEN INSTALLATION */}
@@ -601,9 +600,9 @@ export const SystemPresentation: React.FC = () => {
               )}
 
               {/* Tag indicator */}
-              <div className="absolute top-4 left-4 bg-[#08090b]/90 backdrop-blur-md border border-[#d4af37]/30 px-3 py-1.5 rounded-lg text-xs font-mono text-[#f3e5ab] pointer-events-none">
+              <div className="absolute top-4 left-4 bg-[#08090b]/90 backdrop-blur-md border border-[#d4af37]/30 px-3 py-1.5 rounded-lg text-xs font-mono text-[#f3e5ab] pointer-events-none z-30">
                 {activeTab === '3d' && 'Gabinete 3D Interativo (Gire 360° com o mouse/toque)'}
-                {activeTab === 'interno' && 'Eletrônica Robusta, Relés de Potência & Bornes'}
+                {activeTab === 'ihm' && 'IHM Touchscreen 2.8" (Software Oficial Sistema 09)'}
                 {activeTab === 'instalado' && 'Instalação Real em Cozinha Profissional'}
               </div>
             </div>
@@ -622,14 +621,15 @@ export const SystemPresentation: React.FC = () => {
                 <span>Gabinete 3D Interativo</span>
               </button>
               <button
-                onClick={() => setActiveTab('interno')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === 'interno'
+                onClick={() => setActiveTab('ihm')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === 'ihm'
                     ? 'bg-[#d4af37] text-black shadow-glow-gold'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                Eletrônica Interna
+                <Tv className="w-3.5 h-3.5" />
+                <span>IHM</span>
               </button>
               <button
                 onClick={() => setActiveTab('instalado')}

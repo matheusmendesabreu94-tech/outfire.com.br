@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Maximize2, Shield, CheckCircle, Eye } from 'lucide-react';
+import { IhmEmulator } from './IhmEmulator';
 
 export const GallerySection: React.FC = () => {
   const [activeModalImg, setActiveModalImg] = useState<{ src: string; title: string; desc: string } | null>(null);
@@ -54,44 +55,76 @@ export const GallerySection: React.FC = () => {
         </div>
 
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {galleryItems.map((item, idx) => (
-            <div
-              key={idx}
-              onClick={() => setActiveModalImg(item)}
-              className="glass-panel rounded-3xl border border-white/10 hover:border-amber-500/40 hover:shadow-glow-gold overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="relative h-72 sm:h-80 bg-black/50 overflow-hidden flex items-center justify-center">
-                <img
-                  src={item.src}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                
-                {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm">
-                  <Eye className="w-5 h-5 text-amber-400" />
-                  <span>Clique para Ampliar Foto</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          {galleryItems.map((item, idx) => {
+            if (idx === 2) {
+              return (
+                <div
+                  key={idx}
+                  className="glass-panel rounded-3xl border border-[#d4af37]/40 shadow-glow-gold overflow-hidden transition-all duration-300"
+                >
+                  <div className="p-3 sm:p-4 bg-[#08090c] flex flex-col items-center justify-center border-b border-white/10">
+                    <div className="w-full flex items-center justify-between mb-3 px-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider bg-[#d4af37]/15 text-[#d4af37] px-3 py-1 rounded-full border border-[#d4af37]/30 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Software Oficial Emulado Ao Vivo
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-mono">Toque na Tela p/ Operar</span>
+                    </div>
+                    <IhmEmulator compact={true} />
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-white mb-2 font-sans flex items-center justify-between">
+                      <span className="text-[#f3e5ab]">{item.title}</span>
+                      <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">100% OPERÁVEL</span>
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                      Emulação fiel do software oficial da Central Outfire VTS 32S3 (Sistema 09). Navegue pelas telas, teste as senhas de operador (1701 / 2580), simule alarmes térmicos e vazamento de gás diretamente no navegador.
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={idx}
+                onClick={() => setActiveModalImg(item)}
+                className="glass-panel rounded-3xl border border-white/10 hover:border-amber-500/40 hover:shadow-glow-gold overflow-hidden cursor-pointer group transition-all duration-300 hover:-translate-y-1"
+              >
+                <div className="relative h-72 sm:h-80 bg-black/50 overflow-hidden flex items-center justify-center">
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  
+                  {/* Overlay on hover */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-sm">
+                    <Eye className="w-5 h-5 text-amber-400" />
+                    <span>Clique para Ampliar Foto</span>
+                  </div>
+
+                  <div className="absolute top-4 left-4">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-black/80 backdrop-blur-md text-amber-400 px-3 py-1 rounded-full border border-amber-500/30">
+                      {item.category}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="absolute top-4 left-4">
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-black/80 backdrop-blur-md text-amber-400 px-3 py-1 rounded-full border border-amber-500/30">
-                    {item.category}
-                  </span>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-white mb-2 font-sans flex items-center justify-between">
+                    <span>{item.title}</span>
+                    <Maximize2 className="w-4 h-4 text-gray-400 group-hover:text-amber-400 transition-colors" />
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
-
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-white mb-2 font-sans flex items-center justify-between">
-                  <span>{item.title}</span>
-                  <Maximize2 className="w-4 h-4 text-gray-400 group-hover:text-amber-400 transition-colors" />
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
       </div>
