@@ -461,128 +461,408 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                 />
 
                 {/* SVG Blueprint */}
-                <svg className="w-full h-full" viewBox="0 0 600 340">
+                <svg className="w-full h-auto" viewBox="0 0 940 430">
                   <defs>
-                    <linearGradient id="ductGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#4a5568" />
-                      <stop offset="50%" stopColor="#718096" />
-                      <stop offset="100%" stopColor="#4a5568" />
+                    {/* Polished Chrome Gradient (Cilindro Saponificante Inox) */}
+                    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#475569" />
+                      <stop offset="25%" stopColor="#cbd5e1" />
+                      <stop offset="50%" stopColor="#ffffff" />
+                      <stop offset="75%" stopColor="#e2e8f0" />
+                      <stop offset="100%" stopColor="#334155" />
                     </linearGradient>
+
+                    {/* Industrial Red Gradient (Cilindro CO2 Alta Pressão) */}
+                    <linearGradient id="co2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#7f1d1d" />
+                      <stop offset="25%" stopColor="#dc2626" />
+                      <stop offset="50%" stopColor="#ef4444" />
+                      <stop offset="80%" stopColor="#b91c1c" />
+                      <stop offset="100%" stopColor="#7f1d1d" />
+                    </linearGradient>
+
+                    {/* Ductwork Galvanized / Stainless Steel */}
+                    <linearGradient id="ductGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#334155" />
+                      <stop offset="50%" stopColor="#64748b" />
+                      <stop offset="100%" stopColor="#334155" />
+                    </linearGradient>
+
+                    {/* Hood Canopy Stainless Gradient */}
                     <linearGradient id="hoodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#2d3748" />
-                      <stop offset="100%" stopColor="#1a202c" />
+                      <stop offset="0%" stopColor="#334155" />
+                      <stop offset="50%" stopColor="#1e293b" />
+                      <stop offset="100%" stopColor="#0f172a" />
+                    </linearGradient>
+
+                    {/* Damper Red Heat-Shield Gradient */}
+                    <linearGradient id="damperGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#991b1b" />
+                      <stop offset="50%" stopColor="#dc2626" />
+                      <stop offset="100%" stopColor="#7f1d1d" />
+                    </linearGradient>
+
+                    {/* Central Outfire Matte Black / Gold Steel */}
+                    <linearGradient id="centralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#181a20" />
+                      <stop offset="50%" stopColor="#111317" />
+                      <stop offset="100%" stopColor="#0a0c0f" />
+                    </linearGradient>
+
+                    {/* Outfire Gold Accent Gradient */}
+                    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#b45309" />
+                      <stop offset="50%" stopColor="#f59e0b" />
+                      <stop offset="100%" stopColor="#d97706" />
                     </linearGradient>
                   </defs>
 
-                  {/* DUCTWORK (Top Section) */}
-                  {/* Vertical duct rising from hood */}
-                  <rect x="250" y="40" width="100" height="70" fill="url(#ductGrad)" stroke="#a0aec0" strokeWidth="1.5" />
+                  {/* 1. TOP HORIZONTAL EXHAUST COLLECTOR DUCT */}
+                  {/* Main exhaust collector running from above the hoods to exhaust fan */}
+                  <rect x="140" y="24" width="600" height="34" fill="url(#ductGrad)" stroke="#94a3b8" strokeWidth="1.5" />
                   
-                  {/* Horizontal duct extension */}
-                  <rect x="250" y="30" width="300" height="40" fill="url(#ductGrad)" stroke="#a0aec0" strokeWidth="1.5" />
-                  
-                  {/* Damper box on duct */}
-                  <rect x="360" y="24" width="45" height="52" fill="#9b2c2c" stroke="#feb2b2" strokeWidth="1.5" rx="3" />
-                  <text x="382" y="54" fill="#ffffff" fontSize="9" fontWeight="bold" textAnchor="middle">DAMPER</text>
+                  {/* Air flow indicator arrows */}
+                  <g fill="#94a3b8" opacity="0.6">
+                    <text x="240" y="44" fontSize="10" fontWeight="bold" letterSpacing="3">» » »</text>
+                    <text x="440" y="44" fontSize="10" fontWeight="bold" letterSpacing="3">» » FLUXO DE EXAUSTÃO » »</text>
+                    <text x="640" y="44" fontSize="10" fontWeight="bold" letterSpacing="3">» » »</text>
+                  </g>
 
-                  {/* CO2 Nozzles inside the duct (spaced every ~3m) */}
+                  {/* CO2 Nozzles inside the horizontal duct (spaced along the duct) */}
                   {Array.from({ length: result.co2NozzlesCount }).map((_, idx) => {
-                    const nx = 270 + idx * (250 / Math.max(1, result.co2NozzlesCount));
+                    const nx = 180 + idx * (500 / Math.max(1, result.co2NozzlesCount));
                     return (
-                      <g key={`co2-${idx}`}>
-                        {/* CO2 Nozzle icon (Red circle) */}
-                        <circle cx={nx} cy="50" r="6" fill="#e53e3e" stroke="#ffffff" strokeWidth="1.5" />
-                        <text x={nx} y="68" fill="#fc8181" fontSize="8" fontWeight="bold" textAnchor="middle">CO2</text>
-                        {/* 300C Sensor icon (Purple diamond) */}
-                        <rect x={nx + 12} y="44" width="10" height="10" fill="#805ad5" stroke="#ffffff" strokeWidth="1" transform={`rotate(45, ${nx + 17}, 49)`} />
+                      <g key={`co2-duct-${idx}`}>
+                        {/* Red CO2 pipe branch */}
+                        <line x1={nx} y1="24" x2={nx} y2="38" stroke="#ef4444" strokeWidth="2" />
+                        {/* CO2 Nozzle icon */}
+                        <circle cx={nx} cy="38" r="5" fill="#ef4444" stroke="#ffffff" strokeWidth="1.2" />
+                        {/* Spray cone */}
+                        <polygon points={`${nx-4},43 ${nx+4},43 ${nx},49`} fill="#ef4444" opacity="0.8" />
+                        <text x={nx} y="19" fill="#fca5a5" fontSize="7" fontWeight="bold" textAnchor="middle">CO2</text>
+                        {/* 300°C Thermal Sensor (Purple diamond) */}
+                        <rect x={nx + 14} y="33" width="9" height="9" fill="#a855f7" stroke="#ffffff" strokeWidth="1" transform={`rotate(45, ${nx + 18.5}, 37.5)`} />
+                        <text x={nx + 18.5} y="19" fill="#d8b4fe" fontSize="6.5" fontWeight="bold" textAnchor="middle">300°C</text>
                       </g>
                     );
                   })}
 
-                  {/* HOOD CANOPY (Middle Section) */}
-                  <polygon 
-                    points="60,150 120,110 480,110 540,150" 
-                    fill="url(#hoodGrad)" 
-                    stroke="#cbd5e0" 
-                    strokeWidth="2" 
-                  />
-                  <rect x="60" y="150" width="480" height="25" fill="#2d3748" stroke="#cbd5e0" strokeWidth="1.5" />
-                  <text x="300" y="167" fill="#cbd5e0" fontSize="11" fontWeight="bold" textAnchor="middle" letterSpacing="2">
-                    COIFA INOX {hoods[0]?.lengthMeters}m ({hoodCount} ZONA{hoodCount > 1 ? 'S' : ''})
-                  </text>
+                  {/* Exhaust Fan / Motor Housing at right end of duct */}
+                  <rect x="735" y="16" width="22" height="50" fill="#1e293b" stroke="#cbd5e1" strokeWidth="1.5" rx="3" />
+                  <circle cx="746" cy="41" r="9" fill="#0f172a" stroke="#94a3b8" strokeWidth="1" />
+                  <path d="M 746 34 L 746 48 M 739 41 L 753 41" stroke="#38bdf8" strokeWidth="1.5" />
+                  <text x="746" y="11" fill="#94a3b8" fontSize="7" fontWeight="bold" textAnchor="middle">EXAUSTOR</text>
 
-                  {/* 2 Plenum Nozzles (inside hood) */}
-                  <circle cx="180" cy="130" r="6" fill="#d4af37" stroke="#ffffff" strokeWidth="1.5" />
-                  <text x="180" y="120" fill="#f6e05e" fontSize="8" fontWeight="bold" textAnchor="middle">PLENO 1</text>
-                  
-                  <circle cx="420" cy="130" r="6" fill="#d4af37" stroke="#ffffff" strokeWidth="1.5" />
-                  <text x="420" y="120" fill="#f6e05e" fontSize="8" fontWeight="bold" textAnchor="middle">PLENO 2</text>
-
-                  {/* Hood Thermal Sensors (145°C) spaced along the hood */}
-                  {Array.from({ length: result.hoodSensorsCount }).map((_, idx) => {
-                    const sx = 100 + (idx + 1) * (400 / (result.hoodSensorsCount + 1));
-                    return (
-                      <g key={`sensor-${idx}`}>
-                        <circle cx={sx} cy="142" r="5" fill="#dd6b20" stroke="#ffffff" strokeWidth="1.2" />
-                        <text x={sx} y="158" fill="#fbd38d" fontSize="7" fontWeight="bold" textAnchor="middle">145°C</text>
-                      </g>
-                    );
-                  })}
-
-                  {/* COOKING LINE & APPLIANCES (Bottom Section) */}
-                  <rect x="60" y="240" width="480" height="70" fill="#1a202c" stroke="#4a5568" strokeWidth="1.5" />
-                  
-                  {/* Distributed Appliances */}
-                  {hoods[0]?.appliances.map((app, idx) => {
-                    const totalApps = hoods[0].appliances.length;
-                    const slotWidth = 440 / Math.max(1, totalApps);
-                    const ax = 80 + idx * slotWidth;
-                    const appW = slotWidth - 10;
+                  {/* 2. CILINDRO DE CO2 VERMELHO (AO LADO DO FINAL DO DUTO) */}
+                  <g id="cilindro-co2">
+                    {/* High-pressure discharge line to duct */}
+                    <path d="M 780 40 L 780 20 L 740 20 L 740 24" fill="none" stroke="#ef4444" strokeWidth="2.5" />
                     
+                    {/* Solenoid electric trigger */}
+                    <rect x="774" y="30" width="12" height="12" fill="#1e293b" stroke="#ef4444" strokeWidth="1" />
+                    
+                    {/* Brass high-pressure valve head */}
+                    <rect x="776" y="42" width="8" height="10" fill="#d97706" stroke="#f59e0b" strokeWidth="0.8" />
+                    <circle cx="780" cy="40" r="4" fill="#f59e0b" />
+                    
+                    {/* Cylinder body (Red Industrial Alta Pressão) */}
+                    {/* Neck dome */}
+                    <path d="M 768 62 C 768 48, 792 48, 792 62 Z" fill="url(#co2Grad)" stroke="#fca5a5" strokeWidth="1" />
+                    {/* Main cylinder */}
+                    <rect x="768" y="60" width="24" height="85" rx="3" fill="url(#co2Grad)" stroke="#fca5a5" strokeWidth="1.2" />
+                    {/* Bottom base ring */}
+                    <rect x="767" y="145" width="26" height="5" rx="2" fill="#1e293b" stroke="#7f1d1d" strokeWidth="1" />
+                    
+                    {/* Cylinder Label */}
+                    <rect x="770" y="80" width="20" height="36" fill="#1e293b" rx="2" opacity="0.9" />
+                    <text x="780" y="92" fill="#ef4444" fontSize="7" fontWeight="bold" textAnchor="middle">CO2</text>
+                    <text x="780" y="102" fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">{result.recommendedCo2CylinderKg}kg</text>
+                    <text x="780" y="111" fill="#94a3b8" fontSize="4.5" textAnchor="middle">NBR 14518</text>
+                    <text x="780" y="162" fill="#fca5a5" fontSize="7.5" fontWeight="bold" textAnchor="middle">CILINDRO CO2</text>
+                    <text x="780" y="171" fill="#94a3b8" fontSize="6.5" textAnchor="middle">(DUTO / EXAUSTÃO)</text>
+                  </g>
+
+                  {/* 3. CILINDRO DE SAPONIFICANTE CROMADO (AO LADO DA COIFA) */}
+                  <g id="cilindro-saponificante">
+                    {/* Valve discharge line in yellow/inox rising and entering the hoods */}
+                    <path d="M 46 160 L 46 122 L 95 122" fill="none" stroke="#d4af37" strokeWidth="3" />
+                    
+                    {/* Brass discharge valve & rapid actuator */}
+                    <rect x="42" y="160" width="8" height="12" fill="#d97706" stroke="#f59e0b" strokeWidth="1" />
+                    <circle cx="46" cy="158" r="4.5" fill="#f59e0b" />
+                    
+                    {/* Pressure Gauge (Manômetro Inox) */}
+                    <circle cx="36" cy="166" r="6.5" fill="#ffffff" stroke="#334155" strokeWidth="1.2" />
+                    <path d="M 33 166 A 3.5 3.5 0 0 1 39 166" fill="none" stroke="#22c55e" strokeWidth="1.5" />
+                    <line x1="36" y1="166" x2="38" y2="163" stroke="#dc2626" strokeWidth="1" />
+                    
+                    {/* Chrome/Stainless Cylinder Body */}
+                    {/* Top dome */}
+                    <path d="M 28 184 C 28 168, 64 168, 64 184 Z" fill="url(#chromeGrad)" stroke="#cbd5e1" strokeWidth="1.2" />
+                    {/* Main cylinder */}
+                    <rect x="28" y="182" width="36" height="135" rx="3" fill="url(#chromeGrad)" stroke="#cbd5e1" strokeWidth="1.5" />
+                    {/* Bottom stand ring */}
+                    <rect x="26" y="317" width="40" height="7" rx="2" fill="#1e293b" stroke="#64748b" strokeWidth="1" />
+
+                    {/* Cylinder Front Label Badge */}
+                    <rect x="31" y="215" width="30" height="52" fill="#0f172a" rx="3" stroke="#d4af37" strokeWidth="0.8" opacity="0.95" />
+                    <text x="46" y="228" fill="#d4af37" fontSize="6" fontWeight="bold" textAnchor="middle">OUTFIRE</text>
+                    <text x="46" y="238" fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">CLASSE K</text>
+                    <text x="46" y="250" fill="#38bdf8" fontSize="8" fontWeight="bold" textAnchor="middle">{result.recommendedSaponificanteCylinderLiters}L</text>
+                    <text x="46" y="260" fill="#94a3b8" fontSize="5" textAnchor="middle">INOX 304</text>
+                    
+                    <text x="46" y="337" fill="#fef08a" fontSize="7.5" fontWeight="bold" textAnchor="middle">SAPONIFICANTE</text>
+                    <text x="46" y="347" fill="#cbd5e1" fontSize="6.5" textAnchor="middle">(CROMADO / INOX)</text>
+                  </g>
+
+                  {/* 4. HOODS & VERTICAL DUCTS WITH DAMPERS RIGHT ABOVE THE HOOD (1, 2 OU 3 COIFAS) */}
+                  {hoods.slice(0, hoodCount).map((h, hIdx) => {
+                    // Compute responsive layout for 1, 2 or 3 hoods
+                    const totalH = hoodCount;
+                    const availW = 635;
+                    const hGap = totalH === 1 ? 0 : totalH === 2 ? 30 : 18;
+                    const hW = (availW - (totalH - 1) * hGap) / totalH;
+                    const hX = 95 + hIdx * (hW + hGap);
+                    
+                    // Vertical duct collar centered on this hood
+                    const cW = totalH === 1 ? 84 : totalH === 2 ? 65 : 52;
+                    const cX = hX + (hW - cW) / 2;
+                    
+                    // Damper position: RIGHT ABOVE THE HOOD (colarinho de saída da coifa)
+                    const dW = cW + 16;
+                    const dX = cX - 8;
+                    const dY = 66; // between horizontal duct (y=58) and hood canopy (y=118)
+                    const dH = 38;
+
+                    // Appliances under this hood
+                    const appList = h.appliances.length > 0 
+                      ? h.appliances 
+                      : [{ id: `app-${hIdx}`, name: 'Fogão/Cocção', type: 'fogao', icon: '🍳', widthMeters: 0.9 }];
+
                     return (
-                      <g key={app.id}>
-                        {/* Equipment Box */}
-                        <rect x={ax} y="220" width={appW} height="80" fill="#2d3748" stroke="#718096" strokeWidth="1.2" rx="4" />
-                        <text x={ax + appW / 2} y="255" fill="#ffffff" fontSize="10" fontWeight="bold" textAnchor="middle">
-                          {app.name.split(' ')[0]}
-                        </text>
-                        <text x={ax + appW / 2} y="275" fill="#a0aec0" fontSize="8" textAnchor="middle">
-                          {app.type.toUpperCase()}
+                      <g key={`hood-block-${h.id || hIdx}`}>
+                        {/* A. Vertical Duct from Hood to Collector */}
+                        <rect x={cX} y="58" width={cW} height="60" fill="url(#ductGrad)" stroke="#94a3b8" strokeWidth="1.5" />
+                        
+                        {/* B. DAMPER CORTA-FOGO (BEM ACIMA DA COIFA - 1ª PARTE DO DUTO) */}
+                        <g id={`damper-${hIdx}`}>
+                          {/* Top & Bottom Mounting Flanges */}
+                          <rect x={dX - 2} y={dY} width={dW + 4} height="4" fill="#475569" stroke="#94a3b8" strokeWidth="0.8" />
+                          <rect x={dX - 2} y={dY + dH - 4} width={dW + 4} height="4" fill="#475569" stroke="#94a3b8" strokeWidth="0.8" />
+                          
+                          {/* Damper Main Body (Fire-Red) */}
+                          <rect x={dX} y={dY + 3} width={dW} height={dH - 6} fill="url(#damperGrad)" stroke="#fecaca" strokeWidth="1.2" rx="3" />
+                          
+                          {/* Thermal/Motorized Actuator Box on the side */}
+                          <rect x={dX + dW - 2} y={dY + 7} width="12" height="18" fill="#0f172a" stroke="#cbd5e1" strokeWidth="1" rx="2" />
+                          <circle cx={dX + dW + 4} cy={dY + 16} r="2.5" fill="#eab308" />
+                          
+                          {/* Damper Text */}
+                          <text x={dX + dW / 2} y={dY + 18} fill="#ffffff" fontSize={totalH === 3 ? "7" : "8"} fontWeight="bold" textAnchor="middle">
+                            DAMPER {totalH > 1 ? `#${hIdx + 1}` : ''}
+                          </text>
+                          <text x={dX + dW / 2} y={dY + 27} fill="#fca5a5" fontSize={totalH === 3 ? "5.5" : "6.5"} fontWeight="bold" textAnchor="middle">
+                            CORTA-FOGO
+                          </text>
+                        </g>
+
+                        {/* C. Saponificante yellow piping branching into hood plenum */}
+                        <line x1={hIdx === 0 ? 95 : hX - hGap} y1="122" x2={hX + hW - 10} y2="122" stroke="#d4af37" strokeWidth="2.5" />
+
+                        {/* D. Hood Canopy (Inox Trapezoid) */}
+                        <polygon 
+                          points={`${hX},158 ${hX + hW * 0.12},118 ${hX + hW * 0.88},118 ${hX + hW},158`} 
+                          fill="url(#hoodGrad)" 
+                          stroke="#cbd5e1" 
+                          strokeWidth="1.8" 
+                        />
+                        <rect x={hX} y="158" width={hW} height="20" fill="#1e293b" stroke="#cbd5e1" strokeWidth="1.2" />
+                        
+                        {/* Hood Title */}
+                        <text x={hX + hW / 2} y="172" fill="#f8fafc" fontSize={totalH === 3 ? "8" : "9.5"} fontWeight="bold" textAnchor="middle" letterSpacing="1">
+                          COIFA {totalH > 1 ? `${hIdx + 1}` : 'INOX'} ({h.lengthMeters}m - SETOR {hIdx + 1})
                         </text>
 
-                        {/* Saponificante Nozzle aimed down at this equipment */}
-                        <line x1={ax + appW / 2} y1="175" x2={ax + appW / 2} y2="200" stroke="#d4af37" strokeWidth="2" />
-                        <polygon 
-                          points={`${ax + appW / 2 - 5},200 ${ax + appW / 2 + 5},200 ${ax + appW / 2},210`} 
-                          fill="#d4af37" 
-                        />
-                        <text x={ax + appW / 2} y="195" fill="#ecc94b" fontSize="7" fontWeight="bold" textAnchor="end">BICOK</text>
+                        {/* E. 2 Plenum Saponificante Nozzles (inside hood) */}
+                        <g>
+                          <circle cx={hX + hW * 0.25} cy="138" r="5" fill="#d4af37" stroke="#ffffff" strokeWidth="1.2" />
+                          <text x={hX + hW * 0.25} y="132" fill="#fef08a" fontSize="6.5" fontWeight="bold" textAnchor="middle">PLENO 1</text>
+                          
+                          <circle cx={hX + hW * 0.75} cy="138" r="5" fill="#d4af37" stroke="#ffffff" strokeWidth="1.2" />
+                          <text x={hX + hW * 0.75} y="132" fill="#fef08a" fontSize="6.5" fontWeight="bold" textAnchor="middle">PLENO 2</text>
+                        </g>
+
+                        {/* F. Hood Thermal Sensors (145°C) along the hood */}
+                        {Array.from({ length: Math.max(1, Math.round(h.lengthMeters / 0.9)) }).map((_, sIdx, arr) => {
+                          const sx = hX + 25 + sIdx * ((hW - 50) / Math.max(1, arr.length - 1 || 1));
+                          return (
+                            <g key={`sensor-h-${hIdx}-${sIdx}`}>
+                              <circle cx={sx} cy="150" r="4" fill="#ea580c" stroke="#ffffff" strokeWidth="1" />
+                              <text x={sx} y="164" fill="#fdba74" fontSize="6" fontWeight="bold" textAnchor="middle">145°</text>
+                            </g>
+                          );
+                        })}
+
+                        {/* G. Cooking Line & Equipment under this Hood */}
+                        <rect x={hX} y="240" width={hW} height="85" fill="#0f172a" stroke="#334155" strokeWidth="1.2" rx="3" />
+                        
+                        {appList.map((app, aIdx) => {
+                          const totalA = appList.length;
+                          const slotW = (hW - 12) / totalA;
+                          const ax = hX + 6 + aIdx * slotW;
+                          const appBoxW = slotW - 6;
+
+                          return (
+                            <g key={app.id || `app-${hIdx}-${aIdx}`}>
+                              {/* Equipment Box */}
+                              <rect x={ax} y="245" width={appBoxW} height="75" fill="#1e293b" stroke="#475569" strokeWidth="1" rx="3" />
+                              
+                              <text x={ax + appBoxW / 2} y="272" fill="#ffffff" fontSize={totalH === 3 ? "7" : "8.5"} fontWeight="bold" textAnchor="middle">
+                                {app.name.split(' ')[0]}
+                              </text>
+                              <text x={ax + appBoxW / 2} y="286" fill="#94a3b8" fontSize={totalH === 3 ? "5.5" : "6.5"} textAnchor="middle">
+                                {app.type.toUpperCase()}
+                              </text>
+
+                              {/* Saponificante Discharge Nozzle aimed at this appliance */}
+                              <line x1={ax + appBoxW / 2} y1="178" x2={ax + appBoxW / 2} y2="225" stroke="#d4af37" strokeWidth="2" />
+                              <polygon 
+                                points={`${ax + appBoxW / 2 - 4},225 ${ax + appBoxW / 2 + 4},225 ${ax + appBoxW / 2},233`} 
+                                fill="#d4af37" 
+                              />
+                              <text x={ax + appBoxW / 2} y="220" fill="#fef08a" fontSize="6" fontWeight="bold" textAnchor="middle">BICOK</text>
+                            </g>
+                          );
+                        })}
                       </g>
                     );
                   })}
 
-                  {/* CENTRAL OUTFIRE VTS 32S3 (Mounted to the right wall) */}
-                  <rect x="535" y="160" width="55" height="85" fill="#171923" stroke="#e53e3e" strokeWidth="2" rx="5" />
-                  <rect x="542" y="170" width="40" height="30" fill="#3182ce" rx="2" />
-                  <text x="562" y="188" fill="#ffffff" fontSize="8" fontWeight="bold" textAnchor="middle">VTS 32S3</text>
-                  <circle cx="562" cy="225" r="7" fill="#e53e3e" />
-                  <text x="562" y="240" fill="#e2e8f0" fontSize="6" fontWeight="bold" textAnchor="middle">OUTFIRE</text>
+                  {/* 5. CENTRAL OUTFIRE VTS 32S3 (DESENHO DA NOSSA CENTRAL NO DIAGRAMA) */}
+                  <g id="central-outfire-diagrama">
+                    {/* Signal conduits from Central to components */}
+                    {/* Blue line to Dampers */}
+                    <path d="M 770 200 L 710 200 L 710 85 L 680 85" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="3 3" />
+                    {/* Yellow line to Gas Valve */}
+                    <path d="M 770 330 L 740 330 L 740 375 L 300 375" fill="none" stroke="#eab308" strokeWidth="1.5" strokeDasharray="3 3" />
+                    {/* Red line to Solenoids */}
+                    <path d="M 780 185 L 780 160" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3 3" />
+                    
+                    {/* Central Cabinet Main Casing (Aço Preto / Grafite) */}
+                    <rect x="765" y="188" width="155" height="152" rx="6" fill="url(#centralGrad)" stroke="#d4af37" strokeWidth="1.8" />
+                    
+                    {/* Top PSU Cover Plate with 4 Bolts */}
+                    <rect x="780" y="184" width="125" height="6" rx="1.5" fill="#1f232b" stroke="#94a3b8" strokeWidth="0.8" />
+                    <circle cx="788" cy="187" r="1.5" fill="#cbd5e1" />
+                    <circle cx="805" cy="187" r="1.5" fill="#cbd5e1" />
+                    <circle cx="880" cy="187" r="1.5" fill="#cbd5e1" />
+                    <circle cx="897" cy="187" r="1.5" fill="#cbd5e1" />
 
-                  {/* Gas cutoff pipe at bottom */}
-                  <line x1="60" y1="310" x2="540" y2="310" stroke="#ecc94b" strokeWidth="3" />
-                  <rect x="180" y="303" width="20" height="14" fill="#e53e3e" stroke="#ffffff" strokeWidth="1" />
-                  <text x="190" y="328" fill="#feb2b2" fontSize="7" fontWeight="bold" textAnchor="middle">VÁLVULA GÁS</text>
+                    {/* Bottom Battery Cover Plate with 4 Bolts */}
+                    <rect x="790" y="338" width="105" height="6" rx="1.5" fill="#1f232b" stroke="#94a3b8" strokeWidth="0.8" />
+                    <circle cx="798" cy="341" r="1.5" fill="#cbd5e1" />
+                    <circle cx="815" cy="341" r="1.5" fill="#cbd5e1" />
+                    <circle cx="870" cy="341" r="1.5" fill="#cbd5e1" />
+                    <circle cx="887" cy="341" r="1.5" fill="#cbd5e1" />
+
+                    {/* Outfire Logo Header */}
+                    <text x="842" y="206" fill="#f59e0b" fontSize="9" fontWeight="bold" textAnchor="middle" letterSpacing="1.5">
+                      OUTFIRE
+                    </text>
+                    <polygon points="842,192 846,197 842,201 838,197" fill="#f59e0b" />
+
+                    {/* Gold QR Code */}
+                    <g transform="translate(772, 218)">
+                      <rect x="0" y="0" width="22" height="22" fill="#0f172a" stroke="#d4af37" strokeWidth="0.8" />
+                      <rect x="3" y="3" width="5" height="5" fill="#d4af37" />
+                      <rect x="14" y="3" width="5" height="5" fill="#d4af37" />
+                      <rect x="3" y="14" width="5" height="5" fill="#d4af37" />
+                      <rect x="10" y="10" width="3" height="3" fill="#d4af37" />
+                    </g>
+
+                    {/* TFT Touchscreen IHM Display in Center (320x240 replica) */}
+                    <rect x="798" y="215" width="114" height="74" rx="3" fill="#061317" stroke="#38bdf8" strokeWidth="1" />
+                    
+                    {/* TFT Header Bar (#03A9F4) with RTC & LED */}
+                    <rect x="798" y="215" width="114" height="12" fill="#0284c7" />
+                    <text x="803" y="224" fill="#ffffff" fontSize="6" fontWeight="bold">10/05 15:42</text>
+                    <circle cx="906" cy="221" r="2.5" fill="#22c55e" stroke="#ffffff" strokeWidth="0.5" />
+                    
+                    {/* 4 Green Status Boxes */}
+                    <rect x="801" y="229" width="25" height="11" fill="#15803d" rx="1" />
+                    <text x="813.5" y="237" fill="#ffffff" fontSize="4.5" fontWeight="bold" textAnchor="middle">EXAUST OK</text>
+                    
+                    <rect x="828" y="229" width="25" height="11" fill="#15803d" rx="1" />
+                    <text x="840.5" y="237" fill="#ffffff" fontSize="4.5" fontWeight="bold" textAnchor="middle">ENERG OK</text>
+
+                    <rect x="855" y="229" width="25" height="11" fill="#15803d" rx="1" />
+                    <text x="867.5" y="237" fill="#ffffff" fontSize="4.5" fontWeight="bold" textAnchor="middle">GÁS OK</text>
+
+                    <rect x="882" y="229" width="25" height="11" fill="#15803d" rx="1" />
+                    <text x="894.5" y="237" fill="#ffffff" fontSize="4.5" fontWeight="bold" textAnchor="middle">DAMP OK</text>
+
+                    {/* Blue Buttons (SETORES / REARMAR) */}
+                    <rect x="803" y="243" width="50" height="14" fill="#1d4ed8" rx="2" />
+                    <text x="828" y="253" fill="#ffffff" fontSize="5.5" fontWeight="bold" textAnchor="middle">SETORES</text>
+
+                    <rect x="857" y="243" width="50" height="14" fill="#1d4ed8" rx="2" />
+                    <text x="882" y="253" fill="#ffffff" fontSize="5.5" fontWeight="bold" textAnchor="middle">CONTROLE GÁS</text>
+
+                    <rect x="803" y="260" width="50" height="14" fill="#1d4ed8" rx="2" />
+                    <text x="828" y="270" fill="#ffffff" fontSize="5.5" fontWeight="bold" textAnchor="middle">REARMAR</text>
+
+                    <rect x="857" y="260" width="50" height="14" fill="#1d4ed8" rx="2" />
+                    <text x="882" y="270" fill="#ffffff" fontSize="5.5" fontWeight="bold" textAnchor="middle">CONFIG</text>
+
+                    {/* Bottom Bar: SISTEMA OPERANTE */}
+                    <rect x="798" y="277" width="114" height="12" fill="#0284c7" />
+                    <text x="855" y="286" fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">SISTEMA OPERANTE</text>
+
+                    {/* Red Emergency Warning Banner */}
+                    <rect x="769" y="300" width="147" height="24" fill="#b91c1c" rx="2" />
+                    <text x="842" y="311" fill="#ffffff" fontSize="6" fontWeight="bold" textAnchor="middle">
+                      EM CASO DE INCÊNDIO EVACUAR O LOCAL
+                    </text>
+                    <text x="842" y="319" fill="#fef08a" fontSize="5" fontWeight="bold" textAnchor="middle">
+                      SUPORTE: (15) 98157-7847 / OUTFIRE.COM.BR
+                    </text>
+
+                    {/* Central Title */}
+                    <text x="842" y="360" fill="#f59e0b" fontSize="8" fontWeight="bold" textAnchor="middle">
+                      CENTRAL VTS 32S3
+                    </text>
+                    <text x="842" y="370" fill="#94a3b8" fontSize="6.5" textAnchor="middle">
+                      ({hoodCount} Coifa{hoodCount > 1 ? 's' : ''} Independentes)
+                    </text>
+                  </g>
+
+                  {/* 6. GAS CUTOFF LINE & AUTOMATIC SOLENOID VALVE AT BOTTOM */}
+                  <line x1="90" y1="385" x2="740" y2="385" stroke="#eab308" strokeWidth="3" />
+                  
+                  {/* Gas Solenoid Valve */}
+                  <rect x="260" y="374" width="45" height="22" fill="#b91c1c" stroke="#fecaca" strokeWidth="1" rx="2" />
+                  <rect x="277" y="366" width="11" height="9" fill="#1e293b" stroke="#eab308" strokeWidth="0.8" />
+                  <text x="282.5" y="388" fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">VÁLVULA GÁS</text>
+                  <text x="282.5" y="405" fill="#fef08a" fontSize="6.5" fontWeight="bold" textAnchor="middle">CORTE INSTANTÂNEO</text>
                 </svg>
 
                 {/* Diagram Legend */}
-                <div className="flex flex-wrap items-center justify-center gap-3 pt-2 border-t border-white/10 text-[10px] text-gray-300">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-3 border-t border-white/10 text-[10.5px] text-gray-300">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37]" />
-                    <span>Bico Saponificante Classe K</span>
+                    <span>Bico Saponificante (Classe K)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-4 rounded-sm bg-gradient-to-b from-gray-200 to-gray-400 border border-white/50" />
+                    <span>Cilindro Saponificante (Inox)</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
                     <span>Bico CO2 Duto</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-4 rounded-sm bg-red-600 border border-red-300" />
+                    <span>Cilindro CO2 (Vermelho)</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
@@ -593,8 +873,16 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                     <span>Sensor 300°C Duto</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-red-700" />
-                    <span>Damper Corta-Fogo</span>
+                    <span className="w-3 h-2.5 rounded-sm bg-red-700 border border-red-300" />
+                    <span>Damper Corta-Fogo (Acima da Coifa)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm bg-black border border-amber-400" />
+                    <span>Central Outfire VTS 32S3</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-2 rounded-sm bg-red-600 border border-amber-300" />
+                    <span>Válvula de Gás (Corte Automático)</span>
                   </div>
                 </div>
 

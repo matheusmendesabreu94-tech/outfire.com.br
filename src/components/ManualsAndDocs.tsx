@@ -15,6 +15,14 @@ export const ManualsAndDocs: React.FC = () => {
       featured: true
     },
     {
+      title: 'Manual Operacional e Técnico - Guia de Telas da IHM (VTS 32S3)',
+      type: 'Manual Modelo Interativo & PDF',
+      size: '845 KB',
+      description: 'Guia definitivo com o desenho de todas as telas da IHM (status operante, alarmes vermelhos, voz assistida, agenda de gás, calibração de baterias e dampers).',
+      link: '/manual-v2.html',
+      featured: true
+    },
+    {
       title: 'Procedimento Operacional Padrão (POP) Pós-Disparo',
       type: 'Guia Técnico',
       size: '280 KB',
