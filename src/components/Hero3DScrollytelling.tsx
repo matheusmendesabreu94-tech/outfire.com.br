@@ -280,6 +280,12 @@ export const Hero3DScrollytelling: React.FC = () => {
     }
 
     // 2. Flick / Inércia calibrada:
+    // Se o usuário manteve o dedo parado antes de soltar (> 75ms), não foi flick, zera a inércia
+    const timeSinceLastMove = performance.now() - state.lastTime;
+    if (timeSinceLastMove > 75) {
+      state.velocity = 0;
+    }
+
     // Permite que um arrasto rápido avance cerca de 380px a 500px (~1 fase suave por vez),
     // eliminando a sensação de travamento (dead brake) e sem nunca pular todas as fases de uma vez.
     const maxVelocity = 24; // px/frame
@@ -1616,7 +1622,7 @@ export const Hero3DScrollytelling: React.FC = () => {
             <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
               
               {/* Botões de Ação de Emergência */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
                 {/* Botão Acionador Manual (Botoeira) */}
                 <button
                   onClick={handleManualTrigger}
@@ -1655,7 +1661,7 @@ export const Hero3DScrollytelling: React.FC = () => {
               </div>
 
               {/* Câmeras Rápidas */}
-              <div className="flex items-center gap-1 bg-black/75 backdrop-blur-md p-1 rounded-xl border border-white/10 text-xs">
+              <div className="flex items-center gap-1 bg-black/75 backdrop-blur-md p-1 rounded-xl border border-white/10 text-xs pointer-events-auto">
                 <span className="text-[10px] text-gray-400 px-1.5 font-mono flex items-center gap-1">
                   <Camera className="w-3 h-3 text-[#d4af37]" /> Câmera:
                 </span>
