@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { 
   Flame, ShieldCheck, AlertOctagon, ZapOff, Wind, Droplets, 
   RotateCcw, Sparkles, BellRing, Eye, Camera, CheckCircle2,
-  ChevronDown, Radio
+  ChevronDown, Radio, XCircle
 } from 'lucide-react';
 
 type SimStage = 'STANDBY' | 'HEATING' | 'FIRE_ALARM' | 'SUPPRESSION' | 'EXTINGUISHED';
@@ -77,12 +77,13 @@ export const Hero3DScrollytelling: React.FC = () => {
   const targetCamLook = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.4, 0));
 
   // --- DRAW CENTRAL LCD DIGITAL TOUCHSCREEN CANVAS TEXTURE ---
+  // Reproduz fielmente a tela inicial da IHM (Standby) e a tela de alarme vermelha (60s) enviada pelo usuário
   const updateLcdScreenTexture = useCallback(() => {
     let canvas = centralScreenCanvasRef.current;
     if (!canvas) {
       canvas = document.createElement('canvas');
       canvas.width = 512;
-      canvas.height = 360;
+      canvas.height = 380;
       centralScreenCanvasRef.current = canvas;
     }
     const ctx = canvas.getContext('2d');
@@ -91,179 +92,156 @@ export const Hero3DScrollytelling: React.FC = () => {
     const stage = simStageRef.current;
     const timeSec = countdownRef.current;
 
-    // Screen Inner Background
-    if (stage === 'STANDBY' || stage === 'HEATING') {
-      ctx.fillStyle = '#061a1b';
-    } else if (stage === 'FIRE_ALARM') {
-      ctx.fillStyle = '#3a0808';
-    } else if (stage === 'SUPPRESSION') {
-      ctx.fillStyle = '#3a1f04';
-    } else {
-      ctx.fillStyle = '#05291b';
-    }
-    ctx.fillRect(0, 0, 512, 360);
+    if (stage === 'FIRE_ALARM') {
+      // 1. TELA REAL DE ALARME FORNECIDA PELO USUÁRIO (media_1792586651363.jpg)
+      ctx.fillStyle = '#ba1016';
+      ctx.fillRect(0, 0, 512, 380);
 
-    // Bevel border
-    ctx.strokeStyle = '#3f3f46';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, 508, 356);
-
-    // Header bar
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, 0, 512, 42);
-
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = 'bold 14px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('OUTFIRE IHM v3.2', 16, 27);
-
-    ctx.textAlign = 'right';
-    ctx.fillStyle = '#10b981';
-    ctx.fillText('BAT: 13.8V [100%]', 496, 27);
-
-    // Dynamic UI states
-    if (stage === 'STANDBY' || stage === 'HEATING') {
-      ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 24px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('● SISTEMA PROTEGIDO', 256, 90);
-
-      ctx.fillStyle = '#cbd5e1';
-      ctx.font = '13px monospace';
-      ctx.fillText('MONITORAMENTO ATIVO (145°C / 300°C)', 256, 120);
-
-      // Status rows
-      ctx.fillStyle = '#0f2922';
-      ctx.fillRect(24, 145, 464, 46);
-      ctx.fillStyle = '#a7f3d0';
-      ctx.font = '13px Inter, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('SENSOR COIFA (145°C):', 38, 174);
-      ctx.textAlign = 'right';
-      ctx.fillText(stage === 'HEATING' ? '280°C [SUBINDO]' : '180°C [NORMAL]', 474, 174);
-
-      ctx.fillStyle = '#0f2922';
-      ctx.fillRect(24, 200, 464, 46);
-      ctx.fillStyle = '#a7f3d0';
-      ctx.textAlign = 'left';
-      ctx.fillText('VÁLVULA SOLENOIDE DE GÁS:', 38, 229);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#34d399';
-      ctx.fillText('ABERTA / LIBERADA', 474, 229);
-
-      ctx.fillStyle = '#0f2922';
-      ctx.fillRect(24, 255, 464, 46);
-      ctx.fillStyle = '#a7f3d0';
-      ctx.textAlign = 'left';
-      ctx.fillText('SISTEMA DE EXAUSTÃO:', 38, 284);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#34d399';
-      ctx.fillText('OPERANDO / CONECTADO', 474, 284);
-
-      ctx.fillStyle = '#64748b';
-      ctx.font = '11px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('DISPARO AUTOMÁTICO EM CASO DE FOGO OU BOTOEIRA MANUAL', 256, 332);
-
-    } else if (stage === 'FIRE_ALARM') {
-      ctx.fillStyle = '#ef4444';
-      ctx.font = 'bold 26px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('🚨 FOGO DETECTADO! 🚨', 256, 82);
-
-      ctx.fillStyle = '#fecaca';
-      ctx.font = 'bold 14px Inter, sans-serif';
-      ctx.fillText('SENSOR TÉRMICO SUPEROU 145°C', 256, 110);
-
-      // Countdown Clock
-      ctx.fillStyle = '#1c0505';
-      ctx.fillRect(40, 128, 432, 105);
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(40, 128, 432, 105);
-
+      // Header: FOGO DETECTADO + LED verde
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 64px monospace';
-      ctx.fillText(`00:0${Math.max(0, timeSec)}`, 256, 204);
+      ctx.font = 'bold 28px "Courier New", Courier, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('FOGO DETECTADO', 230, 48);
 
-      ctx.fillStyle = '#fca5a5';
-      ctx.font = 'bold 13px Inter, sans-serif';
-      ctx.fillText('DISPARO AUTOMÁTICO DE SAPONIFICANTE', 256, 260);
+      // LED Verde no canto superior direito
+      ctx.beginPath();
+      ctx.arc(460, 40, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#22c55e';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
 
-      ctx.fillStyle = '#dc2626';
-      ctx.fillRect(24, 285, 464, 52);
+      // FOGO DETECTADO: SUB-1 EM DISPARO
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px Inter, sans-serif';
-      ctx.fillText('EVACUAR O LOCAL OU ACIONAR A BOTOEIRA MANUAL', 256, 317);
+      ctx.font = 'bold 21px "Courier New", Courier, monospace';
+      ctx.fillText('FOGO DETECTADO: SUB-1', 256, 95);
+      ctx.fillText('EM DISPARO', 256, 128);
+
+      // RELÓGIO DIGITAL REGRESSIVO 60s (Retro Pixel Font)
+      ctx.fillStyle = '#67e8f9'; // Ciano pixel
+      ctx.font = '900 86px "Courier New", Courier, monospace';
+      ctx.fillText(`${timeSec}s`, 256, 230);
+
+      // TOQUE NA TELA PARA ABORTAR
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 19px "Courier New", Courier, monospace';
+      ctx.fillText('TOQUE NA TELA PARA ABORTAR', 256, 325);
 
     } else if (stage === 'SUPPRESSION') {
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = 'bold 25px Inter, sans-serif';
+      // 2. DESCARGA EFETUADA
+      ctx.fillStyle = '#7f1d1d';
+      ctx.fillRect(0, 0, 512, 380);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px "Courier New", Courier, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('⚡ DISPARO DE SUPRESSÃO ATIVO ⚡', 256, 85);
+      ctx.fillText('SISTEMA CO2 / SAP !', 256, 50);
 
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 30px "Courier New", Courier, monospace';
+      ctx.fillText('DESCARGA EFETUADA', 256, 130);
+
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(80, 190, 352, 60);
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 15px monospace';
-      ctx.fillText('DESCARGA DE SAPONIFICANTE & CO2', 256, 118);
-
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(24, 140, 464, 48);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px Inter, sans-serif';
-      ctx.fillText('VÁLVULA DE GÁS: CORTADA (BLOQUEADA)', 256, 170);
-
-      ctx.fillStyle = '#3b82f6';
-      ctx.fillRect(24, 198, 464, 48);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText('EXAUSTOR: DESLIGADO (DAMPER FECHADO)', 256, 228);
-
-      ctx.fillStyle = '#cbd5e1';
-      ctx.font = 'bold 13px Inter, sans-serif';
-      ctx.fillText('MANTA DE SABÃO ENCAPSULANDO O ÓLEO QUENTE', 256, 282);
-
-      ctx.fillStyle = '#a7f3d0';
-      ctx.font = '12px monospace';
-      ctx.fillText('TEMPERATURA EM QUEDA DRÁSTICA...', 256, 318);
+      ctx.font = 'bold 18px sans-serif';
+      ctx.fillText('REARMAR SISTEMA', 256, 228);
 
     } else if (stage === 'EXTINGUISHED') {
+      // 3. COZINHA SALVA / NORMALIZADO
+      ctx.fillStyle = '#06261c';
+      ctx.fillRect(0, 0, 512, 380);
       ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 25px Inter, sans-serif';
+      ctx.font = 'bold 26px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('✓ INCÊNDIO EXTINTO COM SUCESSO', 256, 85);
+      ctx.fillText('● INCÊNDIO EXTINTO', 256, 70);
 
-      ctx.fillStyle = '#e2e8f0';
-      ctx.font = 'bold 14px Inter, sans-serif';
-      ctx.fillText('REIGNIÇÃO 100% IMPEDIDA (SAPONIFICAÇÃO)', 256, 118);
-
-      ctx.fillStyle = '#064e3b';
-      ctx.fillRect(24, 140, 464, 46);
-      ctx.fillStyle = '#6ee7b7';
-      ctx.font = '13px Inter, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('TEMPERATURA FINAL DO ÓLEO:', 38, 169);
-      ctx.textAlign = 'right';
-      ctx.fillText('42°C (TOTALMENTE RESFRIADO)', 474, 169);
+      ctx.fillStyle = '#a7f3d0';
+      ctx.font = 'bold 15px monospace';
+      ctx.fillText('SUPRESSÃO CLASSE K BEM-SUCEDIDA', 256, 115);
 
       ctx.fillStyle = '#064e3b';
-      ctx.fillRect(24, 198, 464, 46);
+      ctx.fillRect(30, 150, 452, 50);
       ctx.fillStyle = '#6ee7b7';
-      ctx.textAlign = 'left';
-      ctx.fillText('INTERTRAVAMENTO DE SEGURANÇA:', 38, 227);
-      ctx.textAlign = 'right';
-      ctx.fillText('ATIVO / SEGURO', 474, 227);
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('AVCB & NBR 14518 CONFORME', 256, 180);
 
-      ctx.fillStyle = '#064e3b';
-      ctx.fillRect(24, 256, 464, 46);
-      ctx.fillStyle = '#6ee7b7';
-      ctx.textAlign = 'left';
-      ctx.fillText('COZINHA & ESTRUTURA:', 38, 285);
-      ctx.textAlign = 'right';
-      ctx.fillText('100% PRESERVADAS (AVCB OK)', 474, 285);
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 13px monospace';
+      ctx.fillText('COZINHA E VIDAS PRESERVADAS', 256, 260);
 
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '11px monospace';
+    } else {
+      // 4. STANDBY / HEATING: TELA INICIAL DA IHM (EXATA DA FOTO tela-ihm-display.jpg)
+      ctx.fillStyle = '#0284c7'; // Azul Header
+      ctx.fillRect(0, 0, 512, 45);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 20px "Courier New", Courier, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('SISTEMA PRONTO PARA LIMPEZA COM ÁGUA E REARME', 256, 332);
+      ctx.fillText('10/05 15:42', 240, 30);
+
+      // LED verde de link
+      ctx.beginPath();
+      ctx.arc(460, 24, 9, 0, Math.PI * 2);
+      ctx.fillStyle = '#22c55e';
+      ctx.fill();
+
+      // Fundo escuro
+      ctx.fillStyle = '#0c1a29';
+      ctx.fillRect(0, 45, 512, 290);
+
+      // 3 Cards Superiores
+      // Exaustor OK
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(18, 55, 145, 60);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('EXAUSTOR', 90, 80);
+      ctx.fillText('OK', 90, 100);
+
+      // Energia OK
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(183, 55, 145, 60);
+      ctx.fillText('ENERGIA', 256, 80);
+      ctx.fillText('OK', 256, 100);
+
+      // Gás Aberto
+      ctx.fillStyle = '#15803d';
+      ctx.fillRect(348, 55, 145, 60);
+      ctx.fillText('GÁS', 420, 80);
+      ctx.fillText('ABERTO', 420, 100);
+
+      // 4 Botões Táteis 3D
+      ctx.fillStyle = '#1d4ed8'; // Azul Botão
+      // SETORES
+      ctx.fillRect(25, 130, 220, 70);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('SETORES', 135, 172);
+
+      // CONTROLE GÁS
+      ctx.fillRect(265, 130, 220, 70);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('CONTROLE GÁS', 375, 172);
+
+      // REARMAR
+      ctx.fillStyle = '#1d4ed8';
+      ctx.fillRect(25, 215, 220, 70);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('REARMAR', 135, 257);
+
+      // CONFIG
+      ctx.fillStyle = '#1d4ed8';
+      ctx.fillRect(265, 215, 220, 70);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('CONFIG', 375, 257);
+
+      // Rodapé: SISTEMA OPERANTE
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(0, 335, 512, 45);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 18px "Courier New", Courier, monospace';
+      ctx.fillText('SISTEMA OPERANTE', 256, 363);
     }
 
     if (centralScreenTextureRef.current) {
@@ -271,48 +249,115 @@ export const Hero3DScrollytelling: React.FC = () => {
     }
   }, []);
 
+  // Estado para controle de contagem regressiva manual disparada pela botoeira
+  const [isManualCountdown, setIsManualCountdown] = useState<boolean>(false);
+
   // --- MANUAL TRIGGER ACTION (BOTOEIRA) ---
+  // Regra crítica do cliente: ao puxar o acionador manual, inicia a contagem regressiva
+  // e NÃO despeja o saponificante antes de zerar a contagem!
   const handleManualTrigger = useCallback(() => {
-    manualOverrideRef.current = true;
-    setManualOverride(true);
-    setSimStage('SUPPRESSION');
-    setCountdown(0);
-    setTelemetry({
-      temp: 140,
-      gasStatus: 'CORTADO',
-      exhaustStatus: 'INTERTRAVADO',
-      systemStatus: 'COMBATE ATIVO',
-      countdown: 0,
-    });
+    if (simStage === 'SUPPRESSION' || simStage === 'EXTINGUISHED') return;
 
     if (manualPullLeverRef.current) {
       manualPullLeverRef.current.rotation.x = 0.65;
     }
 
-    setTimeout(() => {
-      setSimStage('EXTINGUISHED');
-      setTelemetry({
-        temp: 42,
-        gasStatus: 'CORTADO',
-        exhaustStatus: 'INTERTRAVADO',
-        systemStatus: 'INCÊNDIO EXTINTO',
-        countdown: 0,
-      });
-    }, 3500);
-  }, []);
+    manualOverrideRef.current = true;
+    setManualOverride(true);
+    setSimStage('FIRE_ALARM');
+    setCountdown(60);
+    setIsManualCountdown(true);
 
-  // --- RESET SCENE ACTION ---
-  const handleResetScene = useCallback(() => {
+    setTelemetry({
+      temp: 290,
+      gasStatus: 'CORTADO',
+      exhaustStatus: 'INTERTRAVADO',
+      systemStatus: 'ALERTA DE FOGO',
+      countdown: 60,
+    });
+  }, [simStage]);
+
+  // --- ABORTAR DISPARO (ANULAR DISPARO EM FALSO CONFORME REQUISITO) ---
+  const handleAbortDisparo = useCallback(() => {
     manualOverrideRef.current = false;
     setManualOverride(false);
+    setIsManualCountdown(false);
     setSimStage('STANDBY');
-    setCountdown(10);
+    setCountdown(60);
     setTelemetry({
       temp: 180,
       gasStatus: 'ABERTO',
       exhaustStatus: 'LIGADO',
       systemStatus: 'PRONTIDÃO',
-      countdown: 10,
+      countdown: 60,
+    });
+    if (manualPullLeverRef.current) {
+      manualPullLeverRef.current.rotation.x = 0;
+    }
+  }, []);
+
+  // Helpers de rolagem suave da tela
+  const scrollToKitchen = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+    }
+  };
+
+  const handleScrollDownStep = () => {
+    if (!containerRef.current) return;
+    const currentScroll = window.scrollY;
+    const step = window.innerHeight * 0.85;
+    window.scrollTo({ top: currentScroll + step, behavior: 'smooth' });
+  };
+
+  // Efeito da contagem regressiva manual: conta até 0s e apenas então dispara a supressão
+  useEffect(() => {
+    if (!isManualCountdown) return;
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 5) {
+          clearInterval(interval);
+          setIsManualCountdown(false);
+          // Zerou a contagem regressiva -> Agora sim despeja o saponificante!
+          setSimStage('SUPPRESSION');
+          setTelemetry((t) => ({
+            ...t,
+            temp: 140,
+            systemStatus: 'COMBATE ATIVO',
+            countdown: 0,
+          }));
+          setTimeout(() => {
+            setSimStage('EXTINGUISHED');
+            setTelemetry((t) => ({
+              ...t,
+              temp: 38,
+              systemStatus: 'INCÊNDIO EXTINTO',
+              countdown: 0,
+            }));
+          }, 3500);
+          return 0;
+        }
+        return prev - 5;
+      });
+    }, 600);
+    return () => clearInterval(interval);
+  }, [isManualCountdown]);
+
+  // --- RESET SCENE ACTION ---
+  const handleResetScene = useCallback(() => {
+    manualOverrideRef.current = false;
+    setManualOverride(false);
+    setIsManualCountdown(false);
+    setSimStage('STANDBY');
+    setCountdown(60);
+    setTelemetry({
+      temp: 180,
+      gasStatus: 'ABERTO',
+      exhaustStatus: 'LIGADO',
+      systemStatus: 'PRONTIDÃO',
+      countdown: 60,
     });
     if (manualPullLeverRef.current) {
       manualPullLeverRef.current.rotation.x = 0;
@@ -328,7 +373,7 @@ export const Hero3DScrollytelling: React.FC = () => {
     updateLcdScreenTexture();
   }, [simStage, countdown, updateLcdScreenTexture]);
 
-  // --- SCROLLYTELLING LISTENER (PINNED ROLAGEM CONTÍNUA) ---
+  // --- SCROLLYTELLING LISTENER (PINNED ROLAGEM CONTÍNUA COM FASES) ---
   useEffect(() => {
     const handleScroll = () => {
       if (!containerRef.current) return;
@@ -341,57 +386,65 @@ export const Hero3DScrollytelling: React.FC = () => {
       scrollProgressRef.current = p;
       setScrollProgress(p);
 
-      // If manual trigger was clicked, don't revert to fire unless scrolled back to top
-      if (manualOverrideRef.current && p > 0.05) return;
+      // Se a contagem regressiva manual da botoeira estiver em andamento, não sobrescrever por rolagem
+      if (manualOverrideRef.current && isManualCountdown) return;
+
+      // Se o usuário rolou de volta para o topo da simulação, reseta o override manual
       if (manualOverrideRef.current && p <= 0.05) {
         manualOverrideRef.current = false;
         setManualOverride(false);
+        setIsManualCountdown(false);
       }
 
-      // Map scroll progress to stages
-      if (p < 0.18) {
+      // Mapeamento preciso das Fases da Simulação solicitadas:
+      // Standby (p < 0.20): Cozinha em prontidão, sem fogo
+      // Fase 1 (0.20 <= p < 0.45): Princípio de incêndio (óleo esquenta de 180°C a 340°C)
+      // Fase 2 (0.45 <= p < 0.70): Alarme térmico 145°C disparado, alarme 60s na tela da central
+      // Fase 3 (0.70 <= p < 0.88): Supressão ativa (saponificante classe K + CO2 no duto)
+      // Fase 4 (p >= 0.88): Incêndio extinto, cozinha preservada e norma NBR 14518
+      if (p < 0.20) {
         setSimStage('STANDBY');
         setTelemetry({
           temp: 180,
           gasStatus: 'ABERTO',
           exhaustStatus: 'LIGADO',
           systemStatus: 'PRONTIDÃO',
-          countdown: 10,
+          countdown: 60,
         });
-      } else if (p >= 0.18 && p < 0.42) {
-        setSimStage('HEATING');
-        const t = Math.round(180 + ((p - 0.18) / 0.24) * 185);
+      } else if (p >= 0.20 && p < 0.45) {
+        setSimStage('HEATING'); // FASE 1
+        const t = Math.round(180 + ((p - 0.20) / 0.25) * 160);
         setTelemetry({
           temp: t,
           gasStatus: 'ABERTO',
           exhaustStatus: 'LIGADO',
           systemStatus: 'AQUECIMENTO',
-          countdown: 10,
+          countdown: 60,
         });
-      } else if (p >= 0.42 && p < 0.65) {
-        setSimStage('FIRE_ALARM');
-        const cDown = Math.max(1, Math.round(10 - ((p - 0.42) / 0.23) * 9));
+      } else if (p >= 0.45 && p < 0.70) {
+        setSimStage('FIRE_ALARM'); // FASE 2
+        const cDown = Math.max(1, Math.round(60 - ((p - 0.45) / 0.25) * 59));
         setCountdown(cDown);
         setTelemetry({
-          temp: 420,
-          gasStatus: 'ABERTO',
-          exhaustStatus: 'LIGADO',
+          temp: 380,
+          gasStatus: 'CORTADO',
+          exhaustStatus: 'INTERTRAVADO',
           systemStatus: 'ALERTA DE FOGO',
           countdown: cDown,
         });
-      } else if (p >= 0.65 && p < 0.85) {
-        setSimStage('SUPPRESSION');
+      } else if (p >= 0.70 && p < 0.88) {
+        setSimStage('SUPPRESSION'); // FASE 3
         setTelemetry({
-          temp: 160,
+          temp: 135,
           gasStatus: 'CORTADO',
           exhaustStatus: 'INTERTRAVADO',
           systemStatus: 'COMBATE ATIVO',
           countdown: 0,
         });
       } else {
-        setSimStage('EXTINGUISHED');
+        setSimStage('EXTINGUISHED'); // FASE 4
         setTelemetry({
-          temp: 42,
+          temp: 38,
           gasStatus: 'CORTADO',
           exhaustStatus: 'INTERTRAVADO',
           systemStatus: 'INCÊNDIO EXTINTO',
@@ -403,7 +456,7 @@ export const Hero3DScrollytelling: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isManualCountdown]);
 
   // Camera Quick Jump
   const setCameraView = (view: 'geral' | 'central' | 'fritadeira' | 'botoeira') => {
@@ -436,9 +489,18 @@ export const Hero3DScrollytelling: React.FC = () => {
     scene.background = new THREE.Color(0x0a0c10);
     scene.fog = new THREE.FogExp2(0x0a0c10, 0.035);
 
-    // 2. Camera
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 2.2, 4.4);
+    // 2. Camera com enquadramento responsivo para Mobile e Desktop
+    const isMobile = width < 768;
+    const camera = new THREE.PerspectiveCamera(isMobile ? 58 : 45, width / height, 0.1, 100);
+    if (isMobile) {
+      camera.position.set(0.1, 2.15, 5.6);
+      targetCamPos.current.set(0.1, 2.15, 5.6);
+      targetCamLook.current.set(0.1, 1.35, 0);
+    } else {
+      camera.position.set(0, 2.2, 4.4);
+      targetCamPos.current.set(0, 2.2, 4.4);
+      targetCamLook.current.set(0, 1.4, 0);
+    }
     cameraRef.current = camera;
 
     // 3. Renderer
@@ -462,7 +524,7 @@ export const Hero3DScrollytelling: React.FC = () => {
     controls.enableZoom = false; // NEVER trap page wheel scroll
     controls.enablePan = false;
     controls.maxPolarAngle = Math.PI / 2 + 0.05;
-    controls.target.set(0, 1.4, 0);
+    controls.target.set(isMobile ? 0.1 : 0, isMobile ? 1.35 : 1.4, 0);
     controlsRef.current = controls;
 
     // 5. Lighting
@@ -613,6 +675,37 @@ export const Hero3DScrollytelling: React.FC = () => {
     );
     ductMesh.position.set(0, 1.0, 0);
     hoodGroup.add(ductMesh);
+
+    // Damper Corta-Fogo Motorizado Automático no Duto (NBR 14518)
+    const damperHousing = new THREE.Mesh(
+      new THREE.BoxGeometry(0.64, 0.18, 0.64),
+      new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.85, roughness: 0.25 })
+    );
+    damperHousing.position.set(0, 0.55, 0);
+    hoodGroup.add(damperHousing);
+
+    const damperMotor = new THREE.Mesh(
+      new THREE.BoxGeometry(0.14, 0.14, 0.14),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4 })
+    );
+    damperMotor.position.set(0.36, 0.55, 0);
+    hoodGroup.add(damperMotor);
+
+    // Painel de Inox Escovado (Backsplash industrial atrás da bancada)
+    const backsplashMat = new THREE.MeshStandardMaterial({
+      color: 0xb0b5bc,
+      metalness: 0.88,
+      roughness: 0.3,
+    });
+    const backsplash = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.4), backsplashMat);
+    backsplash.position.set(0, 1.6, -0.6);
+    scene.add(backsplash);
+
+    // Barra de utensílios em inox
+    const utensilBar = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 2.4, 16), matStainlessSteel);
+    utensilBar.rotation.z = Math.PI / 2;
+    utensilBar.position.set(0, 1.95, -0.58);
+    scene.add(utensilBar);
 
     // Saponificant Piping & Specialized Nozzles
     const pipeMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.8, roughness: 0.3 });
@@ -767,6 +860,89 @@ export const Hero3DScrollytelling: React.FC = () => {
     manualGroup.add(lever);
     manualPullLeverRef.current = lever;
 
+    // 11. CILINDRO DE SAPONIFICANTE CROMADO (INOX) AO LADO DA COIFA
+    const sapCylinderGroup = new THREE.Group();
+    sapCylinderGroup.position.set(-1.85, 1.1, -0.3);
+    scene.add(sapCylinderGroup);
+    sapCylinderGroup.userData = { interactiveType: 'saponificante', name: 'Cilindro Saponificante Classe K (Inox Cromado)' };
+
+    const matChromeCylinder = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      metalness: 0.96,
+      roughness: 0.12,
+    });
+
+    const sapBody = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.82, 32), matChromeCylinder);
+    sapBody.castShadow = true;
+    sapCylinderGroup.add(sapBody);
+
+    const sapCapTop = new THREE.Mesh(new THREE.SphereGeometry(0.13, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), matChromeCylinder);
+    sapCapTop.position.set(0, 0.41, 0);
+    sapCylinderGroup.add(sapCapTop);
+
+    const sapCapBottom = new THREE.Mesh(new THREE.SphereGeometry(0.13, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), matChromeCylinder);
+    sapCapBottom.position.set(0, -0.41, 0);
+    sapCylinderGroup.add(sapCapBottom);
+
+    const sapBracketMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 });
+    const sapBrk1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.06), sapBracketMat);
+    sapBrk1.position.set(0, 0.22, -0.09);
+    sapCylinderGroup.add(sapBrk1);
+
+    const sapBrk2 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.06), sapBracketMat);
+    sapBrk2.position.set(0, -0.22, -0.09);
+    sapCylinderGroup.add(sapBrk2);
+
+    const gaugeRing = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.02, 16), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85 }));
+    gaugeRing.rotation.x = Math.PI / 2;
+    gaugeRing.position.set(0, 0.55, 0.08);
+    sapCylinderGroup.add(gaugeRing);
+
+    const gaugeFace = new THREE.Mesh(new THREE.CircleGeometry(0.028, 16), new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+    gaugeFace.position.set(0, 0.55, 0.091);
+    sapCylinderGroup.add(gaugeFace);
+
+    const sapValve = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.12, 16), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9 }));
+    sapValve.position.set(0, 0.52, 0);
+    sapCylinderGroup.add(sapValve);
+
+    const sapStripe = new THREE.Mesh(new THREE.CylinderGeometry(0.132, 0.132, 0.12, 32), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 }));
+    sapStripe.position.set(0, 0.05, 0);
+    sapCylinderGroup.add(sapStripe);
+
+    // 12. CILINDRO DE CO2 VERMELHO NO FINAL DO DUTO
+    const co2CylinderGroup = new THREE.Group();
+    co2CylinderGroup.position.set(0.85, 2.7, -0.35);
+    scene.add(co2CylinderGroup);
+    co2CylinderGroup.userData = { interactiveType: 'co2', name: 'Cilindro de CO2 (Injeção no Duto)' };
+
+    const matRedCylinder = new THREE.MeshStandardMaterial({
+      color: 0xdc2626,
+      metalness: 0.65,
+      roughness: 0.28,
+    });
+
+    const co2Body = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.95, 32), matRedCylinder);
+    co2Body.castShadow = true;
+    co2CylinderGroup.add(co2Body);
+
+    const co2CapTop = new THREE.Mesh(new THREE.SphereGeometry(0.09, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), matRedCylinder);
+    co2CapTop.position.set(0, 0.475, 0);
+    co2CylinderGroup.add(co2CapTop);
+
+    const co2CapBottom = new THREE.Mesh(new THREE.SphereGeometry(0.09, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), matRedCylinder);
+    co2CapBottom.position.set(0, -0.475, 0);
+    co2CylinderGroup.add(co2CapBottom);
+
+    const co2Valve = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.14, 16), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85 }));
+    co2Valve.position.set(0, 0.6, 0);
+    co2CylinderGroup.add(co2Valve);
+
+    const co2Pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.85, 16), matStainlessSteel);
+    co2Pipe.rotation.z = Math.PI / 2;
+    co2Pipe.position.set(-0.42, 0.66, 0.35);
+    co2CylinderGroup.add(co2Pipe);
+
     // 11. SAPONIFICANT FOAM BLANKET MESH
     const foamBlanket = new THREE.Mesh(
       new THREE.BoxGeometry(0.74, 0.08, 0.64),
@@ -878,7 +1054,7 @@ export const Hero3DScrollytelling: React.FC = () => {
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects([manualGroup, centralGroup, fryerGroup], true);
+      const intersects = raycaster.intersectObjects([manualGroup, centralGroup, fryerGroup, sapCylinderGroup, co2CylinderGroup], true);
 
       if (intersects.length > 0) {
         let root: THREE.Object3D | null = intersects[0].object;
@@ -901,7 +1077,7 @@ export const Hero3DScrollytelling: React.FC = () => {
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects([manualGroup, centralGroup, fryerGroup], true);
+      const intersects = raycaster.intersectObjects([manualGroup, centralGroup, fryerGroup, sapCylinderGroup, co2CylinderGroup], true);
 
       if (intersects.length > 0) {
         let root: THREE.Object3D | null = intersects[0].object;
@@ -912,6 +1088,8 @@ export const Hero3DScrollytelling: React.FC = () => {
           handleManualTrigger();
         } else if (root?.userData?.interactiveType === 'central') {
           setCameraView('central');
+        } else if (root?.userData?.interactiveType === 'fritadeira') {
+          setCameraView('fritadeira');
         }
       }
     };
@@ -924,7 +1102,9 @@ export const Hero3DScrollytelling: React.FC = () => {
       if (!mountRef.current || !rendererRef.current || !cameraRef.current) return;
       const w = mountRef.current.clientWidth;
       const h = mountRef.current.clientHeight;
+      const mobile = w < 768;
       cameraRef.current.aspect = w / h;
+      cameraRef.current.fov = mobile ? 58 : 45;
       cameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, h);
     };
@@ -1089,186 +1269,315 @@ export const Hero3DScrollytelling: React.FC = () => {
   }, [handleManualTrigger, updateLcdScreenTexture]);
 
   return (
-    <section 
-      id="hero-3d" 
-      ref={containerRef} 
-      className="relative w-full h-[350vh] bg-[#07080a]"
-    >
-      {/* STICKY 3D VIEWPORT PINNED TO SCREEN */}
-      <div 
-        ref={mountRef} 
-        className="sticky top-0 w-full h-screen overflow-hidden flex flex-col justify-between select-none"
+    <>
+      {/* TELA 1 DE ABERTURA (PRIMEIRO CONTATO): FUNDO PRETO, APENAS O LOGO E A SETA DOURADA */}
+      <section 
+        id="splash-hero"
+        className="relative w-full h-[100dvh] bg-[#05070a] flex flex-col items-center justify-center select-none overflow-hidden z-20"
       >
-        {/* 1. THREE.JS 3D WEBGL CANVAS */}
-        <canvas 
-          ref={canvasRef} 
-          className="absolute inset-0 w-full h-full block z-0 outline-none"
-        />
+        {/* Brilho radial dourado sutil no centro escuro */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#d4af37]/15 via-[#0a0c10]/60 to-[#05070a] pointer-events-none" />
 
-        {/* 2. TOP FLOATING HUD OVERLAY (STATUS & TELEMETRY) */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pointer-events-none">
-          
-          {/* Left: System Badge & Real-time State */}
-          <div className="flex flex-col gap-1.5 pointer-events-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-[#d4af37]/40 shadow-glow-gold text-xs font-bold text-[#f3e5ab]">
-              <Radio className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
-              <span>Simulador 3D Autônomo Outfire</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
-              <span className="text-[11px] font-mono text-gray-300">NBR 14518</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className={`px-3 py-1 rounded-lg text-xs font-black tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md border ${
-                simStage === 'STANDBY' 
-                  ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300' 
-                  : simStage === 'HEATING'
-                  ? 'bg-amber-950/80 border-amber-500/50 text-amber-300'
-                  : simStage === 'FIRE_ALARM'
-                  ? 'bg-red-950/90 border-red-500 text-red-200 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.5)]'
-                  : simStage === 'SUPPRESSION'
-                  ? 'bg-amber-950/90 border-amber-500 text-amber-200 shadow-[0_0_20px_rgba(245,158,11,0.5)]'
-                  : 'bg-emerald-900/90 border-emerald-400 text-emerald-200'
-              }`}>
-                {simStage === 'STANDBY' && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
-                {simStage === 'HEATING' && <Flame className="w-4 h-4 text-amber-400 animate-pulse" />}
-                {simStage === 'FIRE_ALARM' && <Flame className="w-4 h-4 text-red-400 animate-bounce" />}
-                {simStage === 'SUPPRESSION' && <Droplets className="w-4 h-4 text-amber-300 animate-spin" />}
-                {simStage === 'EXTINGUISHED' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                {telemetry.systemStatus}
-              </span>
-
-              {simStage === 'FIRE_ALARM' && (
-                <span className="px-2.5 py-1 rounded-lg bg-red-600 text-white font-mono font-black text-xs animate-ping">
-                  DISPARO EM {countdown}s
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Right: Real-time Telemetry Chips (Gas, Exhaust, Temp) */}
-          <div className="flex items-center gap-2 pointer-events-auto bg-black/75 backdrop-blur-md p-2 rounded-2xl border border-white/10 shadow-2xl">
-            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
-              <Flame className={`w-3.5 h-3.5 ${telemetry.temp > 200 ? 'text-red-400 animate-pulse' : 'text-amber-400'}`} />
-              <div className="flex flex-col">
-                <span className="text-[9px] text-gray-400 font-mono">TEMP. ÓLEO</span>
-                <span className="text-xs font-bold text-white font-mono">{telemetry.temp}°C</span>
-              </div>
-            </div>
-
-            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
-              <ZapOff className={`w-3.5 h-3.5 ${telemetry.gasStatus === 'CORTADO' ? 'text-red-400' : 'text-emerald-400'}`} />
-              <div className="flex flex-col">
-                <span className="text-[9px] text-gray-400 font-mono">VÁLVULA GÁS</span>
-                <span className={`text-xs font-bold font-mono ${telemetry.gasStatus === 'CORTADO' ? 'text-red-400' : 'text-emerald-400'}`}>
-                  {telemetry.gasStatus}
-                </span>
-              </div>
-            </div>
-
-            <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
-              <Wind className={`w-3.5 h-3.5 ${telemetry.exhaustStatus === 'INTERTRAVADO' ? 'text-red-400' : 'text-emerald-400'}`} />
-              <div className="flex flex-col">
-                <span className="text-[9px] text-gray-400 font-mono">EXAUSTÃO</span>
-                <span className={`text-xs font-bold font-mono ${telemetry.exhaustStatus === 'INTERTRAVADO' ? 'text-red-400' : 'text-emerald-400'}`}>
-                  {telemetry.exhaustStatus}
-                </span>
-              </div>
-            </div>
-          </div>
-
+        {/* LOGO OUTFIRE DOURADO CENTRALIZADO */}
+        <div className="relative z-10 flex flex-col items-center justify-center px-4 text-center">
+          <img 
+            src="/assets/logo-outfire-gold.png" 
+            alt="Outfire Sistemas Contra Incêndio" 
+            className="w-80 sm:w-96 md:w-[480px] max-w-[88vw] object-contain drop-shadow-[0_0_45px_rgba(212,175,55,0.4)] select-none transition-transform duration-700 hover:scale-105"
+          />
         </div>
 
-        {/* 3. HOVER OBJECT TOOLTIP (3D RAYCASTING) */}
-        {hoveredObjectName && (
-          <div className="absolute top-28 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-4 py-1.5 rounded-full bg-black/90 backdrop-blur-md border border-[#d4af37]/60 text-xs text-[#f3e5ab] font-bold shadow-glow-gold flex items-center gap-2 animate-pulse">
-            <Eye className="w-3.5 h-3.5 text-[#d4af37]" />
-            <span>{hoveredObjectName} — Clique para interagir</span>
+        {/* SETA DOURADA PARA BAIXO SINALIZANDO O USUÁRIO PARA DESCER A TELA */}
+        <button 
+          onClick={scrollToKitchen}
+          aria-label="Descer para a simulação da cozinha"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 group cursor-pointer focus:outline-none"
+        >
+          <div className="w-12 h-12 rounded-full border border-[#d4af37]/50 bg-black/70 backdrop-blur-md flex items-center justify-center shadow-[0_0_25px_rgba(212,175,55,0.35)] group-hover:border-[#d4af37] group-hover:scale-110 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all">
+            <ChevronDown className="w-6 h-6 text-[#d4af37] animate-bounce" />
           </div>
-        )}
+        </button>
+      </section>
 
-        {/* 4. BOTTOM FLOATING CONTROLS & SCROLL CUE */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 flex flex-col md:flex-row items-center justify-between gap-3">
-          
-          {/* Main Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Emergency Manual Pull Station Button */}
-            <button
-              onClick={handleManualTrigger}
-              disabled={simStage === 'SUPPRESSION' || simStage === 'EXTINGUISHED'}
-              className={`py-2.5 px-5 rounded-2xl font-black text-xs sm:text-sm flex items-center gap-2 transition-all duration-300 border ${
-                simStage === 'FIRE_ALARM'
-                  ? 'bg-gradient-to-r from-red-600 via-rose-500 to-red-700 text-white border-white animate-pulse shadow-[0_0_35px_rgba(225,29,72,0.8)] scale-105'
-                  : 'bg-[#181212]/90 hover:bg-red-950/80 text-red-300 border-red-500/40 shadow-lg'
-              }`}
-            >
-              <AlertOctagon className="w-4 h-4 text-red-400" />
-              <span>🚨 Disparar Acionador Manual</span>
-            </button>
+      {/* TELA 2: CENÁRIO DA COZINHA INDUSTRIAL & SIMULAÇÃO 3D POR FASES */}
+      <section 
+        id="hero-3d" 
+        ref={containerRef} 
+        className="relative w-full h-[450vh] bg-[#07080a]"
+      >
+        {/* STICKY 3D VIEWPORT PINNED TO SCREEN (100dvh) */}
+        <div 
+          ref={mountRef} 
+          className="sticky top-0 w-full h-[100dvh] overflow-hidden flex flex-col justify-between select-none"
+        >
+          {/* 1. THREE.JS 3D WEBGL CANVAS */}
+          <canvas 
+            ref={canvasRef} 
+            className="absolute inset-0 w-full h-full block z-0 outline-none"
+          />
 
-            {/* Reset Button */}
-            {(simStage === 'EXTINGUISHED' || simStage === 'FIRE_ALARM' || simStage === 'SUPPRESSION') && (
+          {/* 2. TOP FLOATING HUD OVERLAY (STATUS & TELEMETRY) */}
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pointer-events-none">
+            
+            {/* Left: System Badge & Real-time State */}
+            <div className="flex flex-col gap-1.5 pointer-events-auto">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-[#d4af37]/40 shadow-glow-gold text-xs font-bold text-[#f3e5ab]">
+                <Radio className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
+                <span>Simulador 3D Autônomo Outfire</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+                <span className="text-[11px] font-mono text-gray-300">NBR 14518</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`px-3 py-1 rounded-lg text-xs font-black tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md border ${
+                  simStage === 'STANDBY' 
+                    ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300' 
+                    : simStage === 'HEATING'
+                    ? 'bg-amber-950/80 border-amber-500/50 text-amber-300'
+                    : simStage === 'FIRE_ALARM'
+                    ? 'bg-red-950/90 border-red-500 text-red-200 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.5)]'
+                    : simStage === 'SUPPRESSION'
+                    ? 'bg-cyan-950/90 border-cyan-500 text-cyan-200 shadow-[0_0_20px_rgba(6,182,212,0.5)]'
+                    : 'bg-emerald-900/90 border-emerald-400 text-emerald-200'
+                }`}>
+                  {simStage === 'STANDBY' && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                  {simStage === 'HEATING' && <Flame className="w-4 h-4 text-amber-400 animate-pulse" />}
+                  {simStage === 'FIRE_ALARM' && <Flame className="w-4 h-4 text-red-400 animate-bounce" />}
+                  {simStage === 'SUPPRESSION' && <Droplets className="w-4 h-4 text-cyan-300 animate-spin" />}
+                  {simStage === 'EXTINGUISHED' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                  {telemetry.systemStatus}
+                </span>
+
+                {simStage === 'FIRE_ALARM' && (
+                  <span className="px-2.5 py-1 rounded-lg bg-red-600 text-white font-mono font-black text-xs animate-pulse">
+                    DISPARO EM {countdown}s
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Real-time Telemetry Chips (Gas, Exhaust, Temp) */}
+            <div className="flex items-center gap-2 pointer-events-auto bg-black/80 backdrop-blur-md p-2 rounded-2xl border border-white/10 shadow-2xl">
+              <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
+                <Flame className={`w-3.5 h-3.5 ${telemetry.temp > 200 ? 'text-red-400 animate-pulse' : 'text-amber-400'}`} />
+                <div className="flex flex-col">
+                  <span className="text-[9px] text-gray-400 font-mono">TEMP. ÓLEO</span>
+                  <span className="text-xs font-bold text-white font-mono">{telemetry.temp}°C</span>
+                </div>
+              </div>
+
+              <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
+                <ZapOff className={`w-3.5 h-3.5 ${telemetry.gasStatus === 'CORTADO' ? 'text-red-400' : 'text-emerald-400'}`} />
+                <div className="flex flex-col">
+                  <span className="text-[9px] text-gray-400 font-mono">VÁLVULA GÁS</span>
+                  <span className={`text-xs font-bold font-mono ${telemetry.gasStatus === 'CORTADO' ? 'text-red-400' : 'text-emerald-400'}`}>
+                    {telemetry.gasStatus}
+                  </span>
+                </div>
+              </div>
+
+              <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
+                <Wind className={`w-3.5 h-3.5 ${telemetry.exhaustStatus === 'INTERTRAVADO' ? 'text-red-400' : 'text-emerald-400'}`} />
+                <div className="flex flex-col">
+                  <span className="text-[9px] text-gray-400 font-mono">EXAUSTÃO</span>
+                  <span className={`text-xs font-bold font-mono ${telemetry.exhaustStatus === 'INTERTRAVADO' ? 'text-red-400' : 'text-emerald-400'}`}>
+                    {telemetry.exhaustStatus}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* 3. HOVER OBJECT TOOLTIP (3D RAYCASTING) */}
+          {hoveredObjectName && (
+            <div className="absolute top-28 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-4 py-1.5 rounded-full bg-black/90 backdrop-blur-md border border-[#d4af37]/60 text-xs text-[#f3e5ab] font-bold shadow-glow-gold flex items-center gap-2 animate-pulse">
+              <Eye className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span>{hoveredObjectName} — Clique para interagir</span>
+            </div>
+          )}
+
+          {/* BANNER DE CONTAGEM REGRESSIVA MANUAL QUANDO ACIONADOR FOI PUXADO */}
+          {isManualCountdown && (
+            <div className="absolute top-44 left-1/2 -translate-x-1/2 z-20 pointer-events-auto px-5 py-3 rounded-2xl bg-red-950/95 backdrop-blur-md border border-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.7)] flex flex-col items-center gap-2 text-center max-w-md animate-pulse">
+              <div className="flex items-center gap-2 text-red-300 font-bold text-xs uppercase tracking-wider">
+                <AlertOctagon className="w-4 h-4 text-red-400" />
+                <span>Acionador Manual Disparado • Contagem de Segurança</span>
+              </div>
+              <div className="font-mono text-2xl font-black text-[#67e8f9]">
+                Supressão em {countdown}s
+              </div>
+              <p className="text-[11px] text-gray-200">
+                O saponificante <strong>NÃO</strong> é descarregado de imediato. Aguarda zerar a contagem para evacuação da cozinha ou cancelamento.
+              </p>
               <button
-                onClick={handleResetScene}
-                className="py-2.5 px-4 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-2 border border-white/15 transition-all duration-200 active:scale-95"
+                onClick={handleAbortDisparo}
+                className="mt-1 px-4 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 border border-white/30"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Restaurar</span>
+                <XCircle className="w-3.5 h-3.5 text-white" />
+                <span>Toque aqui para Abortar Disparo</span>
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Center: Dynamic Animated Scroll Indicator */}
-          <div className="flex items-center gap-2 text-xs font-medium text-[#f3e5ab]/90 bg-black/75 backdrop-blur-md px-4 py-2 rounded-full border border-[#d4af37]/30 shadow-lg">
-            <ChevronDown className="w-4 h-4 text-[#d4af37] animate-bounce" />
-            <span>
-              {scrollProgress < 0.85 
-                ? 'Role a página para ver a evolução do fogo e o combate automático' 
-                : 'Continue rolando para conhecer os detalhes técnicos da Central Outfire'}
-            </span>
-          </div>
+          {/* 4. BARRA INFERIOR COM SETA DOURADA PISCANTE E INDICADOR DE FASES */}
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3">
+            
+            {/* BARRA CENTRAL DE FASES E SETA DOURADA */}
+            <div className="flex items-center gap-3 bg-black/85 backdrop-blur-md px-5 py-2.5 rounded-full border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full overflow-hidden">
+              {/* Seta Dourada Interativa com Bounce / Pulse */}
+              <button 
+                onClick={handleScrollDownStep}
+                aria-label="Avançar simulação para baixo"
+                className="w-10 h-10 rounded-full bg-gradient-to-b from-[#d4af37]/25 to-black/80 border border-[#d4af37]/60 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] cursor-pointer shrink-0"
+              >
+                <ChevronDown className={`w-5 h-5 text-[#d4af37] ${simStage !== 'STANDBY' ? 'animate-bounce' : 'animate-pulse'}`} />
+              </button>
 
-          {/* Right: Camera Quick Views */}
-          <div className="hidden sm:flex items-center gap-1 bg-black/70 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 text-xs">
-            <span className="text-[10px] text-gray-400 px-2 font-mono flex items-center gap-1">
-              <Camera className="w-3 h-3 text-[#d4af37]" /> Câmera:
-            </span>
-            <button
-              onClick={() => setCameraView('geral')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                activeCameraView === 'geral' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Geral
-            </button>
-            <button
-              onClick={() => setCameraView('central')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                activeCameraView === 'central' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Central
-            </button>
-            <button
-              onClick={() => setCameraView('fritadeira')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                activeCameraView === 'fritadeira' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Fritadeira
-            </button>
-            <button
-              onClick={() => setCameraView('botoeira')}
-              className={`px-2.5 py-1 rounded-xl font-bold transition-all ${
-                activeCameraView === 'botoeira' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Botoeira
-            </button>
+              {/* Indicador Dinâmico de Fase ao Lado da Seta */}
+              <div className="flex items-center gap-2 truncate">
+                {simStage === 'STANDBY' && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold text-gray-200">
+                      Cozinha Industrial em Standby • <span className="text-[#d4af37]">Role para descer</span>
+                    </span>
+                  </div>
+                )}
+
+                {simStage === 'HEATING' && (
+                  <div className="flex items-center gap-2 animate-pulse">
+                    <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/60 text-amber-300 font-black text-xs shrink-0">
+                      FASE 1
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-amber-200 truncate">
+                      Princípio de Incêndio (Óleo a {telemetry.temp}°C) — Continue descendo
+                    </span>
+                  </div>
+                )}
+
+                {simStage === 'FIRE_ALARM' && (
+                  <div className="flex items-center gap-2 animate-pulse">
+                    <span className="px-2.5 py-0.5 rounded-md bg-red-600/30 border border-red-500 text-red-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                      FASE 2
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-red-200 truncate">
+                      Alarme Térmico 145°C Disparado • Contagem: {countdown}s
+                    </span>
+                  </div>
+                )}
+
+                {simStage === 'SUPPRESSION' && (
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-cyan-600/30 border border-cyan-400 text-cyan-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+                      FASE 3
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-cyan-200 truncate">
+                      Supressão Ativa: Saponificante Classe K + CO2 no duto
+                    </span>
+                  </div>
+                )}
+
+                {simStage === 'EXTINGUISHED' && (
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-emerald-600/30 border border-emerald-400 text-emerald-200 font-black text-xs shrink-0">
+                      FASE 4
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-emerald-200 truncate">
+                      Cozinha Preservada • NBR 14518 Cumprida — Continue descendo
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* CONTROLES DE INTERAÇÃO (BOTOEIRA, RESTAURAR, CÂMERAS) */}
+            <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
+              
+              {/* Botões de Ação de Emergência */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Botão Acionador Manual (Botoeira) */}
+                <button
+                  onClick={handleManualTrigger}
+                  disabled={simStage === 'SUPPRESSION' || simStage === 'EXTINGUISHED' || isManualCountdown}
+                  className={`py-2 px-4 rounded-xl font-black text-xs flex items-center gap-2 transition-all duration-300 border ${
+                    simStage === 'FIRE_ALARM'
+                      ? 'bg-gradient-to-r from-red-600 via-rose-500 to-red-700 text-white border-white animate-pulse shadow-[0_0_25px_rgba(225,29,72,0.8)] scale-105'
+                      : 'bg-[#181212]/90 hover:bg-red-950/80 text-red-300 border-red-500/40 shadow-lg'
+                  }`}
+                >
+                  <AlertOctagon className="w-3.5 h-3.5 text-red-400" />
+                  <span>🚨 Disparar Acionador Manual</span>
+                </button>
+
+                {/* Botão Abortar Disparo em Falso */}
+                {(isManualCountdown || simStage === 'FIRE_ALARM') && (
+                  <button
+                    onClick={handleAbortDisparo}
+                    className="py-2 px-3.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-xs flex items-center gap-1.5 border border-amber-500/40 transition-all active:scale-95"
+                  >
+                    <XCircle className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Abortar Disparo</span>
+                  </button>
+                )}
+
+                {/* Reset Button */}
+                {(simStage === 'EXTINGUISHED' || simStage === 'FIRE_ALARM' || simStage === 'SUPPRESSION') && (
+                  <button
+                    onClick={handleResetScene}
+                    className="py-2 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-1.5 border border-white/15 transition-all duration-200 active:scale-95"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Restaurar</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Câmeras Rápidas */}
+              <div className="flex items-center gap-1 bg-black/75 backdrop-blur-md p-1 rounded-xl border border-white/10 text-xs">
+                <span className="text-[10px] text-gray-400 px-1.5 font-mono flex items-center gap-1">
+                  <Camera className="w-3 h-3 text-[#d4af37]" /> Câmera:
+                </span>
+                <button
+                  onClick={() => setCameraView('geral')}
+                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                    activeCameraView === 'geral' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  Geral
+                </button>
+                <button
+                  onClick={() => setCameraView('central')}
+                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                    activeCameraView === 'central' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  Central
+                </button>
+                <button
+                  onClick={() => setCameraView('fritadeira')}
+                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                    activeCameraView === 'fritadeira' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  Fritadeira
+                </button>
+                <button
+                  onClick={() => setCameraView('botoeira')}
+                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${
+                    activeCameraView === 'botoeira' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  Botoeira
+                </button>
+              </div>
+
+            </div>
+
           </div>
 
         </div>
-
-      </div>
-    </section>
+      </section>
+    </>
   );
 };

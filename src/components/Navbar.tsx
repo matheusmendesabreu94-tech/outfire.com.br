@@ -15,9 +15,11 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      // Exibe a navbar somente após o usuário rolar além da primeira tela de contato (splash do logo)
+      setScrolled(window.scrollY > (window.innerHeight * 0.7));
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -33,9 +35,15 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
   ];
 
   return (
-    <>
+    <div 
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        scrolled 
+          ? 'opacity-100 translate-y-0 pointer-events-auto' 
+          : 'opacity-0 -translate-y-full pointer-events-none'
+      }`}
+    >
       {/* Top Compliance Bar in Black & Gold */}
-      <div className="bg-gradient-to-r from-[#08090b] via-[#141208] to-[#08090b] border-b border-[#d4af37]/30 text-xs py-1.5 px-4 text-center text-[#f3e5ab] flex items-center justify-center gap-2 font-medium">
+      <div className="bg-gradient-to-r from-[#08090b] via-[#141208] to-[#08090b] border-b border-[#d4af37]/30 text-xs py-1.5 px-4 text-center text-[#f3e5ab] flex items-center justify-center gap-2 font-medium shadow-md">
         <span className="flex h-2 w-2 relative">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d4af37] opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-[#d4af37]"></span>
@@ -46,11 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
       </div>
 
       <header 
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          scrolled 
-            ? 'bg-[#08090b]/95 backdrop-blur-md border-b border-[#d4af37]/20 shadow-[0_10px_30px_rgba(0,0,0,0.8)] py-2.5' 
-            : 'bg-[#08090b]/85 backdrop-blur-sm border-b border-white/5 py-3.5'
-        }`}
+        className="bg-[#08090b]/95 backdrop-blur-md border-b border-[#d4af37]/20 shadow-[0_10px_30px_rgba(0,0,0,0.8)] py-2.5"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           
@@ -153,7 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
           </div>
         )}
       </header>
-    </>
+    </div>
   );
 };
 
