@@ -6,7 +6,12 @@ import {
   RotateCcw, Sparkles, BellRing, Eye, Camera, CheckCircle2,
   ChevronDown, Radio, XCircle
 } from 'lucide-react';
-import { createNormalizedIhmScreenCanvas } from '../utils/ihmScreen';
+import { 
+  createNormalizedIhmScreenCanvas, 
+  drawAlarmScreenToCanvas, 
+  drawSuppressionScreenToCanvas, 
+  drawExtinguishedScreenToCanvas 
+} from '../utils/ihmScreen';
 
 type SimStage = 'STANDBY' | 'HEATING' | 'FIRE_ALARM' | 'SUPPRESSION' | 'EXTINGUISHED';
 
@@ -81,171 +86,20 @@ export const Hero3DScrollytelling: React.FC = () => {
   const targetCamLook = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.4, 0));
 
   // --- DRAW CENTRAL LCD DIGITAL TOUCHSCREEN CANVAS TEXTURE ---
-  // Reproduz fielmente a tela inicial da IHM (Standby) e a tela de alarme vermelha (60s) enviada pelo usuário
+  // Renderiza dinamicamente as telas da IHM (Alarme com cronômetro em tempo real, Supressão e Extinto)
   const updateLcdScreenTexture = useCallback(() => {
-    let canvas = centralScreenCanvasRef.current;
-    if (!canvas) {
-      canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 380;
-      centralScreenCanvasRef.current = canvas;
-    }
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const canvas = centralScreenCanvasRef.current;
+    if (!canvas) return;
 
     const stage = simStageRef.current;
     const timeSec = countdownRef.current;
 
     if (stage === 'FIRE_ALARM') {
-      // 1. TELA REAL DE ALARME FORNECIDA PELO USUÁRIO (media_1792586651363.jpg)
-      ctx.fillStyle = '#ba1016';
-      ctx.fillRect(0, 0, 512, 380);
-
-      // Header: FOGO DETECTADO + LED verde
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 28px "Courier New", Courier, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('FOGO DETECTADO', 230, 48);
-
-      // LED Verde no canto superior direito
-      ctx.beginPath();
-      ctx.arc(460, 40, 10, 0, Math.PI * 2);
-      ctx.fillStyle = '#22c55e';
-      ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = '#ffffff';
-      ctx.stroke();
-
-      // FOGO DETECTADO: SUB-1 EM DISPARO
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 21px "Courier New", Courier, monospace';
-      ctx.fillText('FOGO DETECTADO: SUB-1', 256, 95);
-      ctx.fillText('EM DISPARO', 256, 128);
-
-      // RELÓGIO DIGITAL REGRESSIVO 60s (Retro Pixel Font)
-      ctx.fillStyle = '#67e8f9'; // Ciano pixel
-      ctx.font = '900 86px "Courier New", Courier, monospace';
-      ctx.fillText(`${timeSec}s`, 256, 230);
-
-      // TOQUE NA TELA PARA ABORTAR
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 19px "Courier New", Courier, monospace';
-      ctx.fillText('TOQUE NA TELA PARA ABORTAR', 256, 325);
-
+      drawAlarmScreenToCanvas(canvas, timeSec);
     } else if (stage === 'SUPPRESSION') {
-      // 2. DESCARGA EFETUADA
-      ctx.fillStyle = '#7f1d1d';
-      ctx.fillRect(0, 0, 512, 380);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 24px "Courier New", Courier, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('SISTEMA CO2 / SAP !', 256, 50);
-
-      ctx.fillStyle = '#fef08a';
-      ctx.font = 'bold 30px "Courier New", Courier, monospace';
-      ctx.fillText('DESCARGA EFETUADA', 256, 130);
-
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(80, 190, 352, 60);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillText('REARMAR SISTEMA', 256, 228);
-
+      drawSuppressionScreenToCanvas(canvas);
     } else if (stage === 'EXTINGUISHED') {
-      // 3. COZINHA SALVA / NORMALIZADO
-      ctx.fillStyle = '#06261c';
-      ctx.fillRect(0, 0, 512, 380);
-      ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 26px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('● INCÊNDIO EXTINTO', 256, 70);
-
-      ctx.fillStyle = '#a7f3d0';
-      ctx.font = 'bold 15px monospace';
-      ctx.fillText('SUPRESSÃO CLASSE K BEM-SUCEDIDA', 256, 115);
-
-      ctx.fillStyle = '#064e3b';
-      ctx.fillRect(30, 150, 452, 50);
-      ctx.fillStyle = '#6ee7b7';
-      ctx.font = 'bold 15px sans-serif';
-      ctx.fillText('AVCB & NBR 14518 CONFORME', 256, 180);
-
-      ctx.fillStyle = '#d4af37';
-      ctx.font = 'bold 13px monospace';
-      ctx.fillText('COZINHA E VIDAS PRESERVADAS', 256, 260);
-
-    } else {
-      // 4. STANDBY / HEATING: TELA INICIAL DA IHM (EXATA DA FOTO tela-ihm-display.jpg)
-      ctx.fillStyle = '#0284c7'; // Azul Header
-      ctx.fillRect(0, 0, 512, 45);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 20px "Courier New", Courier, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('10/05 15:42', 240, 30);
-
-      // LED verde de link
-      ctx.beginPath();
-      ctx.arc(460, 24, 9, 0, Math.PI * 2);
-      ctx.fillStyle = '#22c55e';
-      ctx.fill();
-
-      // Fundo escuro
-      ctx.fillStyle = '#0c1a29';
-      ctx.fillRect(0, 45, 512, 290);
-
-      // 3 Cards Superiores
-      // Exaustor OK
-      ctx.fillStyle = '#15803d';
-      ctx.fillRect(18, 55, 145, 60);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 13px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('EXAUSTOR', 90, 80);
-      ctx.fillText('OK', 90, 100);
-
-      // Energia OK
-      ctx.fillStyle = '#15803d';
-      ctx.fillRect(183, 55, 145, 60);
-      ctx.fillText('ENERGIA', 256, 80);
-      ctx.fillText('OK', 256, 100);
-
-      // Gás Aberto
-      ctx.fillStyle = '#15803d';
-      ctx.fillRect(348, 55, 145, 60);
-      ctx.fillText('GÁS', 420, 80);
-      ctx.fillText('ABERTO', 420, 100);
-
-      // 4 Botões Táteis 3D
-      ctx.fillStyle = '#1d4ed8'; // Azul Botão
-      // SETORES
-      ctx.fillRect(25, 130, 220, 70);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px sans-serif';
-      ctx.fillText('SETORES', 135, 172);
-
-      // CONTROLE GÁS
-      ctx.fillRect(265, 130, 220, 70);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText('CONTROLE GÁS', 375, 172);
-
-      // REARMAR
-      ctx.fillStyle = '#1d4ed8';
-      ctx.fillRect(25, 215, 220, 70);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText('REARMAR', 135, 257);
-
-      // CONFIG
-      ctx.fillStyle = '#1d4ed8';
-      ctx.fillRect(265, 215, 220, 70);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText('CONFIG', 375, 257);
-
-      // Rodapé: SISTEMA OPERANTE
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(0, 335, 512, 45);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 18px "Courier New", Courier, monospace';
-      ctx.fillText('SISTEMA OPERANTE', 256, 363);
+      drawExtinguishedScreenToCanvas(canvas);
     }
 
     if (centralScreenTextureRef.current) {
@@ -316,12 +170,14 @@ export const Hero3DScrollytelling: React.FC = () => {
     window.scrollTo({ top: currentScroll + step, behavior: 'smooth' });
   };
 
-  // Efeito da contagem regressiva manual: conta até 0s e apenas então dispara a supressão
+  // Efeito do cronômetro da tela de alarme: decrementa segundo a segundo (60s, 59s, 58s... 0s)
+  // e faz o cronômetro funcionar em tempo real na tela vermelha da central 3D
   useEffect(() => {
-    if (!isManualCountdown) return;
+    if (simStage !== 'FIRE_ALARM') return;
+
     const interval = setInterval(() => {
       setCountdown((prev) => {
-        if (prev <= 5) {
+        if (prev <= 1) {
           clearInterval(interval);
           setIsManualCountdown(false);
           // Zerou a contagem regressiva -> Agora sim despeja o saponificante!
@@ -343,11 +199,17 @@ export const Hero3DScrollytelling: React.FC = () => {
           }, 3500);
           return 0;
         }
-        return prev - 5;
+        const nextVal = prev - 1;
+        setTelemetry((t) => ({
+          ...t,
+          countdown: nextVal,
+        }));
+        return nextVal;
       });
-    }, 600);
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [isManualCountdown]);
+  }, [simStage]);
 
   // --- RESET SCENE ACTION ---
   const handleResetScene = useCallback(() => {
@@ -753,9 +615,15 @@ export const Hero3DScrollytelling: React.FC = () => {
     standbyScreenTexture.colorSpace = THREE.SRGBColorSpace;
     standbyScreenTextureRef.current = standbyScreenTexture;
 
-    // Load authentic Alarm Screen photo
-    const alarmScreenTexture = textureLoader.load('/assets/tela-ihm-alarme.jpg');
+    // Dynamic Alarm Screen Canvas Texture (1024x768 com cronômetro ativo em tempo real)
+    const alarmCanvas = document.createElement('canvas');
+    alarmCanvas.width = 1024;
+    alarmCanvas.height = 768;
+    drawAlarmScreenToCanvas(alarmCanvas, countdownRef.current);
+    const alarmScreenTexture = new THREE.CanvasTexture(alarmCanvas);
     alarmScreenTexture.colorSpace = THREE.SRGBColorSpace;
+    centralScreenCanvasRef.current = alarmCanvas;
+    centralScreenTextureRef.current = alarmScreenTexture;
     alarmScreenTextureRef.current = alarmScreenTexture;
 
     const matCabinetSteel = new THREE.MeshStandardMaterial({
@@ -801,6 +669,7 @@ export const Hero3DScrollytelling: React.FC = () => {
     // Dimensões proporcionais ideais para visualização no 3D: 0.20 de largura x 0.15 de altura
     const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.20, 0.15), lcdMat);
     lcdScreen.position.set(0, 0.0, 0.115); // Z = 0.115 fica 5mm à frente da face da tampa (Z = 0.110)
+    lcdScreen.userData = { interactiveType: 'central' };
     centralGroup.add(lcdScreen);
 
     // Moldura metálica (Bezel) posicionada ATRÁS da tela para nunca cobri-la
@@ -1300,10 +1169,10 @@ export const Hero3DScrollytelling: React.FC = () => {
 
       // Alternância dinâmica da tela TFT da Central IHM
       if (lcdScreenMatRef.current) {
-        if (stage === 'FIRE_ALARM' || stage === 'SUPPRESSION') {
-          if (alarmScreenTextureRef.current && lcdScreenMatRef.current.map !== alarmScreenTextureRef.current) {
-            lcdScreenMatRef.current.map = alarmScreenTextureRef.current;
-            lcdScreenMatRef.current.emissiveMap = alarmScreenTextureRef.current;
+        if (stage === 'FIRE_ALARM' || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED') {
+          if (centralScreenTextureRef.current && lcdScreenMatRef.current.map !== centralScreenTextureRef.current) {
+            lcdScreenMatRef.current.map = centralScreenTextureRef.current;
+            lcdScreenMatRef.current.emissiveMap = centralScreenTextureRef.current;
             lcdScreenMatRef.current.emissiveIntensity = 1.0;
             lcdScreenMatRef.current.needsUpdate = true;
           }

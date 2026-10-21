@@ -150,3 +150,138 @@ export function createNormalizedIhmScreenCanvas(): HTMLCanvasElement {
 
   return canvas;
 }
+
+/**
+ * Renderiza dinamicamente a tela de alarme de incêndio da IHM Outfire com cronômetro ativo:
+ * - Fundo vermelho vivo (#ba1016)
+ * - Cabeçalho: FOGO DETECTADO + LED indicador verde
+ * - FOGO DETECTADO: SUB-1 / EM DISPARO
+ * - Cronômetro digital ciano (#67e8f9): ex: "60s", "59s"... "0s"
+ * - Rodapé: TOQUE NA TELA PARA ABORTAR
+ */
+export function drawAlarmScreenToCanvas(canvas: HTMLCanvasElement, seconds: number): void {
+  if (canvas.width !== 1024 || canvas.height !== 768) {
+    canvas.width = 1024;
+    canvas.height = 768;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // 1. Fundo vermelho vívido de alarme
+  ctx.fillStyle = '#ba1016';
+  ctx.fillRect(0, 0, 1024, 768);
+
+  // 2. Header: FOGO DETECTADO
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 54px "Courier New", Courier, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('FOGO DETECTADO', 490, 75);
+
+  // LED Verde superior direito
+  ctx.beginPath();
+  ctx.arc(950, 75, 18, 0, Math.PI * 2);
+  ctx.fillStyle = '#22c55e';
+  ctx.fill();
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#ffffff';
+  ctx.stroke();
+
+  // 3. Subtítulo: FOGO DETECTADO: SUB-1 / EM DISPARO
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 42px "Courier New", Courier, monospace';
+  ctx.fillText('FOGO DETECTADO: SUB-1', 512, 175);
+  ctx.fillText('EM DISPARO', 512, 240);
+
+  // 4. Cronômetro Digital em Ciano (#67e8f9) com efeito de brilho TFT
+  const sec = Math.max(0, Math.round(seconds));
+  const timeStr = `${sec}s`;
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(103, 232, 249, 0.75)';
+  ctx.shadowBlur = 24;
+  ctx.fillStyle = '#67e8f9';
+  ctx.font = '900 185px "Courier New", Courier, monospace';
+  ctx.fillText(timeStr, 512, 440);
+  ctx.restore();
+
+  // 5. Rodapé: TOQUE NA TELA PARA ABORTAR
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 38px "Courier New", Courier, monospace';
+  ctx.fillText('TOQUE NA TELA PARA ABORTAR', 512, 670);
+}
+
+/**
+ * Renderiza a tela de Supressão / Descarga de agente efetuada
+ */
+export function drawSuppressionScreenToCanvas(canvas: HTMLCanvasElement): void {
+  if (canvas.width !== 1024 || canvas.height !== 768) {
+    canvas.width = 1024;
+    canvas.height = 768;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillRect(0, 0, 1024, 768);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 48px "Courier New", Courier, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SISTEMA CO2 / SAP', 512, 110);
+
+  ctx.fillStyle = '#fef08a';
+  ctx.font = '900 64px "Courier New", Courier, monospace';
+  ctx.fillText('DESCARGA EFETUADA', 512, 260);
+
+  // Botão Rearmar Sistema
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(212, 420, 600, 120);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(212, 420, 600, 120);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.fillText('REARMAR SISTEMA', 512, 480);
+}
+
+/**
+ * Renderiza a tela após a extinção do fogo (Cozinha Salva / Operação Normalizada)
+ */
+export function drawExtinguishedScreenToCanvas(canvas: HTMLCanvasElement): void {
+  if (canvas.width !== 1024 || canvas.height !== 768) {
+    canvas.width = 1024;
+    canvas.height = 768;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  ctx.fillStyle = '#06261c';
+  ctx.fillRect(0, 0, 1024, 768);
+
+  ctx.fillStyle = '#10b981';
+  ctx.font = '900 56px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('● INCÊNDIO EXTINTO', 512, 140);
+
+  ctx.fillStyle = '#a7f3d0';
+  ctx.font = 'bold 36px "Courier New", Courier, monospace';
+  ctx.fillText('SUPRESSÃO CLASSE K BEM-SUCEDIDA', 512, 240);
+
+  ctx.fillStyle = '#064e3b';
+  ctx.fillRect(100, 340, 824, 110);
+  ctx.strokeStyle = '#34d399';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(100, 340, 824, 110);
+
+  ctx.fillStyle = '#6ee7b7';
+  ctx.font = 'bold 38px sans-serif';
+  ctx.fillText('AVCB & NBR 14518 CONFORME', 512, 395);
+
+  ctx.fillStyle = '#d4af37';
+  ctx.font = 'bold 32px "Courier New", Courier, monospace';
+  ctx.fillText('COZINHA E VIDAS PRESERVADAS', 512, 570);
+}
