@@ -184,124 +184,7 @@ export const Hero3DScrollytelling: React.FC = () => {
     window.scrollTo({ top: containerBottom + 10, behavior: 'smooth' });
   };
 
-  // --- TOUCH CONTROLLER CALIBRADO PARA MOBILE (FLUIDO, SUAVE E SEM PULAR FASES) ---
-  const touchStateRef = useRef<{
-    startY: number;
-    lastY: number;
-    startTime: number;
-    lastTime: number;
-    velocity: number;
-    isDragging: boolean;
-    hasMoved: boolean;
-    animId: number;
-  }>({
-    startY: 0,
-    lastY: 0,
-    startTime: 0,
-    lastTime: 0,
-    velocity: 0,
-    isDragging: false,
-    hasMoved: false,
-    animId: 0,
-  });
 
-  const handleMobileTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length !== 1) return;
-    const touch = e.touches[0];
-    const state = touchStateRef.current;
-    cancelAnimationFrame(state.animId);
-
-    state.startY = touch.clientY;
-    state.lastY = touch.clientY;
-    state.startTime = performance.now();
-    state.lastTime = performance.now();
-    state.velocity = 0;
-    state.isDragging = true;
-    state.hasMoved = false;
-  };
-
-  const handleMobileTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    const state = touchStateRef.current;
-    if (!state.isDragging || e.touches.length !== 1) return;
-    const touch = e.touches[0];
-    const currentY = touch.clientY;
-    const now = performance.now();
-
-    const deltaY = state.lastY - currentY;
-    const timeDelta = Math.max(1, now - state.lastTime);
-
-    if (Math.abs(currentY - state.startY) > 5) {
-      state.hasMoved = true;
-    }
-
-    // Velocidade em pixels por frame (~16.6ms) com filtro de suavização
-    const instantV = (deltaY / timeDelta) * 16.6;
-    state.velocity = state.velocity * 0.3 + instantV * 0.7;
-    state.lastY = currentY;
-    state.lastTime = now;
-
-    // Rolagem com sensibilidade calibrada (1.35x) para deslizar com leveza sob o polegar esquerdo sem travar
-    window.scrollBy(0, deltaY * 1.35);
-  };
-
-  const handleMobileTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    const state = touchStateRef.current;
-    if (!state.isDragging) return;
-    state.isDragging = false;
-
-    // 1. Se foi apenas um toque rápido sem arrasto (< 5px), é um TAP na cena 3D (Botoeira ou Central)
-    if (!state.hasMoved) {
-      const touch = e.changedTouches[0];
-      if (touch && cameraRef.current && mountRef.current) {
-        const rect = mountRef.current.getBoundingClientRect();
-        const m = new THREE.Vector2(
-          ((touch.clientX - rect.left) / rect.width) * 2 - 1,
-          -((touch.clientY - rect.top) / rect.height) * 2 + 1
-        );
-        const rc = new THREE.Raycaster();
-        rc.setFromCamera(m, cameraRef.current);
-        const targets = [manualStationMeshRef.current, centralGroupRef.current, fryerGroupRef.current].filter(Boolean) as THREE.Object3D[];
-        const hits = rc.intersectObjects(targets, true);
-        if (hits.length > 0) {
-          let root: THREE.Object3D | null = hits[0].object;
-          while (root && !root.userData?.interactiveType && root.parent) {
-            root = root.parent;
-          }
-          if (root?.userData?.interactiveType === 'botoeira') {
-            handleManualTrigger();
-          } else if (root?.userData?.interactiveType === 'central') {
-            setCameraView('central');
-          } else if (root?.userData?.interactiveType === 'fritadeira') {
-            setCameraView('fritadeira');
-          }
-        }
-      }
-      return;
-    }
-
-    // 2. Flick / Inércia calibrada:
-    // Se o usuário manteve o dedo parado antes de soltar (> 75ms), não foi flick, zera a inércia
-    const timeSinceLastMove = performance.now() - state.lastTime;
-    if (timeSinceLastMove > 75) {
-      state.velocity = 0;
-    }
-
-    // Permite que um arrasto rápido avance cerca de 380px a 500px (~1 fase suave por vez),
-    // eliminando a sensação de travamento (dead brake) e sem nunca pular todas as fases de uma vez.
-    const maxVelocity = 24; // px/frame
-    let v = Math.max(-maxVelocity, Math.min(maxVelocity, state.velocity));
-
-    if (Math.abs(v) > 1.2) {
-      const friction = 0.94; // Amortecimento com curva exponencial suave
-      const stepInertia = () => {
-        if (Math.abs(v) < 0.25) return;
-        window.scrollBy(0, v);
-        v *= friction;
-        state.animId = requestAnimationFrame(stepInertia);
-      };
-      state.animId = requestAnimationFrame(stepInertia);
-    }
-  };
 
   // Efeito do cronômetro da tela de alarme: decrementa segundo a segundo (60s, 59s, 58s... 0s)
   // e faz o cronômetro funcionar em tempo real na tela vermelha da central 3D
@@ -1371,7 +1254,6 @@ export const Hero3DScrollytelling: React.FC = () => {
 
     return () => {
       cancelAnimationFrame(animId);
-      cancelAnimationFrame(touchStateRef.current.animId);
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('mousemove', onPointerMove);
       renderer.domElement.removeEventListener('click', onPointerDown);
@@ -1423,24 +1305,41 @@ export const Hero3DScrollytelling: React.FC = () => {
         {/* STICKY 3D VIEWPORT PINNED TO SCREEN (100dvh) */}
         <div 
           ref={mountRef} 
+          onClick={(e) => {
+            // Em dispositivos móveis, um toque leve sem arrasto (tap) aciona a botoeira ou foca a câmera
+            if (window.innerWidth < 768 && cameraRef.current && mountRef.current) {
+              const rect = mountRef.current.getBoundingClientRect();
+              const m = new THREE.Vector2(
+                ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                -((e.clientY - rect.top) / rect.height) * 2 + 1
+              );
+              const rc = new THREE.Raycaster();
+              rc.setFromCamera(m, cameraRef.current);
+              const targets = [manualStationMeshRef.current, centralGroupRef.current, fryerGroupRef.current].filter(Boolean) as THREE.Object3D[];
+              const hits = rc.intersectObjects(targets, true);
+              if (hits.length > 0) {
+                let root: THREE.Object3D | null = hits[0].object;
+                while (root && !root.userData?.interactiveType && root.parent) {
+                  root = root.parent;
+                }
+                if (root?.userData?.interactiveType === 'botoeira') {
+                  handleManualTrigger();
+                } else if (root?.userData?.interactiveType === 'central') {
+                  setCameraView('central');
+                } else if (root?.userData?.interactiveType === 'fritadeira') {
+                  setCameraView('fritadeira');
+                }
+              }
+            }
+          }}
           className="sticky top-0 w-full h-[100dvh] overflow-x-clip flex flex-col justify-between select-none"
           style={{ touchAction: 'pan-y' }}
         >
-          {/* 1. THREE.JS 3D WEBGL CANVAS */}
+          {/* 1. THREE.JS 3D WEBGL CANVAS (pointer-events-none no mobile para permitir rolagem nativa 100% desobstruída em toda a tela) */}
           <canvas 
             ref={canvasRef} 
             className="absolute inset-0 w-full h-full block z-0 outline-none pointer-events-none md:pointer-events-auto"
             style={{ touchAction: 'pan-y' }}
-          />
-
-          {/* CAMADA DE TOQUE 100% FLUIDA PARA MOBILE (FOGÃO, COIFA E MEIO DA SIMULAÇÃO) */}
-          <div 
-            className="absolute inset-0 w-full h-full z-10 block md:hidden cursor-grab active:cursor-grabbing select-none"
-            style={{ touchAction: 'none' }}
-            onTouchStart={handleMobileTouchStart}
-            onTouchMove={handleMobileTouchMove}
-            onTouchEnd={handleMobileTouchEnd}
-            onTouchCancel={handleMobileTouchEnd}
           />
 
           {/* 2. TOP FLOATING HUD OVERLAY (STATUS & TELEMETRY) */}
