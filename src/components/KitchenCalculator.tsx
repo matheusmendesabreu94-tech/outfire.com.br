@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { 
   Calculator, Plus, Trash2, Shield, Droplets, Wind, 
   Flame, CheckCircle, ArrowRight, Share2, Phone, Sparkles, 
-  HelpCircle, Settings, Layers, Box, Cpu 
+  HelpCircle, Settings, Layers, Box, Cpu,
+  Maximize2, Minimize2, ZoomIn, ZoomOut, RotateCcw, X, Move
 } from 'lucide-react';
 import { Appliance, CalculationResult, HoodConfig, KitchenProjectConfig } from '../types';
 
@@ -17,6 +18,10 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
   // Duct total length in meters
   const [ductLength, setDuctLength] = useState<number>(9);
   const [includeDamperNozzle, setIncludeDamperNozzle] = useState<boolean>(true);
+
+  // Diagram Zoom and Fullscreen Viewport states for Mobile & Desktop
+  const [diagramZoom, setDiagramZoom] = useState<number>(1);
+  const [isDiagramFullscreen, setIsDiagramFullscreen] = useState<boolean>(false);
 
   // Hoods state
   const [hoods, setHoods] = useState<HoodConfig[]>([
@@ -435,22 +440,104 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
           <div className="lg:col-span-7 space-y-6">
             
             {/* The Automated Kitchen Diagram (Visual Schematic) */}
-            <div className="glass-panel p-6 rounded-3xl border border-white/10 overflow-hidden shadow-2xl relative">
-              <div className="flex items-center justify-between mb-4">
+            <div className={
+              isDiagramFullscreen
+                ? "fixed inset-0 z-[100] bg-[#07090e]/98 backdrop-blur-2xl p-3 sm:p-6 flex flex-col justify-between overflow-hidden"
+                : "glass-panel p-4 sm:p-6 rounded-3xl border border-white/10 shadow-2xl relative"
+            }>
+              {/* Header with Title and Zoom / Fullscreen Controls */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-                  <h3 className="font-bold text-white text-base font-sans">
-                    Diagrama Esquemático da sua Cozinha
-                  </h3>
+                  <div>
+                    <h3 className="font-bold text-white text-base sm:text-lg font-sans flex items-center gap-2">
+                      <span>Diagrama Esquemático da sua Cozinha</span>
+                      <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+                        NBR 14518
+                      </span>
+                    </h3>
+                    {isDiagramFullscreen && (
+                      <p className="text-xs text-gray-400 hidden sm:block">
+                        Modo expandido de alta definição • Saponificante, CO2, Dampers e Central VTS 32S3
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <span className="text-[11px] font-mono text-gray-400 bg-black/40 px-2 py-1 rounded-lg border border-white/5">
-                  RENDERIZADO EM TEMPO REAL
-                </span>
+
+                {/* Interactive Controls (Zoom & Fullscreen) */}
+                <div className="flex items-center justify-between sm:justify-end gap-1.5 bg-black/50 p-1 rounded-xl border border-white/10">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setDiagramZoom(prev => Math.max(0.8, Number((prev - 0.2).toFixed(1))))}
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 active:scale-95 transition"
+                      title="Diminuir Zoom"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </button>
+                    <span className="text-[11px] font-mono text-amber-400 px-1 min-w-[38px] text-center font-bold">
+                      {Math.round(diagramZoom * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setDiagramZoom(prev => Math.min(2.5, Number((prev + 0.2).toFixed(1))))}
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 active:scale-95 transition"
+                      title="Aumentar Zoom"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDiagramZoom(1)}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 active:scale-95 transition"
+                      title="Restaurar Zoom (100%)"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="w-px h-4 bg-white/10 mx-1" />
+                  <button
+                    type="button"
+                    onClick={() => setIsDiagramFullscreen(prev => !prev)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 transition border border-amber-500/30"
+                    title={isDiagramFullscreen ? "Sair da Tela Cheia" : "Visualizar em Tela Cheia"}
+                  >
+                    {isDiagramFullscreen ? (
+                      <>
+                        <Minimize2 className="w-3.5 h-3.5" />
+                        <span>Fechar</span>
+                      </>
+                    ) : (
+                      <>
+                        <Maximize2 className="w-3.5 h-3.5" />
+                        <span>Tela Cheia</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
-              {/* Dynamic SVG Technical Diagram */}
-              <div className="relative w-full aspect-[16/9] bg-[#0d0f14] rounded-2xl border border-white/10 p-4 flex flex-col justify-between overflow-hidden">
-                
+              {/* Mobile Swipe Tip (Only when not in fullscreen) */}
+              {!isDiagramFullscreen && (
+                <div className="flex items-center justify-between text-[11px] text-gray-300 bg-white/[0.04] px-3 py-1.5 rounded-xl border border-white/5 mb-3 sm:hidden">
+                  <span className="flex items-center gap-1.5 text-amber-300">
+                    <Move className="w-3.5 h-3.5" />
+                    <span>Deslize horizontalmente para navegar</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsDiagramFullscreen(true)}
+                    className="text-amber-400 underline font-semibold"
+                  >
+                    Expandir
+                  </button>
+                </div>
+              )}
+
+              {/* Blueprint Canvas Container (Flexible height, no aspect-[16/9] constraint on mobile) */}
+              <div className={`relative w-full bg-[#0d0f14] rounded-2xl border border-white/10 p-2 sm:p-4 overflow-hidden ${
+                isDiagramFullscreen ? 'flex-1 flex flex-col justify-center my-2' : ''
+              }`}>
                 {/* Technical Grid Background */}
                 <div 
                   className="absolute inset-0 opacity-15 pointer-events-none"
@@ -460,8 +547,20 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                   }}
                 />
 
-                {/* SVG Blueprint */}
-                <svg className="w-full h-auto" viewBox="0 0 940 430">
+                {/* Scrollable / Pannable Blueprint Canvas */}
+                <div className="w-full overflow-x-auto overflow-y-hidden touch-pan-x touch-pan-y pb-2 scrollbar-thin scrollbar-thumb-amber-500/30 scrollbar-track-transparent">
+                  <div 
+                    className="transition-all duration-150 mx-auto"
+                    style={{
+                      minWidth: isDiagramFullscreen
+                        ? `${Math.max(760, Math.round(940 * diagramZoom))}px`
+                        : typeof window !== 'undefined' && window.innerWidth < 768
+                          ? `${Math.max(680, Math.round(740 * diagramZoom))}px`
+                          : `${Math.round(100 * diagramZoom)}%`,
+                      maxWidth: isDiagramFullscreen ? '1200px' : undefined
+                    }}
+                  >
+                    <svg className="w-full h-auto block select-none" viewBox="0 0 940 430">
                   <defs>
                     {/* Polished Chrome Gradient (Cilindro Saponificante Inox) */}
                     <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -843,53 +942,70 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                   <rect x="260" y="374" width="45" height="22" fill="#b91c1c" stroke="#fecaca" strokeWidth="1" rx="2" />
                   <rect x="277" y="366" width="11" height="9" fill="#1e293b" stroke="#eab308" strokeWidth="0.8" />
                   <text x="282.5" y="388" fill="#ffffff" fontSize="6.5" fontWeight="bold" textAnchor="middle">VÁLVULA GÁS</text>
-                  <text x="282.5" y="405" fill="#fef08a" fontSize="6.5" fontWeight="bold" textAnchor="middle">CORTE INSTANTÂNEO</text>
-                </svg>
-
-                {/* Diagram Legend */}
-                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 pt-3 border-t border-white/10 text-[10.5px] text-gray-300">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37]" />
-                    <span>Bico Saponificante (Classe K)</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-4 rounded-sm bg-gradient-to-b from-gray-200 to-gray-400 border border-white/50" />
-                    <span>Cilindro Saponificante (Inox)</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                    <span>Bico CO2 Duto</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-4 rounded-sm bg-red-600 border border-red-300" />
-                    <span>Cilindro CO2 (Vermelho)</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                    <span>Sensor 145°C Coifa</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
-                    <span>Sensor 300°C Duto</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-2.5 rounded-sm bg-red-700 border border-red-300" />
-                    <span>Damper Corta-Fogo (Acima da Coifa)</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-sm bg-black border border-amber-400" />
-                    <span>Central Outfire VTS 32S3</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-2 rounded-sm bg-red-600 border border-amber-300" />
-                    <span>Válvula de Gás (Corte Automático)</span>
+                    </svg>
                   </div>
                 </div>
-
               </div>
 
-              {/* Bill of Materials (BOM) Table */}
-              <div className="mt-6 space-y-3">
+              {/* Diagram Legend - Separated and fully legible on all devices */}
+              <div className="mt-4 p-3.5 sm:p-4 rounded-2xl bg-white/[0.02] border border-white/5 shrink-0">
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                      Legenda Técnica do Esquema
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-gray-400 bg-black/40 px-2 py-0.5 rounded border border-white/5">
+                    NBR 14518
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 text-[11px] text-gray-300">
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] shrink-0" />
+                    <span className="truncate">Bico Saponificante (K)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-2.5 h-3.5 rounded-sm bg-gradient-to-b from-gray-200 to-gray-400 border border-white/50 shrink-0" />
+                    <span className="truncate">Cilindro Saponificante</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0" />
+                    <span className="truncate">Bico CO2 Duto</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-2.5 h-3.5 rounded-sm bg-red-600 border border-red-300 shrink-0" />
+                    <span className="truncate">Cilindro CO2</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                    <span className="truncate">Sensor 145°C Coifa</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shrink-0" />
+                    <span className="truncate">Sensor 300°C Duto</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-3 h-2 rounded-sm bg-red-700 border border-red-300 shrink-0" />
+                    <span className="truncate">Damper Corta-Fogo</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                    <span className="w-3 h-3 rounded-sm bg-black border border-amber-400 shrink-0" />
+                    <span className="truncate">Central VTS 32S3</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5 col-span-2 sm:col-span-1">
+                    <span className="w-3 h-2 rounded-sm bg-red-600 border border-amber-300 shrink-0" />
+                    <span className="truncate">Válvula Corte Gás</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Bill of Materials (BOM) Table Card */}
+            <div className="glass-panel p-6 rounded-3xl border border-white/10 shadow-2xl relative">
+              <div className="space-y-3">
                 <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-emerald-400" />
                   <span>Resumo do Dimensionamento Técnico (BOM)</span>
