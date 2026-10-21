@@ -170,6 +170,20 @@ export const Hero3DScrollytelling: React.FC = () => {
     window.scrollTo({ top: currentScroll + step, behavior: 'smooth' });
   };
 
+  const scrollToProgress = (progressRatio: number) => {
+    if (!containerRef.current) return;
+    const containerTop = containerRef.current.offsetTop;
+    const scrollDist = containerRef.current.offsetHeight - window.innerHeight;
+    const targetY = containerTop + (scrollDist * progressRatio);
+    window.scrollTo({ top: targetY, behavior: 'smooth' });
+  };
+
+  const scrollToNextSection = () => {
+    if (!containerRef.current) return;
+    const containerBottom = containerRef.current.offsetTop + containerRef.current.offsetHeight;
+    window.scrollTo({ top: containerBottom + 10, behavior: 'smooth' });
+  };
+
   // Efeito do cronômetro da tela de alarme: decrementa segundo a segundo (60s, 59s, 58s... 0s)
   // e faz o cronômetro funcionar em tempo real na tela vermelha da central 3D
   useEffect(() => {
@@ -327,18 +341,40 @@ export const Hero3DScrollytelling: React.FC = () => {
   // Camera Quick Jump
   const setCameraView = (view: 'geral' | 'central' | 'fritadeira' | 'botoeira') => {
     setActiveCameraView(view);
+    const isMobile = window.innerWidth < 768;
     if (view === 'geral') {
-      targetCamPos.current.set(0, 2.2, 4.4);
-      targetCamLook.current.set(0, 1.4, 0);
+      if (isMobile) {
+        // Zoom reduzido em 25%-30% no celular: enquadra coifa, central, cilindros e botoeira
+        targetCamPos.current.set(0.5, 2.1, 7.0);
+        targetCamLook.current.set(0.5, 1.3, 0);
+      } else {
+        targetCamPos.current.set(0, 2.2, 4.4);
+        targetCamLook.current.set(0, 1.4, 0);
+      }
     } else if (view === 'central') {
-      targetCamPos.current.set(1.9, 1.85, 1.5);
-      targetCamLook.current.set(2.1, 1.8, 0.15);
+      if (isMobile) {
+        targetCamPos.current.set(1.9, 1.85, 1.6);
+        targetCamLook.current.set(2.1, 1.8, 0.15);
+      } else {
+        targetCamPos.current.set(1.9, 1.85, 1.5);
+        targetCamLook.current.set(2.1, 1.8, 0.15);
+      }
     } else if (view === 'fritadeira') {
-      targetCamPos.current.set(-0.2, 1.4, 2.2);
-      targetCamLook.current.set(-0.2, 1.0, 0);
+      if (isMobile) {
+        targetCamPos.current.set(-0.2, 1.4, 2.6);
+        targetCamLook.current.set(-0.2, 1.0, 0);
+      } else {
+        targetCamPos.current.set(-0.2, 1.4, 2.2);
+        targetCamLook.current.set(-0.2, 1.0, 0);
+      }
     } else if (view === 'botoeira') {
-      targetCamPos.current.set(1.4, 1.45, 1.3);
-      targetCamLook.current.set(1.45, 1.4, 0.05);
+      if (isMobile) {
+        targetCamPos.current.set(1.4, 1.45, 1.6);
+        targetCamLook.current.set(1.45, 1.4, 0.05);
+      } else {
+        targetCamPos.current.set(1.4, 1.45, 1.3);
+        targetCamLook.current.set(1.45, 1.4, 0.05);
+      }
     }
   };
 
@@ -355,13 +391,13 @@ export const Hero3DScrollytelling: React.FC = () => {
     scene.background = new THREE.Color(0x0a0c10);
     scene.fog = new THREE.FogExp2(0x0a0c10, 0.035);
 
-    // 2. Camera com enquadramento responsivo para Mobile e Desktop
+    // 2. Camera com enquadramento responsivo para Mobile e Desktop (zoom 25-30% mais aberto no celular)
     const isMobile = width < 768;
-    const camera = new THREE.PerspectiveCamera(isMobile ? 58 : 45, width / height, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(isMobile ? 68 : 45, width / height, 0.1, 100);
     if (isMobile) {
-      camera.position.set(0.1, 2.15, 5.6);
-      targetCamPos.current.set(0.1, 2.15, 5.6);
-      targetCamLook.current.set(0.1, 1.35, 0);
+      camera.position.set(0.5, 2.1, 7.0);
+      targetCamPos.current.set(0.5, 2.1, 7.0);
+      targetCamLook.current.set(0.5, 1.3, 0);
     } else {
       camera.position.set(0, 2.2, 4.4);
       targetCamPos.current.set(0, 2.2, 4.4);
@@ -381,16 +417,22 @@ export const Hero3DScrollytelling: React.FC = () => {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
+    renderer.domElement.style.touchAction = 'pan-y';
     rendererRef.current = renderer;
 
-    // 4. OrbitControls (CRITICAL: enableZoom = false so wheel scrolls page!)
+    // 4. OrbitControls (NUNCA trava rolagem vertical nem em desktop nem em celular)
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.enableZoom = false; // NEVER trap page wheel scroll
     controls.enablePan = false;
     controls.maxPolarAngle = Math.PI / 2 + 0.05;
-    controls.target.set(isMobile ? 0.1 : 0, isMobile ? 1.35 : 1.4, 0);
+    if (isMobile) {
+      // No celular, 1 toque com o dedo desliza a página normalmente (não trava o usuário no 3D)
+      controls.touches.ONE = THREE.TOUCH.NONE;
+      controls.touches.TWO = THREE.TOUCH.ROTATE;
+    }
+    controls.target.set(isMobile ? 0.5 : 0, isMobile ? 1.3 : 1.4, 0);
     controlsRef.current = controls;
 
     // 5. Lighting
@@ -662,30 +704,36 @@ export const Hero3DScrollytelling: React.FC = () => {
       emissive: 0xffffff,
       emissiveMap: standbyScreenTexture,
       emissiveIntensity: 0.95, // Backlight brilhante para ser 100% visível na cena
-      polygonOffset: true,
-      polygonOffsetFactor: -4,
-      polygonOffsetUnits: -4,
       depthTest: true,
-      depthWrite: true
+      depthWrite: true,
     });
     lcdScreenMatRef.current = lcdMat;
 
     // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0)
     // Dimensões proporcionais ideais para visualização no 3D: 0.20 de largura x 0.15 de altura
     const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.20, 0.15), lcdMat);
-    lcdScreen.position.set(0, 0.0, 0.116); // Z = 0.116 fica 6mm à frente da face da tampa (Z = 0.110) e 2.5mm à frente da moldura
+    lcdScreen.position.set(0, 0.0, 0.116);
+    lcdScreen.renderOrder = 10;
     lcdScreen.userData = { interactiveType: 'central' };
     centralGroup.add(lcdScreen);
 
-    // Moldura metálica (Bezel) posicionada ATRÁS da tela para nunca cobri-la
+    // Moldura metálica (Bezel vazado) posicionada ao redor da tela (zero colisão)
     const screenBezelMat = new THREE.MeshStandardMaterial({
       color: 0x181a20,
       metalness: 0.9,
       roughness: 0.35,
     });
-    const lcdFrame = new THREE.Mesh(new THREE.BoxGeometry(0.218, 0.168, 0.005), screenBezelMat);
-    lcdFrame.position.set(0, 0.0, 0.111); // Face frontal em Z = 0.1135, lcdScreen em 0.115
-    centralGroup.add(lcdFrame);
+    const lcdFrameGroup = new THREE.Group();
+    const lTop = new THREE.Mesh(new THREE.BoxGeometry(0.222, 0.012, 0.006), screenBezelMat);
+    lTop.position.set(0, 0.081, 0.113);
+    const lBottom = new THREE.Mesh(new THREE.BoxGeometry(0.222, 0.012, 0.006), screenBezelMat);
+    lBottom.position.set(0, -0.081, 0.113);
+    const lLeft = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.150, 0.006), screenBezelMat);
+    lLeft.position.set(-0.106, 0, 0.113);
+    const lRight = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.150, 0.006), screenBezelMat);
+    lRight.position.set(0.106, 0, 0.113);
+    lcdFrameGroup.add(lTop, lBottom, lLeft, lRight);
+    centralGroup.add(lcdFrameGroup);
 
     // 4 Parafusos de fixação nos cantos
     const screwMat = new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: 0.95, roughness: 0.2 });
@@ -1022,7 +1070,7 @@ export const Hero3DScrollytelling: React.FC = () => {
       const h = mountRef.current.clientHeight;
       const mobile = w < 768;
       cameraRef.current.aspect = w / h;
-      cameraRef.current.fov = mobile ? 58 : 45;
+      cameraRef.current.fov = mobile ? 68 : 45;
       cameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, h);
     };
@@ -1511,6 +1559,64 @@ export const Hero3DScrollytelling: React.FC = () => {
 
             </div>
 
+          </div>
+
+          {/* 5. BARRA DE ROLAGEM LATERAL DOURADA & NAVEGADOR DE FASES (SLIM & ELEGANT) */}
+          <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-auto">
+            {/* Trilho da Barra Dourada */}
+            <div 
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const clickY = e.clientY - rect.top;
+                const ratio = Math.max(0, Math.min(1, clickY / rect.height));
+                scrollToProgress(ratio);
+              }}
+              title="Clique para rolar na simulação"
+              className="relative w-2 sm:w-2.5 h-32 sm:h-48 rounded-full bg-black/75 backdrop-blur-md border border-[#d4af37]/40 shadow-[0_0_15px_rgba(212,175,55,0.25)] cursor-pointer p-0.5 flex flex-col justify-start overflow-hidden group hover:border-[#d4af37] transition-all"
+            >
+              {/* Preenchimento em gradiente dourado proporcional ao scrollProgress */}
+              <div 
+                className="w-full rounded-full bg-gradient-to-b from-[#ffffff] via-[#d4af37] to-[#9a741e] shadow-[0_0_10px_rgba(212,175,55,0.8)] transition-[height] duration-150"
+                style={{ height: `${Math.max(10, scrollProgress * 100)}%` }}
+              />
+            </div>
+
+            {/* Marcadores / Botões de Salto Direto para as Fases */}
+            <div className="flex flex-col items-center gap-1">
+              {[
+                { label: '0', title: 'Início / Standby', progress: 0.05, stage: 'STANDBY' },
+                { label: '1', title: 'Fase 1: Princípio de Incêndio', progress: 0.32, stage: 'HEATING' },
+                { label: '2', title: 'Fase 2: Alarme Térmico 60s', progress: 0.58, stage: 'FIRE_ALARM' },
+                { label: '3', title: 'Fase 3: Supressão Ativa', progress: 0.78, stage: 'SUPPRESSION' },
+                { label: '4', title: 'Fase 4: Incêndio Extinto', progress: 0.95, stage: 'EXTINGUISHED' },
+              ].map((item) => {
+                const isActive = simStage === item.stage;
+                return (
+                  <button
+                    key={item.label}
+                    onClick={() => scrollToProgress(item.progress)}
+                    title={item.title}
+                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all ${
+                      isActive
+                        ? 'bg-[#d4af37] text-black shadow-[0_0_12px_rgba(212,175,55,0.9)] scale-110 border border-white'
+                        : 'bg-black/80 hover:bg-black text-gray-400 hover:text-white border border-[#d4af37]/30 hover:border-[#d4af37]'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Atalho para sair da simulação / avançar para a próxima seção */}
+            <button
+              onClick={scrollToNextSection}
+              title="Avançar para a Central Outfire"
+              className="mt-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black/80 hover:bg-black border border-[#d4af37]/50 text-[#d4af37] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-glow-gold"
+              aria-label="Avançar para a próxima seção"
+            >
+              <ChevronDown className="w-3.5 h-3.5 animate-bounce" />
+            </button>
           </div>
 
         </div>

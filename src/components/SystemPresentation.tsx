@@ -65,12 +65,11 @@ export const SystemPresentation: React.FC = () => {
     camera.position.set(1.8, 1.2, 2.2);
     cameraRef.current = camera;
 
-    // 3. Renderer
+    // 3. Renderer (Buffer de profundidade padrão de 24-bits sem logarithmicDepthBuffer para evitar cintilação em GPUs mobile)
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas3DRef.current,
       antialias: true,
       powerPreference: 'high-performance',
-      logarithmicDepthBuffer: true
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -78,11 +77,13 @@ export const SystemPresentation: React.FC = () => {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
+    renderer.domElement.style.touchAction = 'pan-y';
 
-    // 4. OrbitControls (Smooth 360° mouse & touch orbit)
+    // 4. OrbitControls (Smooth 360° mouse & touch orbit, nunca prende scroll de página)
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
+    controls.enableZoom = false; // Não prende pinça/zoom na rolagem mobile
     controls.minDistance = 1.2;
     controls.maxDistance = 6.0;
     controls.target.set(0, 0, 0);
@@ -165,10 +166,9 @@ export const SystemPresentation: React.FC = () => {
     const ihmCanvas = createNormalizedIhmScreenCanvas();
     const screenDisplayTexture = new THREE.CanvasTexture(ihmCanvas);
     screenDisplayTexture.colorSpace = THREE.SRGBColorSpace;
-    screenDisplayTexture.generateMipmaps = true;
-    screenDisplayTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    screenDisplayTexture.generateMipmaps = false;
+    screenDisplayTexture.minFilter = THREE.LinearFilter;
     screenDisplayTexture.magFilter = THREE.LinearFilter;
-    screenDisplayTexture.anisotropy = 16;
 
     const ihmMat = new THREE.MeshStandardMaterial({
       map: screenDisplayTexture,
@@ -177,30 +177,40 @@ export const SystemPresentation: React.FC = () => {
       emissive: 0xffffff,
       emissiveMap: screenDisplayTexture,
       emissiveIntensity: 0.95, // Backlight nítido e iluminado da IHM
-      polygonOffset: true,
-      polygonOffsetFactor: -4,
-      polygonOffsetUnits: -4,
       depthTest: true,
-      depthWrite: true
+      depthWrite: true,
     });
 
     // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0) logo abaixo do logo Outfire
-    // Z = 0.298 posicionada claramente 4mm à frente da moldura (Z = 0.294) e 8mm à frente da tampa (Z = 0.290)
-    // Elimina 100% de qualquer Z-fighting, scanlines ou cintilação
+    // Z = 0.298 posicionada claramente 8mm à frente da face da tampa (Z = 0.290)
+    // renderOrder = 10 garante prioridade absoluta de renderização, sem conflito de shader
     const ihmScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.219, 0.164), ihmMat);
     ihmScreen.position.set(0, 0.0, 0.298);
+    ihmScreen.renderOrder = 10;
     scene.add(ihmScreen);
 
-    // Moldura metálica de encaixe (Bezel) posicionada ATRÁS da tela
+    // Moldura metálica de encaixe (Bezel VAZADO em 4 bordas)
+    // Deixa o centro completamente aberto para ZERO colisão geométrica com a tela
     const screenBezelMat = new THREE.MeshStandardMaterial({
       color: 0x181a20,
       metalness: 0.9,
-      roughness: 0.35
+      roughness: 0.35,
     });
-    // Espessura 0.004 com centro em Z = 0.292 (face frontal em Z = 0.294)
-    const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(0.238, 0.182, 0.004), screenBezelMat);
-    screenFrame.position.set(0, 0.0, 0.292);
-    scene.add(screenFrame);
+    const bezelGroup = new THREE.Group();
+    // Borda superior
+    const bTop = new THREE.Mesh(new THREE.BoxGeometry(0.244, 0.014, 0.008), screenBezelMat);
+    bTop.position.set(0, 0.088, 0.294);
+    // Borda inferior
+    const bBottom = new THREE.Mesh(new THREE.BoxGeometry(0.244, 0.014, 0.008), screenBezelMat);
+    bBottom.position.set(0, -0.088, 0.294);
+    // Borda esquerda
+    const bLeft = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.164, 0.008), screenBezelMat);
+    bLeft.position.set(-0.115, 0, 0.294);
+    // Borda direita
+    const bRight = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.164, 0.008), screenBezelMat);
+    bRight.position.set(0.115, 0, 0.294);
+    bezelGroup.add(bTop, bBottom, bLeft, bRight);
+    scene.add(bezelGroup);
 
     // 4 Parafusos de fixação nos cantos do módulo TFT
     const screenBoltMat = new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: 0.95, roughness: 0.2 });
