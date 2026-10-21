@@ -230,16 +230,18 @@ export const Hero3DScrollytelling: React.FC = () => {
     const deltaY = state.lastY - currentY;
     const timeDelta = Math.max(1, now - state.lastTime);
 
-    if (Math.abs(currentY - state.startY) > 6) {
+    if (Math.abs(currentY - state.startY) > 5) {
       state.hasMoved = true;
     }
 
-    state.velocity = deltaY / timeDelta;
+    // Velocidade em pixels por frame (~16.6ms) com filtro de suavização
+    const instantV = (deltaY / timeDelta) * 16.6;
+    state.velocity = state.velocity * 0.3 + instantV * 0.7;
     state.lastY = currentY;
     state.lastTime = now;
 
-    // Rolagem suave 1:1 sincronizada perfeitamente com o polegar (sem travar nem pular etapas)
-    window.scrollBy(0, deltaY);
+    // Rolagem com sensibilidade calibrada (1.35x) para deslizar com leveza sob o polegar esquerdo sem travar
+    window.scrollBy(0, deltaY * 1.35);
   };
 
   const handleMobileTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -247,7 +249,7 @@ export const Hero3DScrollytelling: React.FC = () => {
     if (!state.isDragging) return;
     state.isDragging = false;
 
-    // 1. Se foi apenas um toque rápido sem arrasto (< 6px), é um TAP na cena 3D (Botoeira ou Central)
+    // 1. Se foi apenas um toque rápido sem arrasto (< 5px), é um TAP na cena 3D (Botoeira ou Central)
     if (!state.hasMoved) {
       const touch = e.changedTouches[0];
       if (touch && cameraRef.current && mountRef.current) {
@@ -277,16 +279,16 @@ export const Hero3DScrollytelling: React.FC = () => {
       return;
     }
 
-    // 2. Se houve flick (arrasto rápido):
-    // Limita estritamente a velocidade máxima para NÃO pular fases!
-    // No máximo avança suavemente cerca de 250px a 350px (~1 fase por vez)
-    const maxVelocity = 1.2; // px/ms
-    let v = Math.max(-maxVelocity, Math.min(maxVelocity, state.velocity * 10));
+    // 2. Flick / Inércia calibrada:
+    // Permite que um arrasto rápido avance cerca de 380px a 500px (~1 fase suave por vez),
+    // eliminando a sensação de travamento (dead brake) e sem nunca pular todas as fases de uma vez.
+    const maxVelocity = 24; // px/frame
+    let v = Math.max(-maxVelocity, Math.min(maxVelocity, state.velocity));
 
-    if (Math.abs(v) > 0.15) {
-      const friction = 0.90; // Amortecimento suave
+    if (Math.abs(v) > 1.2) {
+      const friction = 0.94; // Amortecimento com curva exponencial suave
       const stepInertia = () => {
-        if (Math.abs(v) < 0.05) return;
+        if (Math.abs(v) < 0.25) return;
         window.scrollBy(0, v);
         v *= friction;
         state.animId = requestAnimationFrame(stepInertia);
@@ -1540,10 +1542,10 @@ export const Hero3DScrollytelling: React.FC = () => {
           )}
 
           {/* 4. BARRA INFERIOR COM SETA DOURADA PISCANTE E INDICADOR DE FASES */}
-          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3">
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3 pointer-events-none">
             
             {/* BARRA CENTRAL DE FASES E SETA DOURADA */}
-            <div className="flex items-center gap-3 bg-black/85 backdrop-blur-md px-5 py-2.5 rounded-full border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full overflow-hidden">
+            <div className="flex items-center gap-3 bg-black/85 backdrop-blur-md px-5 py-2.5 rounded-full border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full overflow-hidden pointer-events-auto">
               {/* Seta Dourada Interativa com Bounce / Pulse */}
               <button 
                 onClick={handleScrollDownStep}
