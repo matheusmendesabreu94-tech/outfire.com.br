@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { 
   ShoppingCart, Shield, Check, Phone, Filter, 
-  Search, ArrowRight, Tag, Info, Sparkles 
+  Search, ArrowRight, Tag, Info, Sparkles, Building2,
+  Mail, User, MapPin, CheckCircle2, FileSpreadsheet
 } from 'lucide-react';
 import { ProductItem } from '../types';
 import { PRODUCTS } from '../data/products';
+import { saveLead } from '../utils/leadStorage';
 
 interface StoreCatalogProps {
   onAddToCart: (product: ProductItem) => void;
@@ -13,6 +15,54 @@ interface StoreCatalogProps {
 export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Formulário B2B / Lojas e Revendas
+  const [b2bForm, setB2bForm] = useState({
+    nome: '',
+    empresa: '',
+    telefone: '',
+    email: '',
+    cidade: ''
+  });
+  const [b2bSubmitted, setB2bSubmitted] = useState(false);
+  const [b2bError, setB2bError] = useState('');
+
+  const handleB2bSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setB2bError('');
+
+    if (!b2bForm.nome.trim() || !b2bForm.telefone.trim() || !b2bForm.email.trim() || !b2bForm.empresa.trim()) {
+      setB2bError('Por favor, preencha todos os campos obrigatórios (*).');
+      return;
+    }
+
+    // 1. Salva o lead no localStorage
+    saveLead({
+      nome: b2bForm.nome.trim(),
+      telefone: b2bForm.telefone.trim(),
+      email: b2bForm.email.trim(),
+      empresa: b2bForm.empresa.trim(),
+      cidade: b2bForm.cidade.trim() || 'Não informada',
+      origem: 'loja_b2b',
+      detalhes: 'Solicitação de Tabela Comercial de Revenda com desconto de fábrica'
+    });
+
+    // 2. Monta mensagem para WhatsApp Comercial
+    let msg = `🤝 *SOLICITAÇÃO DE CADASTRO B2B / LOJA — OUTFIRE*\n\n`;
+    msg += `👤 *Nome do Responsável:* ${b2bForm.nome.trim()}\n`;
+    msg += `🏢 *Loja / Empresa que representa:* ${b2bForm.empresa.trim()}\n`;
+    msg += `📱 *WhatsApp:* ${b2bForm.telefone.trim()}\n`;
+    msg += `✉️ *E-mail:* ${b2bForm.email.trim()}\n`;
+    if (b2bForm.cidade.trim()) {
+      msg += `📍 *Cidade / UF:* ${b2bForm.cidade.trim()}\n`;
+    }
+    msg += `\nOlá, equipe Outfire! Represento a empresa acima e tenho interesse em revender ou adquirir sistemas e componentes com tabela diferenciada de fábrica. Poderiam me enviar as condições comerciais?`;
+
+    setB2bSubmitted(true);
+    setTimeout(() => {
+      window.open(`https://wa.me/5515996576807?text=${encodeURIComponent(msg)}`, '_blank');
+    }, 800);
+  };
 
   const categories = [
     { id: 'all', name: 'Todos os Produtos' },
@@ -186,6 +236,169 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
 
             </div>
           ))}
+        </div>
+
+        {/* B2B / Lojas Lead Capture Banner */}
+        <div id="cadastro-lojas" className="mt-16 glass-panel-gold rounded-3xl border border-[#d4af37]/40 bg-gradient-to-br from-[#1c1912] via-[#0d0f14] to-[#0a0c10] p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#d4af37]/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            {/* Left Info */}
+            <div className="lg:col-span-6 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/30 text-[#e5c05d] text-[11px] font-bold uppercase tracking-wider">
+                <Building2 className="w-3.5 h-3.5 text-[#d4af37]" />
+                Canal Exclusivo para Lojas & Revendas
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-black text-white font-sans tracking-tight">
+                Representa uma Loja, Instaladora <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f3e5ab] via-[#d4af37] to-[#b89628]">
+                  ou Franquia de Restaurantes?
+                </span>
+              </h3>
+
+              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                Cadastre sua empresa e receba a <strong>Tabela de Preços com Desconto Direto de Fábrica</strong>, faturamento para 28 dias e suporte de engenharia para projetos em todo o Brasil.
+              </p>
+
+              <div className="space-y-2 pt-2 text-xs text-gray-300">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-[#d4af37] shrink-0" />
+                  <span>Descontos progressivos por volume para revendedores e instaladores</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-[#d4af37] shrink-0" />
+                  <span>Kits pré-montados com laudos ART e conformidade NBR 14518</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-[#d4af37] shrink-0" />
+                  <span>Atendimento ágil via WhatsApp Comercial Oficial: <strong>(15) 99657-6807</strong></span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Form */}
+            <div className="lg:col-span-6">
+              <div className="bg-[#12141c]/90 border border-white/10 rounded-2xl p-6 sm:p-7 shadow-xl">
+                {b2bSubmitted ? (
+                  <div className="text-center py-6 space-y-3">
+                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto">
+                      <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <h4 className="text-base font-bold text-white">Dados Registrados com Sucesso!</h4>
+                    <p className="text-xs text-gray-300">
+                      O contato da sua empresa foi salvo e a conversa no WhatsApp foi iniciada para envio da tabela comercial.
+                    </p>
+                    <a
+                      href="https://wa.me/5515996576807"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Abrir WhatsApp (15) 99657-6807</span>
+                    </a>
+                  </div>
+                ) : (
+                  <form onSubmit={handleB2bSubmit} className="space-y-3">
+                    <h4 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                      <FileSpreadsheet className="w-4 h-4 text-[#d4af37]" />
+                      <span>Solicitar Cadastro de Loja / Revenda</span>
+                    </h4>
+
+                    {b2bError && (
+                      <div className="p-2.5 rounded-lg bg-red-500/20 border border-red-500/30 text-[11px] text-red-300 font-semibold">
+                        {b2bError}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-semibold text-gray-300 block mb-1">
+                          Seu Nome Completo *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ex: Carlos Silva"
+                          value={b2bForm.nome}
+                          onChange={(e) => setB2bForm({ ...b2bForm, nome: e.target.value })}
+                          className="w-full bg-[#161922] border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none focus:border-[#d4af37] transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-gray-300 block mb-1">
+                          Loja / Empresa que representa *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ex: Extintores & Cia / Loja SP"
+                          value={b2bForm.empresa}
+                          onChange={(e) => setB2bForm({ ...b2bForm, empresa: e.target.value })}
+                          className="w-full bg-[#161922] border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none focus:border-[#d4af37] transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-semibold text-gray-300 block mb-1">
+                          WhatsApp com DDD *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          placeholder="Ex: (11) 98765-4321"
+                          value={b2bForm.telefone}
+                          onChange={(e) => setB2bForm({ ...b2bForm, telefone: e.target.value })}
+                          className="w-full bg-[#161922] border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none focus:border-emerald-400 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-gray-300 block mb-1">
+                          Cidade / UF
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ex: Curitiba / PR"
+                          value={b2bForm.cidade}
+                          onChange={(e) => setB2bForm({ ...b2bForm, cidade: e.target.value })}
+                          className="w-full bg-[#161922] border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none focus:border-[#d4af37] transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-gray-300 block mb-1">
+                        E-mail Corporativo ou Pessoal *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="Ex: comercial@sualoja.com.br"
+                        value={b2bForm.email}
+                        onChange={(e) => setB2bForm({ ...b2bForm, email: e.target.value })}
+                        className="w-full bg-[#161922] border border-white/10 text-white text-xs rounded-xl px-3 py-2 outline-none focus:border-[#d4af37] transition-colors"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black font-black text-xs rounded-xl shadow-glow-gold transition-all flex items-center justify-center gap-2 group active:scale-95"
+                    >
+                      <Phone className="w-3.5 h-3.5 fill-black" />
+                      <span>Cadastrar e Receber Tabela no WhatsApp</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </form>
+                )}
+              </div>
+            </div>
+
+          </div>
         </div>
 
       </div>

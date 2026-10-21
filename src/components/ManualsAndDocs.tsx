@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   FileText, Download, CheckCircle, ExternalLink, 
-  Wrench, ShieldCheck, AlertCircle, BookOpen, FileCheck 
+  ShieldCheck, AlertCircle, BookOpen, FileCheck 
 } from 'lucide-react';
 
 export const ManualsAndDocs: React.FC = () => {
@@ -41,29 +41,6 @@ export const ManualsAndDocs: React.FC = () => {
       link: '/certificado-conformidade-nbr14518.html',
       pdfLink: '/certificado-conformidade-nbr14518.html',
       featured: true
-    }
-  ];
-
-  const steps = [
-    {
-      step: '01',
-      title: 'Posicionamento da Central VTS 32S3',
-      desc: 'Fixar o painel em local de fácil visualização e acesso fora da zona de fogo direto, a 1,50m do piso, próximo à rota de saída.'
-    },
-    {
-      step: '02',
-      title: 'Passagem dos Cabos Blindados de Alta Temperatura',
-      desc: 'Lançar a fiação dos sensores da coifa (145°C) e dos sensores do duto (300°C) utilizando conduítes metálicos independentes.'
-    },
-    {
-      step: '03',
-      title: 'Interligação da Válvula de Gás e Exaustor',
-      desc: 'Conectar os contatos secos (relés) da central à bobina da válvula solenoide de gás e ao contator do motor de exaustão.'
-    },
-    {
-      step: '04',
-      title: 'Comissionamento e Teste sem Disparo',
-      desc: 'Simular acionamento pelo menu de teste da IHM para validar corte de gás e parada do exaustor antes da liberação final.'
     }
   ];
 
@@ -152,48 +129,6 @@ export const ManualsAndDocs: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Quick 4-Step Installation Roadmap */}
-        <div className="glass-panel p-8 rounded-3xl border border-white/10">
-          <div className="flex items-center gap-2.5 mb-6">
-            <Wrench className="w-5 h-5 text-amber-400" />
-            <h3 className="text-lg font-bold text-white font-sans">
-              Guia Prático de Instalação da Central Outfire VTS 32S3
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {steps.map((st, idx) => (
-              <div key={idx} className="p-4 bg-white/5 rounded-2xl border border-white/5 relative">
-                <span className="text-2xl font-black text-amber-400 font-mono block mb-2 opacity-90">
-                  {st.step}
-                </span>
-                <h4 className="text-sm font-bold text-white mb-1.5 font-sans">
-                  {st.title}
-                </h4>
-                <p className="text-xs text-gray-400 leading-relaxed">
-                  {st.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-xs text-gray-300 text-center sm:text-left">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Precisa de suporte na instalação da sua equipe? Engenheiros especializados disponíveis por WhatsApp.</span>
-            </div>
-
-            <a
-              href="https://wa.me/5515996576807?text=Ol%C3%A1%2C%20sou%20instalador%2Fengenheiro%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida%20t%C3%A9cnica%20sobre%20a%20Central%20Outfire."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="py-2.5 px-5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/10 transition-all shrink-0"
-            >
-              Suporte Técnico de Engenharia &rarr;
-            </a>
-          </div>
         </div>
 
       </div>

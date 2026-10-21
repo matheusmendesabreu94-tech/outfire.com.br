@@ -3,12 +3,14 @@ import {
   Phone, Mail, MapPin, Send, Flame, Shield, 
   Clock, CheckCircle, ArrowRight, FileText, ShoppingCart 
 } from 'lucide-react';
+import { saveLead } from '../utils/leadStorage';
 
 export const ContactFooter: React.FC = () => {
   const [formData, setFormData] = useState({
     nome: '',
     empresa: '',
     telefone: '',
+    email: '',
     cidade: '',
     coifas: '1',
     mensagem: ''
@@ -18,11 +20,23 @@ export const ContactFooter: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Salva o lead no localStorage para auditoria/segurança
+    saveLead({
+      nome: formData.nome.trim(),
+      telefone: formData.telefone.trim(),
+      email: formData.email.trim(),
+      empresa: formData.empresa.trim() || 'Não informada',
+      cidade: formData.cidade.trim() || 'Não informada',
+      origem: 'contato_footer',
+      detalhes: `Coifas: ${formData.coifas} | Mensagem: ${formData.mensagem || 'Sem mensagem'}`
+    });
+
     // Redirect to WhatsApp with formatted form lead
     let text = `📋 *NOVO CONTATO PELO SITE OUTFIRE.COM.BR*\n\n`;
     text += `👤 *Nome:* ${formData.nome}\n`;
-    text += `🏢 *Empresa / Restaurante:* ${formData.empresa || 'Não informado'}\n`;
+    text += `🏢 *Empresa / Loja:* ${formData.empresa || 'Não informado'}\n`;
     text += `📱 *Telefone / WhatsApp:* ${formData.telefone}\n`;
+    text += `✉️ *E-mail:* ${formData.email}\n`;
     text += `📍 *Cidade / Estado:* ${formData.cidade}\n`;
     text += `🍳 *Qtd de Coifas:* ${formData.coifas} coifa(s)\n`;
     if (formData.mensagem) {
@@ -190,6 +204,20 @@ export const ContactFooter: React.FC = () => {
                         className="w-full bg-[#14161c] border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-red-500"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-gray-300 block mb-1.5">
+                      E-mail Corporativo ou Pessoal *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="Ex: contato@empresa.com.br"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full bg-[#14161c] border border-white/10 text-white text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-red-500"
+                    />
                   </div>
 
                   <div>

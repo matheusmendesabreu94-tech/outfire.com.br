@@ -67,3 +67,16 @@ export interface CartItem {
   product: ProductItem;
   quantity: number;
 }
+
+export interface LeadItem {
+  id: string;
+  timestamp: string;
+  nome: string;
+  telefone: string;
+  email: string;
+  empresa: string; // Loja / Restaurante / Empresa que representa
+  cidade?: string;
+  origem: 'carrinho_whatsapp' | 'loja_b2b' | 'contato_footer' | 'calculadora';
+  detalhes?: string;
+  totalPedido?: number;
+}
