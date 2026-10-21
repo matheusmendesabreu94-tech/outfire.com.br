@@ -678,7 +678,7 @@ export const Hero3DScrollytelling: React.FC = () => {
     centralCabinet.castShadow = true;
     centralGroup.add(centralCabinet);
 
-    // Live Digital LCD Screen Overlay (Mounted in the open screen area of the modern cover)
+    // Live Digital LCD Screen Overlay (2.8" QVGA centralizado abaixo do logo)
     updateLcdScreenTexture();
     const lcdTexture = new THREE.CanvasTexture(centralScreenCanvasRef.current!);
     lcdTexture.colorSpace = THREE.SRGBColorSpace;
@@ -688,10 +688,14 @@ export const Hero3DScrollytelling: React.FC = () => {
       map: lcdTexture,
       transparent: false,
     });
-    // Positioned in the display area of tampa-central-moderna.png
-    const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.29, 0.20), lcdMat);
-    lcdScreen.position.set(0.08, 0.02, 0.111);
+    // Tela 2.8" em escala exata (0.114 x 0.085) no centro da tampa (X = 0, Y = 0)
+    const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.114, 0.085), lcdMat);
+    lcdScreen.position.set(0, 0.0, 0.112);
     centralGroup.add(lcdScreen);
+
+    const lcdFrame = new THREE.Mesh(new THREE.BoxGeometry(0.124, 0.095, 0.004), matCabinetSteel);
+    lcdFrame.position.set(0, 0.0, 0.1105);
+    centralGroup.add(lcdFrame);
 
     // Top Electrical Conduit to Ceiling
     const conduit = new THREE.Mesh(

@@ -158,81 +158,50 @@ export const SystemPresentation: React.FC = () => {
     bottomSlotHole.position.set(0, -0.501, -0.05);
     scene.add(bottomSlotHole);
 
-    // Front Touchscreen IHM Display
-    const ihmCanvas = document.createElement('canvas');
-    ihmCanvas.width = 512;
-    ihmCanvas.height = 360;
-    const ihmCtx = ihmCanvas.getContext('2d');
-    if (ihmCtx) {
-      ihmCtx.fillStyle = '#061317';
-      ihmCtx.fillRect(0, 0, 512, 360);
-      ihmCtx.strokeStyle = '#3f3f46';
-      ihmCtx.lineWidth = 4;
-      ihmCtx.strokeRect(2, 2, 508, 356);
+    // Front Touchscreen IHM Display (2.8" QVGA 320x240 no centro da tampa 36cm x 26cm)
+    // Dimensões físicas: 2.8 polegadas = 5.69cm x 4.27cm (proporção 4:3)
+    // Na escala 36cm = 1.385 (ou 1.4) e 26cm = 1.0 -> tela = 0.219 de largura x 0.164 de altura
+    const screenDisplayTexture = textureLoader.load('/assets/tela-ihm-display.jpg');
+    screenDisplayTexture.colorSpace = THREE.SRGBColorSpace;
 
-      ihmCtx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ihmCtx.fillRect(0, 0, 512, 44);
-      ihmCtx.fillStyle = '#94a3b8';
-      ihmCtx.font = 'bold 16px monospace';
-      ihmCtx.fillText('OUTFIRE VTS 32S3', 18, 28);
-      ihmCtx.fillStyle = '#10b981';
-      ihmCtx.textAlign = 'right';
-      ihmCtx.fillText('BAT: 100% [27.6V]', 494, 28);
+    const ihmMat = new THREE.MeshStandardMaterial({
+      map: screenDisplayTexture,
+      roughness: 0.2,
+      metalness: 0.05,
+      emissive: 0xffffff,
+      emissiveMap: screenDisplayTexture,
+      emissiveIntensity: 0.22 // Backlight suave de display TFT ligado
+    });
 
-      ihmCtx.textAlign = 'center';
-      ihmCtx.fillStyle = '#10b981';
-      ihmCtx.font = 'bold 24px sans-serif';
-      ihmCtx.fillText('● SISTEMA MONITORADO', 256, 100);
-
-      ihmCtx.fillStyle = '#cbd5e1';
-      ihmCtx.font = '13px monospace';
-      ihmCtx.fillText('SUPRESSÃO AUTOMÁTICA NBR 14518', 256, 128);
-
-      // Status Panels
-      ihmCtx.fillStyle = '#0a231f';
-      ihmCtx.fillRect(24, 150, 464, 46);
-      ihmCtx.fillStyle = '#6ee7b7';
-      ihmCtx.font = 'bold 14px sans-serif';
-      ihmCtx.textAlign = 'left';
-      ihmCtx.fillText('LINHAS DE DETECÇÃO (COIFAS):', 38, 178);
-      ihmCtx.textAlign = 'right';
-      ihmCtx.fillText('NORMAL (145°C / 300°C)', 474, 178);
-
-      ihmCtx.fillStyle = '#0a231f';
-      ihmCtx.fillRect(24, 206, 464, 46);
-      ihmCtx.fillStyle = '#6ee7b7';
-      ihmCtx.textAlign = 'left';
-      ihmCtx.fillText('VÁLVULA SOLENOIDE DE GÁS:', 38, 234);
-      ihmCtx.textAlign = 'right';
-      ihmCtx.fillStyle = '#34d399';
-      ihmCtx.fillText('ABERTA / LIBERADA', 474, 234);
-
-      ihmCtx.fillStyle = '#0a231f';
-      ihmCtx.fillRect(24, 262, 464, 46);
-      ihmCtx.fillStyle = '#6ee7b7';
-      ihmCtx.textAlign = 'left';
-      ihmCtx.fillText('STATUS EXAUSTÃO & DAMPERS:', 38, 290);
-      ihmCtx.textAlign = 'right';
-      ihmCtx.fillText('SUPERVISIONADO', 474, 290);
-
-      ihmCtx.fillStyle = '#d4af37';
-      ihmCtx.font = 'bold 12px monospace';
-      ihmCtx.textAlign = 'center';
-      ihmCtx.fillText('TOQUE PARA ACESSAR O MENU DE CONFIGURAÇÃO', 256, 335);
-    }
-
-    const ihmTexture = new THREE.CanvasTexture(ihmCanvas);
-    ihmTexture.colorSpace = THREE.SRGBColorSpace;
-    const ihmMat = new THREE.MeshBasicMaterial({ map: ihmTexture });
-    const ihmScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.27), ihmMat);
-    ihmScreen.position.set(0.18, 0.02, 0.292);
+    // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0) logo abaixo do logo Outfire
+    const ihmScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.219, 0.164), ihmMat);
+    ihmScreen.position.set(0, 0.0, 0.295);
     scene.add(ihmScreen);
 
-    // Screen Bezel Border Frame
-    const screenBezelMat = new THREE.MeshStandardMaterial({ color: 0x181a20, metalness: 0.9, roughness: 0.3 });
-    const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.29, 0.008), screenBezelMat);
-    screenFrame.position.set(0.18, 0.02, 0.288);
+    // Moldura metálica de encaixe (Bezel) com recorte industrial conforme CAD DXF
+    const screenBezelMat = new THREE.MeshStandardMaterial({
+      color: 0x181a20,
+      metalness: 0.9,
+      roughness: 0.35
+    });
+    const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(0.238, 0.182, 0.008), screenBezelMat);
+    screenFrame.position.set(0, 0.0, 0.291);
     scene.add(screenFrame);
+
+    // 4 Parafusos de fixação nos cantos do módulo TFT (conforme foto real e furação CAD)
+    const screenBoltMat = new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: 0.95, roughness: 0.2 });
+    const screenBoltGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.006, 8);
+    [
+      [-0.108, 0.080],
+      [0.108, 0.080],
+      [-0.108, -0.080],
+      [0.108, -0.080]
+    ].forEach(([sx, sy]) => {
+      const screw = new THREE.Mesh(screenBoltGeo, screenBoltMat);
+      screw.rotation.x = Math.PI / 2;
+      screw.position.set(sx, sy, 0.295);
+      scene.add(screw);
+    });
 
     // Rear Mounting Holes (Keyhole Slots)
     const slotMat = new THREE.MeshBasicMaterial({ color: 0x07080a });

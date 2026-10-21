@@ -7,19 +7,21 @@ import {
 export const ManualsAndDocs: React.FC = () => {
   const manuals = [
     {
-      title: 'Manual Técnico e Esquema Elétrico Central Outfire 2026',
-      type: 'PDF Oficial de Engenharia',
-      size: '733 KB',
-      description: 'Diagrama completo de ligação dos bornes, ligação dos relés de gás e exaustão, sensores reguláveis, dampers e alimentação 12V/Bateria.',
-      link: '/assets/Manual_Tecnico_OutFire_2026.pdf',
+      title: 'Manual do Usuário — Sistema OutFire® (Edição Oficial 2026)',
+      type: 'Manual Mais Completo (14 Seções)',
+      size: '1.2 MB',
+      description: 'Guia operacional definitivo da IHM: Dashboard 2026, Setores e Modo Limpeza, Central Mista (CO2 + Detecção), Checklist Wizard 8 etapas, Alertas de Falha, Pré-Alarme 15s, Agenda de Gás, Avisos de Voz DAC, Pareamento Sem Fio e Garantia de 12 Meses.',
+      link: '/manual-usuario.html',
+      pdfLink: '/assets/Manual_Usuario_OutFire_2026.pdf',
       featured: true
     },
     {
-      title: 'Manual Operacional e Técnico - Guia de Telas da IHM (VTS 32S3)',
-      type: 'Manual Modelo Interativo & PDF',
-      size: '845 KB',
-      description: 'Guia definitivo com o desenho de todas as telas da IHM (status operante, alarmes vermelhos, voz assistida, agenda de gás, calibração de baterias e dampers).',
-      link: '/manual-v2.html',
+      title: 'Manual Técnico e Esquema Elétrico Central Outfire 2026',
+      type: 'PDF Oficial de Engenharia',
+      size: '750 KB',
+      description: 'Diagrama elétrico completo de bornes, acionamento das solenoides, intertravamento do exaustor, sensores reguláveis 145°C/300°C e dampers motorizados.',
+      link: '/assets/Manual_Tecnico_OutFire_2026.pdf',
+      pdfLink: '/assets/Manual_Tecnico_OutFire_2026.pdf',
       featured: true
     },
     {
@@ -111,24 +113,38 @@ export const ManualsAndDocs: React.FC = () => {
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+              <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <span className="text-xs text-gray-400 font-mono">
-                  Tamanho: {man.size}
+                  {man.size}
                 </span>
 
-                <a
-                  href={man.link}
-                  target={man.link.startsWith('http') || man.link.endsWith('.pdf') ? '_blank' : '_self'}
-                  rel="noopener noreferrer"
-                  className={`py-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
-                    man.featured 
-                      ? 'gold-gradient hover:brightness-110 text-black font-extrabold shadow-glow-gold' 
-                      : 'bg-white/10 hover:bg-white/20 text-white'
-                  }`}
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Baixar Documento</span>
-                </a>
+                <div className="flex items-center gap-2">
+                  {man.pdfLink && man.pdfLink !== man.link && (
+                    <a
+                      href={man.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2 px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white transition-all"
+                    >
+                      <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Ver Online</span>
+                    </a>
+                  )}
+
+                  <a
+                    href={man.pdfLink || man.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`py-2 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+                      man.featured 
+                        ? 'gold-gradient hover:brightness-110 text-black font-extrabold shadow-glow-gold' 
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    }`}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Baixar PDF</span>
+                  </a>
+                </div>
               </div>
             </div>
           ))}
