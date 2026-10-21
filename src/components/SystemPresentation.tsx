@@ -679,6 +679,13 @@ export const SystemPresentation: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-[#d4af37] shrink-0 mt-0.5" />
                   <span className="text-gray-300">
+                    <strong>Comunicação por Voz Integrada:</strong> Avisos sonoros narrados em português e orientações claras à equipe em tempo real (evacuação, vazamento de gás, corte e treinamento).
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#d4af37] shrink-0 mt-0.5" />
+                  <span className="text-gray-300">
                     <strong>Detecção Térmica Regulável:</strong> Calibração em 145°C na coifa e 300°C no duto.
                   </span>
                 </div>
