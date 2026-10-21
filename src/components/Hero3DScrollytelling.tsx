@@ -59,6 +59,9 @@ export const Hero3DScrollytelling: React.FC = () => {
   // Dynamic Meshes & Lights
   const centralScreenTextureRef = useRef<THREE.CanvasTexture | null>(null);
   const centralScreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const lcdScreenMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const standbyScreenTextureRef = useRef<THREE.Texture | null>(null);
+  const alarmScreenTextureRef = useRef<THREE.Texture | null>(null);
   const centralStrobeLightRef = useRef<THREE.PointLight | null>(null);
   const centralStrobeMeshRef = useRef<THREE.Mesh | null>(null);
   const fireLightRef = useRef<THREE.PointLight | null>(null);
@@ -743,6 +746,16 @@ export const Hero3DScrollytelling: React.FC = () => {
     const frontCoverTexture = textureLoader.load('/assets/tampa-central-moderna.png');
     frontCoverTexture.colorSpace = THREE.SRGBColorSpace;
 
+    // Load authentic Standby Screen photo
+    const standbyScreenTexture = textureLoader.load('/assets/tela-ihm-display.jpg');
+    standbyScreenTexture.colorSpace = THREE.SRGBColorSpace;
+    standbyScreenTextureRef.current = standbyScreenTexture;
+
+    // Load authentic Alarm Screen photo
+    const alarmScreenTexture = textureLoader.load('/assets/tela-ihm-alarme.jpg');
+    alarmScreenTexture.colorSpace = THREE.SRGBColorSpace;
+    alarmScreenTextureRef.current = alarmScreenTexture;
+
     const matCabinetSteel = new THREE.MeshStandardMaterial({
       color: 0x14161a,
       roughness: 0.45,
@@ -771,24 +784,53 @@ export const Hero3DScrollytelling: React.FC = () => {
     centralCabinet.castShadow = true;
     centralGroup.add(centralCabinet);
 
-    // Live Digital LCD Screen Overlay (2.8" QVGA centralizado abaixo do logo)
-    updateLcdScreenTexture();
-    const lcdTexture = new THREE.CanvasTexture(centralScreenCanvasRef.current!);
-    lcdTexture.colorSpace = THREE.SRGBColorSpace;
-    centralScreenTextureRef.current = lcdTexture;
-
-    const lcdMat = new THREE.MeshBasicMaterial({
-      map: lcdTexture,
-      transparent: false,
+    // Front Touchscreen IHM Display (2.8" QVGA centralizado no centro da tampa)
+    const lcdMat = new THREE.MeshStandardMaterial({
+      map: standbyScreenTexture,
+      roughness: 0.15,
+      metalness: 0.05,
+      emissive: 0xffffff,
+      emissiveMap: standbyScreenTexture,
+      emissiveIntensity: 0.95, // Backlight brilhante para ser 100% visível na cena
     });
-    // Tela 2.8" em escala exata (0.114 x 0.085) no centro da tampa (X = 0, Y = 0)
-    const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.114, 0.085), lcdMat);
-    lcdScreen.position.set(0, 0.0, 0.112);
+    lcdScreenMatRef.current = lcdMat;
+
+    // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0)
+    // Dimensões proporcionais ideais para visualização no 3D: 0.20 de largura x 0.15 de altura
+    const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.20, 0.15), lcdMat);
+    lcdScreen.position.set(0, 0.0, 0.115); // Z = 0.115 fica 5mm à frente da face da tampa (Z = 0.110)
     centralGroup.add(lcdScreen);
 
-    const lcdFrame = new THREE.Mesh(new THREE.BoxGeometry(0.124, 0.095, 0.004), matCabinetSteel);
-    lcdFrame.position.set(0, 0.0, 0.1105);
+    // Moldura metálica (Bezel) posicionada ATRÁS da tela para nunca cobri-la
+    const screenBezelMat = new THREE.MeshStandardMaterial({
+      color: 0x181a20,
+      metalness: 0.9,
+      roughness: 0.35,
+    });
+    const lcdFrame = new THREE.Mesh(new THREE.BoxGeometry(0.218, 0.168, 0.005), screenBezelMat);
+    lcdFrame.position.set(0, 0.0, 0.111); // Face frontal em Z = 0.1135, lcdScreen em 0.115
     centralGroup.add(lcdFrame);
+
+    // 4 Parafusos de fixação nos cantos
+    const screwMat = new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: 0.95, roughness: 0.2 });
+    const screwGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.005, 8);
+    [
+      [-0.098, 0.072],
+      [0.098, 0.072],
+      [-0.098, -0.072],
+      [0.098, -0.072]
+    ].forEach(([sx, sy]) => {
+      const screw = new THREE.Mesh(screwGeo, screwMat);
+      screw.rotation.x = Math.PI / 2;
+      screw.position.set(sx, sy, 0.1155);
+      centralGroup.add(screw);
+    });
+
+    // Luz dedicada focada na Central para realçar a tampa e a tela IHM
+    const centralSpot = new THREE.SpotLight(0xfff6ea, 2.2, 5, Math.PI / 3, 0.3);
+    centralSpot.position.set(2.4, 2.4, 1.6);
+    centralSpot.target = centralGroup;
+    scene.add(centralSpot);
 
     // Top Electrical Conduit to Ceiling
     const conduit = new THREE.Mesh(
@@ -1251,6 +1293,25 @@ export const Hero3DScrollytelling: React.FC = () => {
         if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
           centralStrobeLightRef.current.intensity = 0;
           (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0x000000);
+        }
+      }
+
+      // Alternância dinâmica da tela TFT da Central IHM
+      if (lcdScreenMatRef.current) {
+        if (stage === 'FIRE_ALARM' || stage === 'SUPPRESSION') {
+          if (alarmScreenTextureRef.current && lcdScreenMatRef.current.map !== alarmScreenTextureRef.current) {
+            lcdScreenMatRef.current.map = alarmScreenTextureRef.current;
+            lcdScreenMatRef.current.emissiveMap = alarmScreenTextureRef.current;
+            lcdScreenMatRef.current.emissiveIntensity = 1.0;
+            lcdScreenMatRef.current.needsUpdate = true;
+          }
+        } else {
+          if (standbyScreenTextureRef.current && lcdScreenMatRef.current.map !== standbyScreenTextureRef.current) {
+            lcdScreenMatRef.current.map = standbyScreenTextureRef.current;
+            lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
+            lcdScreenMatRef.current.emissiveIntensity = 0.95;
+            lcdScreenMatRef.current.needsUpdate = true;
+          }
         }
       }
 
