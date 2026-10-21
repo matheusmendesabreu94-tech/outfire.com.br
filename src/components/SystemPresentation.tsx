@@ -69,7 +69,8 @@ export const SystemPresentation: React.FC = () => {
     const renderer = new THREE.WebGLRenderer({
       canvas: canvas3DRef.current,
       antialias: true,
-      powerPreference: 'high-performance'
+      powerPreference: 'high-performance',
+      logarithmicDepthBuffer: true
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -164,32 +165,44 @@ export const SystemPresentation: React.FC = () => {
     const ihmCanvas = createNormalizedIhmScreenCanvas();
     const screenDisplayTexture = new THREE.CanvasTexture(ihmCanvas);
     screenDisplayTexture.colorSpace = THREE.SRGBColorSpace;
+    screenDisplayTexture.generateMipmaps = true;
+    screenDisplayTexture.minFilter = THREE.LinearMipmapLinearFilter;
+    screenDisplayTexture.magFilter = THREE.LinearFilter;
+    screenDisplayTexture.anisotropy = 16;
 
     const ihmMat = new THREE.MeshStandardMaterial({
       map: screenDisplayTexture,
-      roughness: 0.2,
+      roughness: 0.15,
       metalness: 0.05,
       emissive: 0xffffff,
       emissiveMap: screenDisplayTexture,
-      emissiveIntensity: 0.9 // Backlight nítido e iluminado da IHM
+      emissiveIntensity: 0.95, // Backlight nítido e iluminado da IHM
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -4,
+      depthTest: true,
+      depthWrite: true
     });
 
     // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0) logo abaixo do logo Outfire
+    // Z = 0.298 posicionada claramente 4mm à frente da moldura (Z = 0.294) e 8mm à frente da tampa (Z = 0.290)
+    // Elimina 100% de qualquer Z-fighting, scanlines ou cintilação
     const ihmScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.219, 0.164), ihmMat);
-    ihmScreen.position.set(0, 0.0, 0.295);
+    ihmScreen.position.set(0, 0.0, 0.298);
     scene.add(ihmScreen);
 
-    // Moldura metálica de encaixe (Bezel) com recorte industrial conforme CAD DXF
+    // Moldura metálica de encaixe (Bezel) posicionada ATRÁS da tela
     const screenBezelMat = new THREE.MeshStandardMaterial({
       color: 0x181a20,
       metalness: 0.9,
       roughness: 0.35
     });
-    const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(0.238, 0.182, 0.008), screenBezelMat);
-    screenFrame.position.set(0, 0.0, 0.291);
+    // Espessura 0.004 com centro em Z = 0.292 (face frontal em Z = 0.294)
+    const screenFrame = new THREE.Mesh(new THREE.BoxGeometry(0.238, 0.182, 0.004), screenBezelMat);
+    screenFrame.position.set(0, 0.0, 0.292);
     scene.add(screenFrame);
 
-    // 4 Parafusos de fixação nos cantos do módulo TFT (conforme foto real e furação CAD)
+    // 4 Parafusos de fixação nos cantos do módulo TFT
     const screenBoltMat = new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: 0.95, roughness: 0.2 });
     const screenBoltGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.006, 8);
     [
@@ -200,7 +213,7 @@ export const SystemPresentation: React.FC = () => {
     ].forEach(([sx, sy]) => {
       const screw = new THREE.Mesh(screenBoltGeo, screenBoltMat);
       screw.rotation.x = Math.PI / 2;
-      screw.position.set(sx, sy, 0.295);
+      screw.position.set(sx, sy, 0.2985);
       scene.add(screw);
     });
 

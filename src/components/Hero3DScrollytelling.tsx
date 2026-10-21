@@ -662,13 +662,18 @@ export const Hero3DScrollytelling: React.FC = () => {
       emissive: 0xffffff,
       emissiveMap: standbyScreenTexture,
       emissiveIntensity: 0.95, // Backlight brilhante para ser 100% visível na cena
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -4,
+      depthTest: true,
+      depthWrite: true
     });
     lcdScreenMatRef.current = lcdMat;
 
     // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0)
     // Dimensões proporcionais ideais para visualização no 3D: 0.20 de largura x 0.15 de altura
     const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.20, 0.15), lcdMat);
-    lcdScreen.position.set(0, 0.0, 0.115); // Z = 0.115 fica 5mm à frente da face da tampa (Z = 0.110)
+    lcdScreen.position.set(0, 0.0, 0.116); // Z = 0.116 fica 6mm à frente da face da tampa (Z = 0.110) e 2.5mm à frente da moldura
     lcdScreen.userData = { interactiveType: 'central' };
     centralGroup.add(lcdScreen);
 
