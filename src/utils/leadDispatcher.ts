@@ -1,7 +1,7 @@
 import { LeadItem, CartItem } from '../types';
 import { saveLead } from './leadStorage';
 
-const OFFICIAL_WHATSAPP_NUMBER = '5515996576807';
+const OFFICIAL_WHATSAPP_NUMBER = '5511916999411';
 
 export interface DispatchLeadInput {
   nome: string;

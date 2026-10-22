@@ -109,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
               className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-4 py-2 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 fill-black" />
-              <span>(15) 99657-6807</span>
+              <span>(11) 91699-9411</span>
             </button>
 
             {/* Cart Trigger */}

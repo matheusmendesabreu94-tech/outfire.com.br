@@ -66,14 +66,14 @@ export const ContactFooter: React.FC = () => {
             </p>
 
             <div className="space-y-4 pt-4">
-              {/* Phone 1 */}
+              {/* Phone 1: Vendas */}
               <button 
                 type="button"
                 onClick={() => openLeadModal({
                   origem: 'contato_footer_card',
-                  title: 'WhatsApp Vendas & Orçamentos',
+                  title: 'WhatsApp Vendas & Novos Projetos',
                   subtitle: 'Preencha seus dados para direcionarmos seu atendimento prioritário de vendas.',
-                  defaultMessage: 'Olá! Gostaria de falar com o departamento de Vendas e Orçamentos da Outfire.'
+                  defaultMessage: 'Olá! Gostaria de falar com o departamento de Vendas e Novos Orçamentos da Outfire.'
                 })}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-emerald-500/30 transition-all text-white group text-left cursor-pointer"
               >
@@ -81,25 +81,43 @@ export const ContactFooter: React.FC = () => {
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs text-gray-400 block font-mono">WhatsApp Vendas & Orçamentos</span>
+                  <span className="text-xs text-emerald-400 font-bold block font-mono">WhatsApp Vendas & Orçamentos</span>
                   <span className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors">
-                    (15) 99657-6807
+                    (11) 91699-9411
                   </span>
                 </div>
               </button>
 
-              {/* Phone 2 */}
+              {/* Phone 2: Manutenção & Engenharia Preventiva */}
               <a 
-                href="https://wa.me/5515981577847"
+                href="https://wa.me/5515996576807?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20o%20setor%20de%20Manuten%C3%A7%C3%A3o%20e%20Engenharia%20da%20Outfire."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-emerald-500/30 transition-all text-white group"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-amber-500/30 transition-all text-white group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs text-amber-400 font-bold block font-mono">Manutenção & Engenharia</span>
+                  <span className="text-base font-bold text-white group-hover:text-amber-400 transition-colors">
+                    (15) 99657-6807
+                  </span>
+                </div>
+              </a>
+
+              {/* Phone 3: Suporte Técnico & Pós-Venda */}
+              <a 
+                href="https://wa.me/5515981577847?text=Ol%C3%A1%2C%20preciso%20de%20Suporte%20T%C3%A9cnico%20e%20P%C3%B3s-Venda%20Outfire."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-red-500/30 transition-all text-white group"
               >
                 <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-400 group-hover:scale-110 transition-transform">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs text-gray-400 block font-mono">Suporte Técnico & Pós-Venda</span>
+                  <span className="text-xs text-red-400 font-bold block font-mono">Suporte Técnico & Pós-Venda</span>
                   <span className="text-base font-bold text-white group-hover:text-red-400 transition-colors">
                     (15) 98157-7847
                   </span>

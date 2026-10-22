@@ -110,7 +110,7 @@ export const WhatsAppLeadModal: React.FC<WhatsAppLeadModalProps> = ({
           <div className="pr-6">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-bold uppercase tracking-wider mb-2.5">
               <MessageCircle className="w-3.5 h-3.5" />
-              <span>WhatsApp Comercial Oficial • (15) 99657-6807</span>
+              <span>WhatsApp Comercial Oficial • (11) 91699-9411</span>
             </div>
 
             <h3 className="text-xl sm:text-2xl font-black text-white font-sans tracking-tight">
@@ -152,7 +152,7 @@ export const WhatsAppLeadModal: React.FC<WhatsAppLeadModalProps> = ({
               <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-xs text-left space-y-1.5 max-w-sm mx-auto">
                 <div className="flex justify-between text-gray-400">
                   <span>Destino:</span>
-                  <strong className="text-emerald-400 font-mono">(15) 99657-6807</strong>
+                  <strong className="text-emerald-400 font-mono">(11) 91699-9411</strong>
                 </div>
                 <div className="flex justify-between text-gray-400">
                   <span>Status do Registro:</span>
@@ -170,7 +170,7 @@ export const WhatsAppLeadModal: React.FC<WhatsAppLeadModalProps> = ({
 
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3 justify-center">
                 <a
-                  href="https://wa.me/5515996576807"
+                  href="https://wa.me/5511916999411"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto py-3 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-md"
@@ -309,7 +309,7 @@ export const WhatsAppLeadModal: React.FC<WhatsAppLeadModalProps> = ({
                 >
                   <Phone className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
                   <span>
-                    {loading ? 'Preparando Atendimento...' : 'Iniciar Conversa no WhatsApp (15) 99657-6807'}
+                    {loading ? 'Preparando Atendimento...' : 'Iniciar Conversa no WhatsApp (11) 91699-9411'}
                   </span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>

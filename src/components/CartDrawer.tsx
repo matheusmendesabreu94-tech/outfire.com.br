@@ -88,7 +88,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     msg += `Olá, equipe Outfire! Acabei de montar esse pedido na loja do site e gostaria de confirmar a disponibilidade para faturamento e envio. Aguardo retorno!`;
 
     // 3. Abre o WhatsApp oficial da Outfire
-    const whatsappUrl = `https://wa.me/5515996576807?text=${encodeURIComponent(msg)}`;
+    const whatsappUrl = `https://wa.me/5511916999411?text=${encodeURIComponent(msg)}`;
     window.open(whatsappUrl, '_blank');
 
     // 4. Exibe a tela de sucesso
@@ -138,7 +138,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <span className="text-[11px] font-mono text-gray-400 block">
                   {step === 'cart' && `${cartItems.reduce((acc, i) => acc + i.quantity, 0)} item(ns) selecionado(s)`}
                   {step === 'lead' && 'Compra 100% via WhatsApp Oficial'}
-                  {step === 'success' && 'WhatsApp Comercial: (15) 99657-6807'}
+                  {step === 'success' && 'WhatsApp Comercial: (11) 91699-9411'}
                 </span>
               </div>
             </div>
@@ -361,7 +361,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="w-full p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-xs text-left space-y-2 mt-4">
                   <div className="flex items-center justify-between text-gray-400">
                     <span>Destino:</span>
-                    <strong className="text-emerald-400 font-mono">(15) 99657-6807</strong>
+                    <strong className="text-emerald-400 font-mono">(11) 91699-9411</strong>
                   </div>
                   <div className="flex items-center justify-between text-gray-400">
                     <span>Total do Pedido:</span>
@@ -371,7 +371,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                 <div className="w-full pt-4 space-y-2">
                   <a
-                    href={`https://wa.me/5515996576807`}
+                    href={`https://wa.me/5511916999411`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-md"

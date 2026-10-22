@@ -265,7 +265,7 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-[#d4af37] shrink-0" />
-                  <span>Atendimento ágil via WhatsApp Comercial Oficial: <strong>(15) 99657-6807</strong></span>
+                  <span>Atendimento ágil via WhatsApp Comercial Oficial: <strong>(11) 91699-9411</strong></span>
                 </div>
               </div>
             </div>
@@ -283,13 +283,13 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
                       O contato da sua empresa foi salvo e a conversa no WhatsApp foi iniciada para envio da tabela comercial.
                     </p>
                     <a
-                      href="https://wa.me/5515996576807"
+                      href="https://wa.me/5511916999411"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors"
                     >
                       <Phone className="w-3.5 h-3.5" />
-                      <span>Abrir WhatsApp (15) 99657-6807</span>
+                      <span>Abrir WhatsApp (11) 91699-9411</span>
                     </a>
                   </div>
                 ) : (
