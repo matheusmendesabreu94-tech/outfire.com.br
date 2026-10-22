@@ -76,7 +76,18 @@ export interface LeadItem {
   email: string;
   empresa: string; // Loja / Restaurante / Empresa que representa
   cidade?: string;
-  origem: 'carrinho_whatsapp' | 'loja_b2b' | 'contato_footer' | 'calculadora';
+  origem: string;
   detalhes?: string;
   totalPedido?: number;
+}
+
+export interface LeadModalOptions {
+  title?: string;
+  subtitle?: string;
+  defaultMessage?: string;
+  origem?: string;
+  detalhes?: string;
+  totalPedido?: number;
+  cartItems?: CartItem[];
+  onSuccess?: () => void;
 }

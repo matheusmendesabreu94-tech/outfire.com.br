@@ -5,7 +5,7 @@ import {
   User, Building2, Mail, MapPin, Sparkles
 } from 'lucide-react';
 import { CartItem } from '../types';
-import { saveLead } from '../utils/leadStorage';
+import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -24,7 +24,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onClearCart,
 }) => {
-  // Passos do carrinho: 'cart' (itens) | 'lead' (dados do comprador) | 'success' (enviado)
+  const { openLeadModal } = useWhatsAppModal();
   const [step, setStep] = useState<'cart' | 'lead' | 'success'>('cart');
 
   // Dados do Lead / Comprador
@@ -420,26 +420,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
 
               {/* Botão de Ação */}
-              {step === 'cart' ? (
-                <button
-                  type="button"
-                  onClick={() => setStep('lead')}
-                  className="w-full py-4 px-4 bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-black text-xs sm:text-sm rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-2 group active:scale-95"
-                >
-                  <Phone className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
-                  <span>Finalizar Pedido via WhatsApp Comercial</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  form="lead-checkout-form"
-                  className="w-full py-4 px-4 bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-black text-xs sm:text-sm rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-2 group active:scale-95"
-                >
-                  <Phone className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
-                  <span>Enviar Pedido para WhatsApp: (15) 99657-6807</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  openLeadModal({
+                    origem: 'carrinho_whatsapp',
+                    title: 'Finalizar Pedido no WhatsApp Comercial',
+                    subtitle: 'Preencha seus dados para direcionarmos este pedido ao WhatsApp Oficial com proposta e cálculo de frete.',
+                    cartItems,
+                    totalPedido: totalBRL,
+                    onSuccess: () => {
+                      onClearCart();
+                      onClose();
+                    }
+                  });
+                }}
+                className="w-full py-4 px-4 bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-black text-xs sm:text-sm rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-2 group active:scale-95 cursor-pointer"
+              >
+                <Phone className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
+                <span>Finalizar Pedido via WhatsApp Comercial</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 text-center pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />

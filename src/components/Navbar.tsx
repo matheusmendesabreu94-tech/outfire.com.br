@@ -3,6 +3,7 @@ import {
   ShieldAlert, ShoppingCart, Phone, Menu, X, Flame, 
   FileText, Calculator, Sparkles, AlertTriangle 
 } from 'lucide-react';
+import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 interface NavbarProps {
   cartCount: number;
@@ -12,6 +13,17 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { openLeadModal } = useWhatsAppModal();
+
+  const handleWhatsAppClick = () => {
+    openLeadModal({
+      origem: 'navbar',
+      title: 'Orçamento Técnico Direto',
+      subtitle: 'Preencha seus dados para receber o dimensionamento preliminar e proposta no WhatsApp.',
+      defaultMessage: 'Olá! Gostaria de um orçamento do sistema Outfire para minha cozinha industrial.'
+    });
+    setMobileMenuOpen(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,15 +103,14 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
           {/* Action Buttons: WhatsApp & Cart */}
           <div className="flex items-center gap-3">
             {/* WhatsApp Direct Quote */}
-            <a
-              href="https://wa.me/5515996576807?text=Ol%C3%A1%2C%20gostaria%20de%20um%20or%C3%A7amento%20do%20sistema%20Outfire%20para%20minha%20cozinha%20industrial."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-4 py-2 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all"
+            <button
+              type="button"
+              onClick={handleWhatsAppClick}
+              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-4 py-2 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 fill-black" />
               <span>(15) 99657-6807</span>
-            </a>
+            </button>
 
             {/* Cart Trigger */}
             <button
@@ -144,15 +155,14 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
               );
             })}
             <div className="pt-3 border-t border-white/10">
-              <a
-                href="https://wa.me/5515996576807"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#e5c05d] text-black text-sm font-black rounded-lg shadow-glow-gold"
+              <button
+                type="button"
+                onClick={handleWhatsAppClick}
+                className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-[#d4af37] to-[#e5c05d] text-black text-sm font-black rounded-lg shadow-glow-gold cursor-pointer"
               >
                 <Phone className="w-4 h-4 fill-black" />
                 Falar com Engenharia Outfire no WhatsApp
-              </a>
+              </button>
             </div>
           </div>
         )}

@@ -3,8 +3,20 @@ import {
   FileCheck2, ShieldCheck, Scale, Award, 
   AlertCircle, Building2, CheckCircle2, ChevronRight 
 } from 'lucide-react';
+import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 export const NormsCompliance: React.FC = () => {
+  const { openLeadModal } = useWhatsAppModal();
+
+  const handleConsultClick = () => {
+    openLeadModal({
+      origem: 'normas_bombeiros',
+      title: 'Consultoria Técnica NBR 14518 & AVCB',
+      subtitle: 'Preencha seus dados para direcionarmos seu projeto ao engenheiro especialista em laudos de bombeiros.',
+      defaultMessage: 'Olá! Preciso de um laudo ou projeto Outfire para aprovar minha cozinha no Corpo de Bombeiros / Shopping.'
+    });
+  };
+
   const norms = [
     {
       code: 'ABNT NBR 14518',
@@ -128,14 +140,13 @@ export const NormsCompliance: React.FC = () => {
           </div>
 
           <div className="shrink-0">
-            <a
-              href="https://wa.me/5515996576807?text=Ol%C3%A1%2C%20preciso%20de%20um%20laudo%20ou%20projeto%20Outfire%20para%20aprovar%20minha%20cozinha%20no%20Corpo%20de%20Bombeiros%2FShopping."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="py-3 px-6 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl shadow-glow-red transition-all block text-center"
+            <button
+              type="button"
+              onClick={handleConsultClick}
+              className="py-3 px-6 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl shadow-glow-red transition-all block text-center cursor-pointer"
             >
               Consultar Engenheiro Outfire
-            </a>
+            </button>
           </div>
         </div>
 

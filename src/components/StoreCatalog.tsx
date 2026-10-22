@@ -6,13 +6,15 @@ import {
 } from 'lucide-react';
 import { ProductItem } from '../types';
 import { PRODUCTS } from '../data/products';
-import { saveLead } from '../utils/leadStorage';
+import { dispatchAndOpenWhatsApp } from '../utils/leadDispatcher';
+import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 interface StoreCatalogProps {
   onAddToCart: (product: ProductItem) => void;
 }
 
 export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
+  const { openLeadModal } = useWhatsAppModal();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -27,7 +29,7 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
   const [b2bSubmitted, setB2bSubmitted] = useState(false);
   const [b2bError, setB2bError] = useState('');
 
-  const handleB2bSubmit = (e: React.FormEvent) => {
+  const handleB2bSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setB2bError('');
 
@@ -36,32 +38,18 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
       return;
     }
 
-    // 1. Salva o lead no localStorage
-    saveLead({
+    setB2bSubmitted(true);
+
+    await dispatchAndOpenWhatsApp({
       nome: b2bForm.nome.trim(),
+      empresa: b2bForm.empresa.trim(),
       telefone: b2bForm.telefone.trim(),
       email: b2bForm.email.trim(),
-      empresa: b2bForm.empresa.trim(),
       cidade: b2bForm.cidade.trim() || 'Não informada',
       origem: 'loja_b2b',
-      detalhes: 'Solicitação de Tabela Comercial de Revenda com desconto de fábrica'
+      detalhes: 'Solicitação de Tabela Comercial de Revenda com desconto de fábrica',
+      customMessage: 'Represento a empresa acima e tenho interesse em revender ou adquirir sistemas e componentes com tabela diferenciada de fábrica.'
     });
-
-    // 2. Monta mensagem para WhatsApp Comercial
-    let msg = `🤝 *SOLICITAÇÃO DE CADASTRO B2B / LOJA — OUTFIRE*\n\n`;
-    msg += `👤 *Nome do Responsável:* ${b2bForm.nome.trim()}\n`;
-    msg += `🏢 *Loja / Empresa que representa:* ${b2bForm.empresa.trim()}\n`;
-    msg += `📱 *WhatsApp:* ${b2bForm.telefone.trim()}\n`;
-    msg += `✉️ *E-mail:* ${b2bForm.email.trim()}\n`;
-    if (b2bForm.cidade.trim()) {
-      msg += `📍 *Cidade / UF:* ${b2bForm.cidade.trim()}\n`;
-    }
-    msg += `\nOlá, equipe Outfire! Represento a empresa acima e tenho interesse em revender ou adquirir sistemas e componentes com tabela diferenciada de fábrica. Poderiam me enviar as condições comerciais?`;
-
-    setB2bSubmitted(true);
-    setTimeout(() => {
-      window.open(`https://wa.me/5515996576807?text=${encodeURIComponent(msg)}`, '_blank');
-    }, 800);
   };
 
   const categories = [
@@ -83,8 +71,13 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
   });
 
   const handleDirectWhatsAppBuy = (product: ProductItem) => {
-    const msg = `Olá! Gostaria de comprar ou solicitar proposta para o produto:\n*${product.name}* (SKU: ${product.sku})\nValor: R$ ${product.priceBRL.toLocaleString('pt-BR')},00.\nPoderia me passar os prazos de entrega e condições de faturamento?`;
-    window.open(`https://wa.me/5515996576807?text=${encodeURIComponent(msg)}`, '_blank');
+    openLeadModal({
+      origem: 'loja_direta',
+      title: `Proposta: ${product.name}`,
+      subtitle: `Preencha seus dados para receber proposta comercial e condições de entrega para ${product.sku}.`,
+      defaultMessage: `Olá! Tenho interesse no produto ${product.name} (SKU: ${product.sku}) no valor de R$ ${product.priceBRL.toLocaleString('pt-BR')},00. Poderiam me passar os prazos de entrega e condições de faturamento?`,
+      detalhes: `${product.name} (SKU: ${product.sku}) - R$ ${product.priceBRL.toLocaleString('pt-BR')},00`
+    });
   };
 
   return (

@@ -6,12 +6,14 @@ import {
   Maximize2, Minimize2, ZoomIn, ZoomOut, RotateCcw, X, Move
 } from 'lucide-react';
 import { Appliance, CalculationResult, HoodConfig, KitchenProjectConfig } from '../types';
+import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 interface KitchenCalculatorProps {
   onAddToCart: (customKit: any) => void;
 }
 
 export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCart }) => {
+  const { openLeadModal } = useWhatsAppModal();
   // Number of independent hoods (1 to 3)
   const [hoodCount, setHoodCount] = useState<number>(1);
   
@@ -207,8 +209,14 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
     msg += `• Modelo da Central: ${result.centralModel}\n\n`;
     msg += `Gostaria de agendar uma consulta técnica ou receber a proposta com laudo ART para AVCB. Aguardo retorno!`;
 
-    const encoded = encodeURIComponent(msg);
-    window.open(`https://wa.me/5515996576807?text=${encoded}`, '_blank');
+    openLeadModal({
+      origem: 'calculadora',
+      title: 'Receber Dimensionamento no WhatsApp',
+      subtitle: 'Preencha seus dados para direcionarmos a memória de cálculo completa e o laudo preliminar.',
+      defaultMessage: msg,
+      detalhes: `Projeto: ${hoodCount} Coifa(s), Duto ${ductLength}m, Central: ${result.centralModel}`,
+      totalPedido: result.estimatedPriceBRL
+    });
   };
 
   // Add custom configured kit to store cart

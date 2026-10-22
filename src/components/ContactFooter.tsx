@@ -3,9 +3,11 @@ import {
   Phone, Mail, MapPin, Send, Flame, Shield, 
   Clock, CheckCircle, ArrowRight, FileText, ShoppingCart 
 } from 'lucide-react';
-import { saveLead } from '../utils/leadStorage';
+import { dispatchAndOpenWhatsApp } from '../utils/leadDispatcher';
+import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 export const ContactFooter: React.FC = () => {
+  const { openLeadModal } = useWhatsAppModal();
   const [formData, setFormData] = useState({
     nome: '',
     empresa: '',
@@ -17,37 +19,24 @@ export const ContactFooter: React.FC = () => {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Salva o lead no localStorage para auditoria/segurança
-    saveLead({
+    setSubmitted(true);
+
+    await dispatchAndOpenWhatsApp({
       nome: formData.nome.trim(),
+      empresa: formData.empresa.trim() || 'Não informada',
       telefone: formData.telefone.trim(),
       email: formData.email.trim(),
-      empresa: formData.empresa.trim() || 'Não informada',
       cidade: formData.cidade.trim() || 'Não informada',
       origem: 'contato_footer',
-      detalhes: `Coifas: ${formData.coifas} | Mensagem: ${formData.mensagem || 'Sem mensagem'}`
+      detalhes: `Qtd de Coifas: ${formData.coifas}`,
+      customMessage: formData.mensagem
     });
 
-    // Redirect to WhatsApp with formatted form lead
-    let text = `📋 *NOVO CONTATO PELO SITE OUTFIRE.COM.BR*\n\n`;
-    text += `👤 *Nome:* ${formData.nome}\n`;
-    text += `🏢 *Empresa / Loja:* ${formData.empresa || 'Não informado'}\n`;
-    text += `📱 *Telefone / WhatsApp:* ${formData.telefone}\n`;
-    text += `✉️ *E-mail:* ${formData.email}\n`;
-    text += `📍 *Cidade / Estado:* ${formData.cidade}\n`;
-    text += `🍳 *Qtd de Coifas:* ${formData.coifas} coifa(s)\n`;
-    if (formData.mensagem) {
-      text += `💬 *Mensagem:* ${formData.mensagem}\n`;
-    }
-
-    setSubmitted(true);
     setTimeout(() => {
-      window.open(`https://wa.me/5515996576807?text=${encodeURIComponent(text)}`, '_blank');
       setSubmitted(false);
-    }, 1000);
+    }, 1200);
   };
 
   return (
@@ -78,11 +67,15 @@ export const ContactFooter: React.FC = () => {
 
             <div className="space-y-4 pt-4">
               {/* Phone 1 */}
-              <a 
-                href="https://wa.me/5515996576807"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-emerald-500/30 transition-all text-white group"
+              <button 
+                type="button"
+                onClick={() => openLeadModal({
+                  origem: 'contato_footer_card',
+                  title: 'WhatsApp Vendas & Orçamentos',
+                  subtitle: 'Preencha seus dados para direcionarmos seu atendimento prioritário de vendas.',
+                  defaultMessage: 'Olá! Gostaria de falar com o departamento de Vendas e Orçamentos da Outfire.'
+                })}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-emerald-500/30 transition-all text-white group text-left cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                   <Phone className="w-5 h-5" />
@@ -93,7 +86,7 @@ export const ContactFooter: React.FC = () => {
                     (15) 99657-6807
                   </span>
                 </div>
-              </a>
+              </button>
 
               {/* Phone 2 */}
               <a 

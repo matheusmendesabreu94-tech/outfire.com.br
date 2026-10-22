@@ -12,8 +12,9 @@ import { ContactFooter } from './components/ContactFooter';
 import { CartDrawer } from './components/CartDrawer';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { CartItem, ProductItem } from './types';
+import { WhatsAppModalProvider } from './context/WhatsAppModalContext';
 
-export function App() {
+function AppContent() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -111,6 +112,14 @@ export function App() {
       {/* Persistent WhatsApp Floating Button */}
       <FloatingWhatsApp />
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <WhatsAppModalProvider>
+      <AppContent />
+    </WhatsAppModalProvider>
   );
 }
 export default App;
