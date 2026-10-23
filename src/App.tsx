@@ -6,6 +6,7 @@ import { WhyOutfire } from './components/WhyOutfire';
 import { NormsCompliance } from './components/NormsCompliance';
 import { KitchenCalculator } from './components/KitchenCalculator';
 import { StoreCatalog } from './components/StoreCatalog';
+import { CommercialPresentation } from './components/CommercialPresentation';
 import { ManualsAndDocs } from './components/ManualsAndDocs';
 import { GallerySection } from './components/GallerySection';
 import { ContactFooter } from './components/ContactFooter';
@@ -80,7 +81,10 @@ function AppContent() {
         {/* 3. Why Outfire: The Danger of Water & Class K Chemistry */}
         <WhyOutfire />
 
-        {/* 4. Technical Norms Compliance (NBR 14518, NFPA, Bombeiros AVCB) */}
+        {/* 4. Commercial Presentation: Video Tour & Engineering Slides */}
+        <CommercialPresentation />
+
+        {/* 5. Technical Norms Compliance (NBR 14518, NFPA, Bombeiros AVCB) */}
         <NormsCompliance />
 
         {/* 5. Interactive Kitchen Calculator & Automated Blueprint Diagram */}

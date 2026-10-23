@@ -16,6 +16,15 @@ export const ManualsAndDocs: React.FC = () => {
       featured: true
     },
     {
+      title: 'Apresentação Comercial Oficial — Sistema OUTFIRE® 2026',
+      type: 'Apresentação Executiva (PDF)',
+      size: '2.5 MB',
+      description: 'Documento completo com arquitetura de cozinhas, automação quádrupla, especificações da Central VTS 32S3, 7 inovações exclusivas e conformidade técnica.',
+      link: '/assets/Apresentacao_Comercial_Outfire_2026.pdf',
+      pdfLink: '/assets/Apresentacao_Comercial_Outfire_2026.pdf',
+      featured: true
+    },
+    {
       title: 'Manual Técnico e Esquema Elétrico Central Outfire 2026',
       type: 'PDF Oficial de Engenharia',
       size: '750 KB',
@@ -67,7 +76,7 @@ export const ManualsAndDocs: React.FC = () => {
         </div>
 
         {/* Manuals Download Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {manuals.map((man, i) => (
             <div 
               key={i}

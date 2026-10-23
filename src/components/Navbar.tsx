@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, ShoppingCart, Phone, Menu, X, Flame, 
-  FileText, Calculator, Sparkles, AlertTriangle 
+  FileText, Calculator, Sparkles, AlertTriangle, Video 
 } from 'lucide-react';
 import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
@@ -38,6 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
   const navLinks = [
     { name: 'Simulação 3D', href: '#hero-3d', icon: Flame },
     { name: 'Central VTS', href: '#central-vts', icon: ShieldAlert },
+    { name: 'Apresentação', href: '#apresentacao', icon: Video },
     { name: 'Normas NBR', href: '#normas', icon: FileText },
     { name: 'Calculadora & Diagrama', href: '#calculadora', icon: Calculator, highlight: true },
     { name: 'Loja Virtual', href: '#loja', icon: ShoppingCart },
