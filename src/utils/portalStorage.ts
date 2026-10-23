@@ -1,14 +1,17 @@
 import { 
   ClientUser, ObraItem, PreInstallationChecklist, 
-  DocumentoProjeto, PedidoItemPortal, TecnicoResponsavel 
+  DocumentoProjeto, PedidoItemPortal, TecnicoResponsavel,
+  TecnicoContratado, MensagemChat 
 } from '../types/clientPortal';
 
 const PORTAL_SESSION_KEY = 'outfire_portal_session_v1';
 const PORTAL_OBRAS_KEY = 'outfire_portal_obras_v1';
-const PORTAL_USERS_KEY = 'outfire_portal_users_v1';
+const PORTAL_TECNICOS_KEY = 'outfire_portal_tecnicos_v1';
+const PORTAL_CHAT_KEY = 'outfire_portal_chat_v1';
 
 // Técnico Padrão de Engenharia da Outfire
 export const DEFAULT_OUTFIRE_TECNICO: TecnicoResponsavel = {
+  id: 'tec_carlos_01',
   nome: 'Carlos Eduardo Nogueira',
   cargo: 'Técnico Especialista em Supressão Classe K',
   registro: 'CFT/CRT-SP: 492.180',
@@ -18,7 +21,61 @@ export const DEFAULT_OUTFIRE_TECNICO: TecnicoResponsavel = {
   turno: 'Manhã (07h30 às 11h30 — Antes da abertura da cozinha)'
 };
 
-// Obra Demonstrativa Inicial de Alto Nível para Teste Imediato
+// Lista Inicial de Técnicos Contratados e Credenciados Outfire
+export const DEFAULT_TECNICOS_CONTRATADOS: TecnicoContratado[] = [
+  {
+    id: 'tec_carlos_01',
+    nome: 'Carlos Eduardo Nogueira',
+    telefoneWhatsApp: '5515996576807',
+    email: 'carlos.instalador@outfire.com.br',
+    registro: 'CFT/CRT-SP: 492.180',
+    regiao: 'São Paulo Capital, Campinas e Sorocaba',
+    especialidade: 'Tubulação Inox, Bicos Aspersores e Central VTS',
+    status: 'em_obra',
+    fotoUrl: 'https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&q=80&w=250',
+    obrasAtribuidasQtd: 2
+  },
+  {
+    id: 'tec_roberto_02',
+    nome: 'Roberto Alves Santos',
+    telefoneWhatsApp: '5511916999411',
+    email: 'roberto.dutos@outfire.com.br',
+    registro: 'CFT/CRT-SP: 381.902',
+    regiao: 'Grande São Paulo, ABC Paulista e Litoral',
+    especialidade: 'Solda Estanque de Dutos, Dampers e Injeção CO2',
+    status: 'disponivel',
+    fotoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=250',
+    obrasAtribuidasQtd: 1
+  },
+  {
+    id: 'tec_marcio_03',
+    nome: 'Márcio Vinícius Toledo',
+    telefoneWhatsApp: '5521987123456',
+    email: 'marcio.toledo@outfire.com.br',
+    registro: 'CREA-RJ: 201.890/D',
+    regiao: 'Rio de Janeiro, Niterói e Região Serrana',
+    especialidade: 'Comissionamento Eletroeletrônico e IHM Touch',
+    status: 'disponivel',
+    fotoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=250',
+    obrasAtribuidasQtd: 0
+  }
+];
+
+// Administrador Master (Engenharia Outfire)
+export const ADMIN_USER: ClientUser = {
+  id: 'usr_admin_robson',
+  email: 'engenharia@outfire.com.br',
+  nome: 'Eng. Robson (Administrador)',
+  telefone: '(11) 91699-9411',
+  role: 'admin_outfire',
+  empresaId: 'emp_outfire_matriz',
+  empresaNome: 'Outfire Sistemas — Matriz Engenharia',
+  cidade: 'São Paulo - SP',
+  avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
+  criadoEm: '2026-01-01T00:00:00Z'
+};
+
+// Obra Demonstrativa Inicial de Alto Nível
 export const DEMO_OBRA: ObraItem = {
   id: 'obra_fasano_jardins_01',
   empresaId: 'emp_demo_fasano',
@@ -135,9 +192,46 @@ export const DEMO_USER: ClientUser = {
   criadoEm: '2026-10-15T09:00:00Z'
 };
 
-/**
- * Retorna o usuário logado atualmente (ou null se deslogado)
- */
+// Mensagens Iniciais de Demonstração
+const INITIAL_CHAT_MESSAGES: MensagemChat[] = [
+  {
+    id: 'msg_01',
+    canalId: 'obra_fasano_jardins_01',
+    remetenteId: 'usr_demo_fasano',
+    remetenteNome: 'Marcelo Fasano',
+    remetenteTipo: 'cliente',
+    texto: 'Boa tarde Eng. Robson! Anexei as fotos do duto e da coifa no checklist. O ponto 220V com disjuntor já está energizado.',
+    timestamp: '2026-10-23T10:15:00Z'
+  },
+  {
+    id: 'msg_02',
+    canalId: 'obra_fasano_jardins_01',
+    remetenteId: 'usr_admin_robson',
+    remetenteNome: 'Eng. Robson (Outfire)',
+    remetenteTipo: 'admin',
+    texto: 'Excelente Marcelo! Analisei as fotos do duto e das portas de inspeção. Vistoria civil aprovada! Já aloquei o técnico Carlos Eduardo para terça-feira às 07h30.',
+    timestamp: '2026-10-23T11:20:00Z'
+  },
+  {
+    id: 'msg_tec_01',
+    canalId: 'tec_carlos_01',
+    remetenteId: 'usr_admin_robson',
+    remetenteNome: 'Eng. Robson (Outfire)',
+    remetenteTipo: 'admin',
+    texto: 'Carlos, a obra do Fasano Jardins (OBR-2026-OUT-0042) foi aprovada no checklist prévio. São 2 coifas e 9.5m de duto. Horário permitido pelo restaurante: das 06h às 11h.',
+    timestamp: '2026-10-23T11:30:00Z'
+  },
+  {
+    id: 'msg_tec_02',
+    canalId: 'tec_carlos_01',
+    remetenteId: 'tec_carlos_01',
+    remetenteNome: 'Carlos Eduardo Nogueira',
+    remetenteTipo: 'tecnico',
+    texto: 'Recebido Eng. Robson! Tubulação em inox 304 e o cilindro de saponificante 12L já estão no meu veículo de suporte. Chegarei às 07h30 em ponto.',
+    timestamp: '2026-10-23T11:45:00Z'
+  }
+];
+
 export function getCurrentPortalUser(): ClientUser | null {
   try {
     const raw = localStorage.getItem(PORTAL_SESSION_KEY);
@@ -147,9 +241,6 @@ export function getCurrentPortalUser(): ClientUser | null {
   }
 }
 
-/**
- * Define a sessão do usuário
- */
 export function setPortalSession(user: ClientUser | null): void {
   try {
     if (user) {
@@ -160,21 +251,17 @@ export function setPortalSession(user: ClientUser | null): void {
   } catch {}
 }
 
-/**
- * Retorna as obras cadastradas para o usuário/empresa
- */
 export function getObrasDoCliente(empresaId?: string): ObraItem[] {
   try {
     const raw = localStorage.getItem(PORTAL_OBRAS_KEY);
     let obras: ObraItem[] = raw ? JSON.parse(raw) : [];
 
-    // Se estiver vazio, popula com a obra modelo inicial
     if (obras.length === 0) {
       obras = [DEMO_OBRA];
       localStorage.setItem(PORTAL_OBRAS_KEY, JSON.stringify(obras));
     }
 
-    if (empresaId) {
+    if (empresaId && empresaId !== 'emp_outfire_matriz') {
       return obras.filter(o => o.empresaId === empresaId);
     }
     return obras;
@@ -183,9 +270,6 @@ export function getObrasDoCliente(empresaId?: string): ObraItem[] {
   }
 }
 
-/**
- * Salva ou atualiza uma obra no storage seguro
- */
 export function saveObra(obra: ObraItem): void {
   try {
     const obras = getObrasDoCliente();
@@ -199,9 +283,99 @@ export function saveObra(obra: ObraItem): void {
   } catch {}
 }
 
-/**
- * Atualiza o checklist pré-instalação de uma obra
- */
+// ================= GESTÃO DE TÉCNICOS CONTRATADOS =================
+export function getTecnicosContratados(): TecnicoContratado[] {
+  try {
+    const raw = localStorage.getItem(PORTAL_TECNICOS_KEY);
+    let tecnicos: TecnicoContratado[] = raw ? JSON.parse(raw) : [];
+    if (tecnicos.length === 0) {
+      tecnicos = DEFAULT_TECNICOS_CONTRATADOS;
+      localStorage.setItem(PORTAL_TECNICOS_KEY, JSON.stringify(tecnicos));
+    }
+    return tecnicos;
+  } catch {
+    return DEFAULT_TECNICOS_CONTRATADOS;
+  }
+}
+
+export function saveTecnicoContratado(tecnico: TecnicoContratado): void {
+  try {
+    const tecnicos = getTecnicosContratados();
+    const idx = tecnicos.findIndex(t => t.id === tecnico.id);
+    if (idx >= 0) {
+      tecnicos[idx] = tecnico;
+    } else {
+      tecnicos.unshift(tecnico);
+    }
+    localStorage.setItem(PORTAL_TECNICOS_KEY, JSON.stringify(tecnicos));
+  } catch {}
+}
+
+export function atribuirTecnicoAObra(obraId: string, tecnico: TecnicoContratado, dataAgendamento?: string, turno?: string): ObraItem {
+  const obras = getObrasDoCliente();
+  const obra = obras.find(o => o.id === obraId) || DEMO_OBRA;
+
+  obra.tecnico = {
+    id: tecnico.id,
+    nome: tecnico.nome,
+    cargo: tecnico.especialidade,
+    registro: tecnico.registro,
+    telefoneWhatsApp: tecnico.telefoneWhatsApp,
+    fotoUrl: tecnico.fotoUrl,
+    dataAgendamento: dataAgendamento || 'Data a confirmar com restaurante',
+    turno: turno || 'Manhã (07h às 11h)'
+  };
+  obra.status = 'tecnico_agendado';
+  obra.statusLabel = `Técnico Agendado (${tecnico.nome})`;
+  obra.progressoPorcentagem = Math.max(65, obra.progressoPorcentagem);
+
+  saveObra(obra);
+  return obra;
+}
+
+// ================= CHAT CONVERSAS (CLIENTES & TÉCNICOS) =================
+export function getMensagensChat(canalId: string): MensagemChat[] {
+  try {
+    const raw = localStorage.getItem(PORTAL_CHAT_KEY);
+    let all: MensagemChat[] = raw ? JSON.parse(raw) : [];
+    if (all.length === 0) {
+      all = INITIAL_CHAT_MESSAGES;
+      localStorage.setItem(PORTAL_CHAT_KEY, JSON.stringify(all));
+    }
+    return all.filter(m => m.canalId === canalId);
+  } catch {
+    return INITIAL_CHAT_MESSAGES.filter(m => m.canalId === canalId);
+  }
+}
+
+export function enviarMensagemChat(
+  canalId: string, 
+  remetenteId: string, 
+  remetenteNome: string, 
+  remetenteTipo: 'admin' | 'cliente' | 'tecnico', 
+  texto: string
+): MensagemChat {
+  const newMsg: MensagemChat = {
+    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+    canalId,
+    remetenteId,
+    remetenteNome,
+    remetenteTipo,
+    texto: texto.trim(),
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const raw = localStorage.getItem(PORTAL_CHAT_KEY);
+    let all: MensagemChat[] = raw ? JSON.parse(raw) : [];
+    if (all.length === 0) all = INITIAL_CHAT_MESSAGES;
+    all.push(newMsg);
+    localStorage.setItem(PORTAL_CHAT_KEY, JSON.stringify(all));
+  } catch {}
+
+  return newMsg;
+}
+
 export function updateChecklist(obraId: string, checklist: Partial<PreInstallationChecklist>): PreInstallationChecklist {
   const obras = getObrasDoCliente();
   const obra = obras.find(o => o.id === obraId) || DEMO_OBRA;
@@ -227,7 +401,6 @@ export function updateChecklist(obraId: string, checklist: Partial<PreInstallati
     atualizadoEm: new Date().toISOString()
   };
 
-  // Calcula % de prontidão dos 7 itens físicos
   const items = [
     updatedChk.dutoPronto,
     updatedChk.coifaInstalada,
@@ -253,9 +426,6 @@ export function updateChecklist(obraId: string, checklist: Partial<PreInstallati
   return updatedChk;
 }
 
-/**
- * Adiciona um documento/planta enviado pelo cliente na obra
- */
 export function addDocumentoObra(obraId: string, doc: Omit<DocumentoProjeto, 'id' | 'obraId'>): DocumentoProjeto {
   const obras = getObrasDoCliente();
   const obra = obras.find(o => o.id === obraId) || DEMO_OBRA;
@@ -271,9 +441,6 @@ export function addDocumentoObra(obraId: string, doc: Omit<DocumentoProjeto, 'id
   return newDoc;
 }
 
-/**
- * Cadastra um novo cliente com validação e cria sua primeira obra
- */
 export function registerNewClient(params: {
   nome: string;
   email: string;

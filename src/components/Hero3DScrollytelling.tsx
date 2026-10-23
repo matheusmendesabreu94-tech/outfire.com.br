@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { 
   Flame, ShieldCheck, AlertOctagon, ZapOff, Wind, Droplets, 
   RotateCcw, Sparkles, BellRing, Eye, Camera, CheckCircle2,
-  ChevronDown, Radio, XCircle
+  ChevronDown, Radio, XCircle, User
 } from 'lucide-react';
 import { 
   createNormalizedIhmScreenCanvas, 
@@ -23,7 +23,11 @@ interface TelemetryData {
   countdown: number;
 }
 
-export const Hero3DScrollytelling: React.FC = () => {
+interface HeroProps {
+  onOpenPortal?: (mode?: 'client' | 'admin') => void;
+}
+
+export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -1266,11 +1270,49 @@ export const Hero3DScrollytelling: React.FC = () => {
 
   return (
     <>
-      {/* TELA 1 DE ABERTURA (PRIMEIRO CONTATO): FUNDO PRETO, APENAS O LOGO E A SETA DOURADA */}
+      {/* TELA 1 DE ABERTURA (PRIMEIRO CONTATO): FUNDO PRETO, LOGO DOURADO E ACESSO RÁPIDO AOS PORTAIS */}
       <section 
         id="splash-hero"
         className="relative w-full h-[100dvh] bg-[#05070a] flex flex-col items-center justify-center select-none overflow-hidden z-20"
       >
+        {/* Top Header Bar: Visível imediatamente no carregamento da página / refresh */}
+        <div className="absolute top-0 left-0 w-full z-30 p-4 sm:p-6 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-b from-[#05070a]/95 via-[#05070a]/60 to-transparent">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-2.5 w-2.5 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d4af37] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#d4af37]"></span>
+            </span>
+            <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-[#e5c05d] font-bold">
+              NBR 14518 / NFPA 96 & 17A
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Botão Área do Cliente */}
+            <button
+              type="button"
+              onClick={() => onOpenPortal?.('client')}
+              className="px-3 sm:px-4 py-2 rounded-xl bg-black/60 hover:bg-[#d4af37]/20 border border-[#d4af37]/40 hover:border-[#d4af37] text-[#f3e5ab] text-xs font-bold transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)] flex items-center gap-2 cursor-pointer backdrop-blur-md"
+              title="Acessar Área do Cliente / Restaurante"
+            >
+              <User className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span>Área do Cliente</span>
+            </button>
+
+            {/* Botão Área da Administração */}
+            <button
+              type="button"
+              onClick={() => onOpenPortal?.('admin')}
+              className="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#d4af37]/20 via-[#e5c05d]/30 to-[#b89628]/20 hover:from-[#d4af37]/40 hover:to-[#e5c05d]/50 border border-[#d4af37]/60 hover:border-[#d4af37] text-white text-xs font-bold transition-all shadow-[0_0_20px_rgba(212,175,55,0.25)] flex items-center gap-2 cursor-pointer backdrop-blur-md"
+              title="Acessar Painel da Administração e Engenharia Outfire"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#e5c05d]" />
+              <span className="hidden sm:inline">Área da Administração</span>
+              <span className="sm:hidden">Admin</span>
+            </button>
+          </div>
+        </div>
+
         {/* Brilho radial dourado sutil no centro escuro */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#d4af37]/15 via-[#0a0c10]/60 to-[#05070a] pointer-events-none" />
 

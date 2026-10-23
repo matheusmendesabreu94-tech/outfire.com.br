@@ -21,6 +21,12 @@ function AppContent() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPortalOpen, setIsPortalOpen] = useState(false);
+  const [portalInitialMode, setPortalInitialMode] = useState<'client' | 'admin'>('client');
+
+  const handleOpenPortal = (mode: 'client' | 'admin' = 'client') => {
+    setPortalInitialMode(mode);
+    setIsPortalOpen(true);
+  };
 
   // Add item to cart
   const handleAddToCart = (product: ProductItem) => {
@@ -71,13 +77,13 @@ function AppContent() {
       <Navbar 
         cartCount={totalCartCount} 
         onOpenCart={() => setIsCartOpen(true)} 
-        onOpenPortal={() => setIsPortalOpen(true)}
+        onOpenPortal={handleOpenPortal}
       />
 
       {/* Main Content Sections */}
       <main className="flex-1">
         {/* 1. 3D Scrollytelling Hero */}
-        <Hero3DScrollytelling />
+        <Hero3DScrollytelling onOpenPortal={handleOpenPortal} />
 
         {/* 2. Central Outfire VTS 32S3 Presentation */}
         <SystemPresentation />
@@ -105,7 +111,7 @@ function AppContent() {
       </main>
 
       {/* Footer & Lead Form */}
-      <ContactFooter />
+      <ContactFooter onOpenPortal={handleOpenPortal} />
 
       {/* Slide-over Cart Drawer */}
       <CartDrawer
@@ -120,10 +126,11 @@ function AppContent() {
       {/* Persistent WhatsApp Floating Button */}
       <FloatingWhatsApp />
 
-      {/* Client Portal Modal (Portal do Cliente & Obras) */}
+      {/* Client Portal Modal (Portal do Cliente & Obras / Painel Admin) */}
       <ClientPortalModal 
         isOpen={isPortalOpen} 
         onClose={() => setIsPortalOpen(false)} 
+        initialMode={portalInitialMode}
       />
 
       {/* LGPD Cookie Consent Banner */}

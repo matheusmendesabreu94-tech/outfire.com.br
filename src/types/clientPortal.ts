@@ -34,6 +34,7 @@ export interface ClientUser {
 }
 
 export interface TecnicoResponsavel {
+  id?: string;
   nome: string;
   cargo: string;
   registro: string;
@@ -41,6 +42,29 @@ export interface TecnicoResponsavel {
   fotoUrl: string;
   dataAgendamento?: string;
   turno?: string;
+}
+
+export interface TecnicoContratado {
+  id: string;
+  nome: string;
+  telefoneWhatsApp: string;
+  email: string;
+  registro: string;
+  regiao: string;
+  especialidade: string;
+  status: 'disponivel' | 'em_obra' | 'ferias';
+  fotoUrl: string;
+  obrasAtribuidasQtd: number;
+}
+
+export interface MensagemChat {
+  id: string;
+  canalId: string; // obraId ou tecnicoId ou clienteId
+  remetenteId: string;
+  remetenteNome: string;
+  remetenteTipo: 'admin' | 'cliente' | 'tecnico';
+  texto: string;
+  timestamp: string;
 }
 
 export interface PreInstallationChecklist {

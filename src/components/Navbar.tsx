@@ -8,7 +8,7 @@ import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
-  onOpenPortal?: () => void;
+  onOpenPortal?: (mode?: 'client' | 'admin') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPortal }) => {
@@ -102,25 +102,36 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPor
             })}
           </nav>
 
-          {/* Action Buttons: Portal, WhatsApp & Cart */}
-          <div className="flex items-center gap-2.5">
+          {/* Action Buttons: Portal, Admin, WhatsApp & Cart */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Client Portal Button */}
             <button
               type="button"
-              onClick={onOpenPortal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-[#f3e5ab] text-xs font-bold transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)] cursor-pointer"
-              title="Acessar Portal do Cliente e Acompanhar Obras"
+              onClick={() => onOpenPortal?.('client')}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-black/60 hover:bg-amber-500/20 border border-amber-500/40 text-[#f3e5ab] text-xs font-bold transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)] cursor-pointer"
+              title="Acessar Área do Cliente / Restaurante"
             >
               <User className="w-3.5 h-3.5 text-[#d4af37]" />
               <span className="hidden sm:inline">Área do Cliente</span>
-              <span className="sm:hidden">Portal</span>
+              <span className="sm:hidden">Cliente</span>
+            </button>
+
+            {/* Admin Portal Button */}
+            <button
+              type="button"
+              onClick={() => onOpenPortal?.('admin')}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#d4af37]/20 to-[#b89628]/20 hover:from-[#d4af37]/35 hover:to-[#b89628]/35 border border-amber-500/50 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+              title="Painel da Administração Outfire & Técnicos"
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden md:inline">Admin</span>
             </button>
 
             {/* WhatsApp Direct Quote */}
             <button
               type="button"
               onClick={handleWhatsAppClick}
-              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-4 py-2 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
+              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-3.5 py-1.5 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 fill-black" />
               <span>(11) 91699-9411</span>
@@ -154,17 +165,30 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPor
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden mt-3 px-4 pt-2 pb-6 bg-[#0e1014] border-b border-[#d4af37]/20 space-y-2">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                if (onOpenPortal) onOpenPortal();
-              }}
-              className="flex items-center justify-center gap-2 w-full py-2.5 bg-amber-500/20 text-[#f3e5ab] border border-amber-500/40 text-xs font-bold rounded-lg transition-all mb-2"
-            >
-              <User className="w-4 h-4 text-[#d4af37]" />
-              <span>Acessar Portal do Cliente & Obras</span>
-            </button>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenPortal?.('client');
+                }}
+                className="flex items-center justify-center gap-1.5 py-2.5 bg-black/70 text-[#f3e5ab] border border-amber-500/40 text-xs font-bold rounded-lg transition-all"
+              >
+                <User className="w-3.5 h-3.5 text-[#d4af37]" />
+                <span>Área do Cliente</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenPortal?.('admin');
+                }}
+                className="flex items-center justify-center gap-1.5 py-2.5 bg-amber-500/20 text-white border border-amber-500/50 text-xs font-bold rounded-lg transition-all"
+              >
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                <span>Admin Engenharia</span>
+              </button>
+            </div>
 
             {navLinks.map((link) => {
               const Icon = link.icon;
