@@ -79,50 +79,16 @@ async function sendBackgroundNotification(lead: LeadItem, rawInput: DispatchLead
     timestamp: lead.timestamp
   };
 
-  // 1. Canal Primário: Script PHP nativo do servidor Hostinger (/api/send-lead.php)
+  // Canal Primário Seguro: Script de backend interno da Outfire (/api/send-lead.php)
   try {
     fetch('/api/send-lead.php', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
       body: JSON.stringify(payload)
     }).catch(() => {});
-  } catch {}
-
-  // 2. Canal Secundário Redundante: FormSubmit direto para contato@outfire.com.br
-  try {
-    fetch(`https://formsubmit.co/ajax/${TARGET_LEAD_EMAIL}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        _subject: `🔥 Novo Lead Outfire: ${lead.nome} (${lead.empresa})`,
-        _template: 'table',
-        _captcha: 'false',
-        Nome_Responsavel: lead.nome,
-        Restaurante_Empresa: lead.empresa,
-        WhatsApp: lead.telefone,
-        Email_Cliente: lead.email,
-        Cidade_UF: lead.cidade || 'Não informada',
-        Origem_Lead: lead.origem,
-        Valor_Estimado: lead.totalPedido ? `R$ ${lead.totalPedido.toLocaleString('pt-BR')},00` : 'N/A',
-        Itens_Detalhes: lead.detalhes || 'Geral',
-        Observacoes: rawInput.customMessage || 'Nenhuma'
-      })
-    }).catch(() => {});
-  } catch {}
-
-  // 3. Webhook opcional customizável
-  try {
-    const customWebhook = (typeof window !== 'undefined' && (window as any).OUTFIRE_LEAD_WEBHOOK) as string | undefined;
-    if (customWebhook) {
-      fetch(customWebhook, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lead, payload })
-      }).catch(() => {});
-    }
   } catch {}
 }
 

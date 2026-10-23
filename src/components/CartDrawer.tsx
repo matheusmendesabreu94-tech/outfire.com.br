@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { CartItem } from '../types';
 import { useWhatsAppModal } from '../context/WhatsAppModalContext';
+import { saveLead } from '../utils/leadStorage';
 
 interface CartDrawerProps {
   isOpen: boolean;

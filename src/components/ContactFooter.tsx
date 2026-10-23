@@ -260,6 +260,21 @@ export const ContactFooter: React.FC = () => {
                     />
                   </div>
 
+                  {/* LGPD Consent Checkbox */}
+                  <div>
+                    <label className="flex items-start gap-2.5 text-[11px] text-gray-400 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        required
+                        defaultChecked
+                        className="mt-0.5 w-4 h-4 rounded accent-[#d4af37] bg-[#14161c] border-white/20 shrink-0 cursor-pointer"
+                      />
+                      <span>
+                        Concordo com o tratamento seguro dos meus dados conforme a <strong>Política de Privacidade (LGPD)</strong> para contato comercial.
+                      </span>
+                    </label>
+                  </div>
+
                   <button
                     type="submit"
                     className="w-full py-4 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black font-black text-sm rounded-xl shadow-glow-gold transition-all flex items-center justify-center gap-2 group"
@@ -288,13 +303,19 @@ export const ContactFooter: React.FC = () => {
             <span>&copy; {new Date().getFullYear()} Outfire Sistemas contra Incêndio. Todos os direitos reservados.</span>
           </div>
 
-          <div className="flex items-center gap-4 text-gray-400">
+          <div className="flex flex-wrap items-center gap-4 text-gray-400">
             <a href="#hero-3d" className="hover:text-white transition-colors">Simulação 3D</a>
             <a href="#central-vts" className="hover:text-white transition-colors">Central VTS</a>
-            <a href="#normas" className="hover:text-white transition-colors">Normas NBR</a>
             <a href="#calculadora" className="hover:text-white transition-colors">Calculadora</a>
             <a href="#loja" className="hover:text-white transition-colors">Loja</a>
-            <a href="/assets/manual-instalacao-central-outfire.pdf" target="_blank" className="hover:text-white transition-colors">Manual PDF</a>
+            <button 
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('openCookieSettings'))}
+              className="hover:text-amber-400 transition-colors cursor-pointer text-left"
+            >
+              Privacidade (LGPD)
+            </button>
+            <a href="/assets/Apresentacao_Comercial_Outfire_2026.pdf" target="_blank" className="hover:text-white transition-colors">Apresentação PDF</a>
           </div>
         </div>
       </div>

@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, ShoppingCart, Phone, Menu, X, Flame, 
-  FileText, Calculator, Sparkles, AlertTriangle, Video 
+  FileText, Calculator, Sparkles, AlertTriangle, Video, User 
 } from 'lucide-react';
 import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
+  onOpenPortal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
+export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPortal }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { openLeadModal } = useWhatsAppModal();
@@ -101,13 +102,25 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
             })}
           </nav>
 
-          {/* Action Buttons: WhatsApp & Cart */}
-          <div className="flex items-center gap-3">
+          {/* Action Buttons: Portal, WhatsApp & Cart */}
+          <div className="flex items-center gap-2.5">
+            {/* Client Portal Button */}
+            <button
+              type="button"
+              onClick={onOpenPortal}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-[#f3e5ab] text-xs font-bold transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)] cursor-pointer"
+              title="Acessar Portal do Cliente e Acompanhar Obras"
+            >
+              <User className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span className="hidden sm:inline">Área do Cliente</span>
+              <span className="sm:hidden">Portal</span>
+            </button>
+
             {/* WhatsApp Direct Quote */}
             <button
               type="button"
               onClick={handleWhatsAppClick}
-              className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-4 py-2 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
+              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-4 py-2 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 fill-black" />
               <span>(11) 91699-9411</span>
@@ -116,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
             {/* Cart Trigger */}
             <button
               onClick={onOpenCart}
-              className="relative p-2.5 rounded-xl bg-[#14171e] hover:bg-[#1a1f28] border border-[#d4af37]/25 text-[#f3e5ab] hover:text-white transition-all flex items-center justify-center group shadow-md"
+              className="relative p-2 rounded-xl bg-[#14171e] hover:bg-[#1a1f28] border border-[#d4af37]/25 text-[#f3e5ab] hover:text-white transition-all flex items-center justify-center group shadow-md"
               title="Ver Carrinho de Compras"
             >
               <ShoppingCart className="w-5 h-5 group-hover:scale-105 transition-transform" />
@@ -141,6 +154,18 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden mt-3 px-4 pt-2 pb-6 bg-[#0e1014] border-b border-[#d4af37]/20 space-y-2">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onOpenPortal) onOpenPortal();
+              }}
+              className="flex items-center justify-center gap-2 w-full py-2.5 bg-amber-500/20 text-[#f3e5ab] border border-amber-500/40 text-xs font-bold rounded-lg transition-all mb-2"
+            >
+              <User className="w-4 h-4 text-[#d4af37]" />
+              <span>Acessar Portal do Cliente & Obras</span>
+            </button>
+
             {navLinks.map((link) => {
               const Icon = link.icon;
               return (

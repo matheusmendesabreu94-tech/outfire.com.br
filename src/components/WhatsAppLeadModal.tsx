@@ -50,6 +50,8 @@ export const WhatsAppLeadModal: React.FC<WhatsAppLeadModalProps> = ({
     }
   }, [isOpen, options]);
 
+  const [lgpdAccepted, setLgpdAccepted] = useState(true);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +60,11 @@ export const WhatsAppLeadModal: React.FC<WhatsAppLeadModalProps> = ({
 
     if (!formData.nome.trim() || !formData.telefone.trim() || !formData.email.trim() || !formData.empresa.trim()) {
       setFormError('Por favor, preencha todos os campos obrigatórios (*).');
+      return;
+    }
+
+    if (!lgpdAccepted) {
+      setFormError('É necessário aceitar os termos de privacidade (LGPD) para prosseguir.');
       return;
     }
 
@@ -298,6 +305,22 @@ export const WhatsAppLeadModal: React.FC<WhatsAppLeadModalProps> = ({
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full bg-[#131620] border border-white/10 focus:border-[#d4af37] text-white text-xs rounded-xl px-3.5 py-3 outline-none transition-colors"
                 />
+              </div>
+
+              {/* LGPD Consent Checkbox */}
+              <div className="pt-1">
+                <label className="flex items-start gap-2.5 text-[11px] text-gray-300 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={lgpdAccepted}
+                    onChange={(e) => setLgpdAccepted(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded accent-[#d4af37] bg-[#131620] border border-white/20 shrink-0 cursor-pointer"
+                  />
+                  <span>
+                    Concordo com os <strong>Termos de Uso</strong> e o tratamento seguro dos meus dados conforme a <strong>Política de Privacidade (LGPD)</strong> para elaboração de proposta técnica.
+                  </span>
+                </label>
               </div>
 
               {/* Submit CTA */}

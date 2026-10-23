@@ -14,10 +14,13 @@ import { CartDrawer } from './components/CartDrawer';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { CartItem, ProductItem } from './types';
 import { WhatsAppModalProvider } from './context/WhatsAppModalContext';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
+import { ClientPortalModal } from './components/portal/ClientPortalModal';
 
 function AppContent() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isPortalOpen, setIsPortalOpen] = useState(false);
 
   // Add item to cart
   const handleAddToCart = (product: ProductItem) => {
@@ -68,6 +71,7 @@ function AppContent() {
       <Navbar 
         cartCount={totalCartCount} 
         onOpenCart={() => setIsCartOpen(true)} 
+        onOpenPortal={() => setIsPortalOpen(true)}
       />
 
       {/* Main Content Sections */}
@@ -115,6 +119,15 @@ function AppContent() {
 
       {/* Persistent WhatsApp Floating Button */}
       <FloatingWhatsApp />
+
+      {/* Client Portal Modal (Portal do Cliente & Obras) */}
+      <ClientPortalModal 
+        isOpen={isPortalOpen} 
+        onClose={() => setIsPortalOpen(false)} 
+      />
+
+      {/* LGPD Cookie Consent Banner */}
+      <CookieConsentBanner />
     </div>
   );
 }
