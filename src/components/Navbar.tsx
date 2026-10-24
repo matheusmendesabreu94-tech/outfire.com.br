@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPor
             })}
           </nav>
 
-          {/* Action Buttons: Portal, Admin, WhatsApp & Cart */}
+          {/* Action Buttons: Portal, WhatsApp & Cart */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Client Portal Button */}
             <button
@@ -114,17 +114,6 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPor
               <User className="w-3.5 h-3.5 text-[#d4af37]" />
               <span className="hidden sm:inline">Área do Cliente</span>
               <span className="sm:hidden">Cliente</span>
-            </button>
-
-            {/* Admin Portal Button */}
-            <button
-              type="button"
-              onClick={() => onOpenPortal?.('admin')}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#d4af37]/20 to-[#b89628]/20 hover:from-[#d4af37]/35 hover:to-[#b89628]/35 border border-amber-500/50 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-              title="Painel da Administração Outfire & Técnicos"
-            >
-              <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden md:inline">Admin</span>
             </button>
 
             {/* WhatsApp Direct Quote */}
@@ -165,28 +154,17 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPor
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden mt-3 px-4 pt-2 pb-6 bg-[#0e1014] border-b border-[#d4af37]/20 space-y-2">
-            <div className="grid grid-cols-2 gap-2 mb-2">
+            <div className="mb-2">
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onOpenPortal?.('client');
                 }}
-                className="flex items-center justify-center gap-1.5 py-2.5 bg-black/70 text-[#f3e5ab] border border-amber-500/40 text-xs font-bold rounded-lg transition-all"
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-black/70 hover:bg-amber-500/20 text-[#f3e5ab] border border-amber-500/40 text-xs font-bold rounded-lg transition-all"
               >
                 <User className="w-3.5 h-3.5 text-[#d4af37]" />
-                <span>Área do Cliente</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenPortal?.('admin');
-                }}
-                className="flex items-center justify-center gap-1.5 py-2.5 bg-amber-500/20 text-white border border-amber-500/50 text-xs font-bold rounded-lg transition-all"
-              >
-                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-                <span>Admin Engenharia</span>
+                <span>Acessar Área do Cliente</span>
               </button>
             </div>
 

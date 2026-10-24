@@ -8,21 +8,19 @@ import { ClientUser, ObraItem } from '../../types/clientPortal';
 import { 
   getCurrentPortalUser, setPortalSession, 
   getObrasDoCliente, registerNewClient, 
-  DEMO_USER, DEMO_OBRA, ADMIN_USER 
+  DEMO_USER, DEMO_OBRA 
 } from '../../utils/portalStorage';
 import { ClientDashboard } from './ClientDashboard';
-import { AdminPortalDashboard } from './AdminPortalDashboard';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: 'client' | 'admin';
 }
 
-export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMode = 'client' }) => {
+export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [currentUser, setCurrentUser] = useState<ClientUser | null>(null);
   const [currentObra, setCurrentObra] = useState<ObraItem>(DEMO_OBRA);
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'admin'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
   // Form states
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -43,11 +41,6 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
 
   useEffect(() => {
     if (isOpen) {
-      if (initialMode === 'admin') {
-        setPortalSession(ADMIN_USER);
-        setCurrentUser(ADMIN_USER);
-        return;
-      }
       const user = getCurrentPortalUser();
       if (user) {
         setCurrentUser(user);
@@ -55,19 +48,9 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
         setCurrentObra(obras[0] || DEMO_OBRA);
       }
     }
-  }, [isOpen, initialMode]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
-
-  // Login como Administrador (Engenharia Outfire)
-  const handleAdminLogin = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setPortalSession(ADMIN_USER);
-      setCurrentUser(ADMIN_USER);
-      setLoading(false);
-    }, 400);
-  };
 
   // Login com usuário de demonstração (Restaurante Cliente)
   const handleQuickDemoLogin = () => {
@@ -81,7 +64,7 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
     }, 400);
   };
 
-  // Login padrão
+  // Login padrão do cliente
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -93,18 +76,11 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
 
     setLoading(true);
     setTimeout(() => {
-      // Se for admin/engenharia, faz login como administrador
-      const idLower = loginIdentifier.toLowerCase().trim();
-      if (idLower.includes('admin') || idLower.includes('engenharia') || idLower.includes('robson') || idLower.includes('outfire.com.br')) {
-        setPortalSession(ADMIN_USER);
-        setCurrentUser(ADMIN_USER);
-      } else {
-        const user = DEMO_USER;
-        setPortalSession(user);
-        setCurrentUser(user);
-        const obras = getObrasDoCliente(user.empresaId);
-        setCurrentObra(obras[0] || DEMO_OBRA);
-      }
+      const user = DEMO_USER;
+      setPortalSession(user);
+      setCurrentUser(user);
+      const obras = getObrasDoCliente(user.empresaId);
+      setCurrentObra(obras[0] || DEMO_OBRA);
       setLoading(false);
     }, 600);
   };
@@ -146,8 +122,6 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
     setCurrentUser(null);
   };
 
-  const isAdmin = currentUser?.role === 'admin_outfire';
-
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/95 backdrop-blur-xl flex flex-col justify-between animate-fadeIn">
       
@@ -162,14 +136,10 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
           <div className="border-l border-white/15 pl-3">
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono uppercase text-[#e5c05d] font-bold block">
-                {isAdmin ? 'Painel da Engenharia (Administrador Outfire)' : 'Portal do Cliente & Gestão de Obras'}
+                Portal do Cliente & Gestão de Obras
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                isAdmin 
-                  ? 'bg-amber-500/20 text-[#f3e5ab] border border-amber-500/40' 
-                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-              }`}>
-                {isAdmin ? 'Engenharia & Técnicos' : 'Restaurante'}
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                Restaurante
               </span>
             </div>
             <span className="text-[11px] text-gray-400 hidden sm:inline">
@@ -179,30 +149,6 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          {currentUser && (
-            isAdmin ? (
-              <button
-                type="button"
-                onClick={handleQuickDemoLogin}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-xs text-gray-300 hover:text-white transition-all cursor-pointer"
-                title="Alternar para a visualização do restaurante"
-              >
-                <User className="w-3.5 h-3.5 text-amber-400" />
-                <span>Ver como Restaurante</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleAdminLogin}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs text-[#f3e5ab] transition-all cursor-pointer"
-                title="Acessar o Painel da Engenharia Outfire"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                <span>Acessar Painel Engenharia</span>
-              </button>
-            )
-          )}
-
           <button
             onClick={onClose}
             className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
@@ -217,26 +163,15 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
       <div className="flex-1 flex flex-col justify-center items-center p-3 sm:p-6 lg:p-8">
         
         {currentUser ? (
-          isAdmin ? (
-            // ================= LOGGED IN ADMIN DASHBOARD (ENGENHARIA & TÉCNICOS) =================
-            <div className="w-full max-w-7xl mx-auto rounded-3xl overflow-hidden border border-amber-500/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] my-auto">
-              <AdminPortalDashboard
-                adminUser={currentUser}
-                onLogout={handleLogout}
-                onSwitchToClientMode={handleQuickDemoLogin}
-              />
-            </div>
-          ) : (
-            // ================= LOGGED IN CLIENT DASHBOARD (RESTAURANTE) =================
-            <div className="w-full max-w-7xl mx-auto rounded-3xl overflow-hidden border border-amber-500/20 shadow-2xl my-auto">
-              <ClientDashboard
-                user={currentUser}
-                obra={currentObra}
-                onLogout={handleLogout}
-                onUpdateObra={setCurrentObra}
-              />
-            </div>
-          )
+          // ================= LOGGED IN CLIENT DASHBOARD (RESTAURANTE) =================
+          <div className="w-full max-w-7xl mx-auto rounded-3xl overflow-hidden border border-amber-500/20 shadow-2xl my-auto">
+            <ClientDashboard
+              user={currentUser}
+              obra={currentObra}
+              onLogout={handleLogout}
+              onUpdateObra={setCurrentObra}
+            />
+          </div>
         ) : (
           // ================= AUTHENTICATION / REGISTRATION CARD =================
           <div className="max-w-lg w-full rounded-3xl bg-[#0c0f16] border border-amber-500/30 shadow-[0_0_60px_rgba(212,175,55,0.2)] overflow-hidden my-auto">
@@ -253,19 +188,7 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
                 }`}
               >
                 <User className="w-3.5 h-3.5 text-amber-400" />
-                <span>Restaurante</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthMode('admin')}
-                className={`flex-1 py-3.5 text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 ${
-                  authMode === 'admin'
-                    ? 'text-[#f3e5ab] border-b-2 border-amber-400 bg-amber-500/10'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                <span>Administração</span>
+                <span>Entrar (Restaurante)</span>
               </button>
               <button
                 type="button"
@@ -359,51 +282,7 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose, initialMod
                 </div>
               )}
 
-              {/* 2. LOGIN ADMIN / ENGENHARIA OUTFIRE */}
-              {authMode === 'admin' && (
-                <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 text-xs text-amber-200">
-                    <div className="flex items-center gap-2 font-bold text-white text-sm mb-1.5">
-                      <ShieldCheck className="w-4 h-4 text-amber-400" />
-                      <span>Painel Master da Engenharia Outfire</span>
-                    </div>
-                    <p className="text-gray-300 leading-relaxed text-[11px]">
-                      Área administrativa para <strong>gerenciar obras</strong>, <strong>aprovar checklists de pré-instalação</strong>, <strong>alocar técnicos contratados</strong> e <strong>conversar via chat com clientes e instaladores</strong>.
-                    </p>
-                  </div>
 
-                  <button
-                    type="button"
-                    onClick={handleAdminLogin}
-                    disabled={loading}
-                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#b89628] hover:from-[#f3e5ab] hover:to-[#d4af37] text-black font-black text-xs sm:text-sm shadow-glow-gold transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    <ShieldCheck className="w-4 h-4 fill-black" />
-                    <span>{loading ? 'Iniciando Sessão...' : 'Entrar como Administrador (Eng. Robson)'}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  <div className="p-3 rounded-xl bg-[#08090b] border border-white/10 text-[11px] text-gray-400 space-y-1">
-                    <div className="font-semibold text-gray-300">Recursos do Administrador:</div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Check className="w-3 h-3 text-amber-400" />
-                      <span>Controle total de obras e status de instalação</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Check className="w-3 h-3 text-amber-400" />
-                      <span>Aprovação dos 8 itens de checklist das cozinhas</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Check className="w-3 h-3 text-amber-400" />
-                      <span>Gestão e envio de OS para técnicos contratados</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Check className="w-3 h-3 text-amber-400" />
-                      <span>Chat unificado com clientes e técnicos</span>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* 2. REGISTRATION FORM */}
               {authMode === 'register' && (

@@ -1298,18 +1298,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
               <User className="w-3.5 h-3.5 text-[#d4af37]" />
               <span>Área do Cliente</span>
             </button>
-
-            {/* Botão Área da Administração */}
-            <button
-              type="button"
-              onClick={() => onOpenPortal?.('admin')}
-              className="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#d4af37]/20 via-[#e5c05d]/30 to-[#b89628]/20 hover:from-[#d4af37]/40 hover:to-[#e5c05d]/50 border border-[#d4af37]/60 hover:border-[#d4af37] text-white text-xs font-bold transition-all shadow-[0_0_20px_rgba(212,175,55,0.25)] flex items-center gap-2 cursor-pointer backdrop-blur-md"
-              title="Acessar Painel da Administração e Engenharia Outfire"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#e5c05d]" />
-              <span className="hidden sm:inline">Área da Administração</span>
-              <span className="sm:hidden">Admin</span>
-            </button>
           </div>
         </div>
 

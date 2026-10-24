@@ -3,16 +3,19 @@ import {
   Building2, HardHat, MessageSquare, CheckCircle2, 
   AlertTriangle, Clock, Phone, Send, Plus, 
   ShieldCheck, User, Wrench, Download, Upload, 
-  Calendar, Check, X, FileText, Sparkles, LogOut, ArrowRight
+  Calendar, Check, X, FileText, Sparkles, LogOut, ArrowRight,
+  ShoppingBag, Truck, Receipt, Sliders, DollarSign, Edit3, Trash2, MapPin
 } from 'lucide-react';
 import { 
-  ObraItem, TecnicoContratado, MensagemChat, ClientUser 
+  ObraItem, TecnicoContratado, MensagemChat, ClientUser,
+  VendaSite, VeiculoFrota, FerramentaPatrimonio, DespesaTecnico, TemplateChecklist
 } from '../../types/clientPortal';
 import { 
   getObrasDoCliente, getTecnicosContratados, 
   saveTecnicoContratado, atribuirTecnicoAObra, 
   getMensagensChat, enviarMensagemChat, saveObra 
 } from '../../utils/portalStorage';
+import { DEFAULT_CHECKLIST_TEMPLATES } from '../../data/defaultChecklistTemplates';
 
 interface Props {
   adminUser: ClientUser;
@@ -20,7 +23,16 @@ interface Props {
   onSwitchToClientMode?: () => void;
 }
 
-type AdminTab = 'obras' | 'tecnicos' | 'checklists' | 'chat';
+type AdminTab = 
+  | 'obras' 
+  | 'tecnicos' 
+  | 'checklists' 
+  | 'vendas' 
+  | 'frota' 
+  | 'ferramentas' 
+  | 'despesas' 
+  | 'editor_checklists' 
+  | 'chat';
 
 export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onSwitchToClientMode }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('obras');
@@ -47,6 +59,138 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
   const [assignTecId, setAssignTecId] = useState('');
   const [assignData, setAssignData] = useState('2026-10-28');
   const [assignTurno, setAssignTurno] = useState('Manhã (07h30 às 11h30)');
+
+  // 1. Estado de Vendas da Loja do Site & Centrais
+  const [vendas, setVendas] = useState<VendaSite[]>([
+    {
+      id: 'vnd_01',
+      produtoId: 'prod_central_32s3',
+      produtoNome: 'Central Outfire VTS 32S3 Inox (Comissionada)',
+      quantidade: 1,
+      valorUnitario: 14850.00,
+      valorTotal: 14850.00,
+      clienteNome: 'Restaurante Fasano Itaim',
+      clienteTelefone: '(11) 98765-4321',
+      formaPagamento: 'PIX',
+      status: 'Confirmada',
+      dataVenda: Date.now() - 86400000 * 2,
+    },
+    {
+      id: 'vnd_02',
+      produtoId: 'prod_kit_bicos_6',
+      produtoNome: 'Kit Bicos Angulares Inox NBR 14518 (6 Bicos)',
+      quantidade: 2,
+      valorUnitario: 2950.00,
+      valorTotal: 5900.00,
+      clienteNome: 'Parrilla Dourada Jardins',
+      clienteTelefone: '(11) 91234-5678',
+      formaPagamento: 'Boleto',
+      status: 'Entregue',
+      dataVenda: Date.now() - 86400000 * 5,
+    },
+    {
+      id: 'vnd_03',
+      produtoId: 'prod_modulo_rearme',
+      produtoNome: 'Módulo de Rearme com Fusível 5A Retardo',
+      quantidade: 4,
+      valorUnitario: 420.00,
+      valorTotal: 1680.00,
+      clienteNome: 'Hamburgueria 77 Pinheiros',
+      clienteTelefone: '(11) 99887-7665',
+      formaPagamento: 'WhatsApp',
+      status: 'Pendente',
+      dataVenda: Date.now() - 3600000 * 4,
+    }
+  ]);
+
+  // 2. Estado de Frota & Logística (baseado em FrotaLogisticaView.tsx)
+  const [veiculos, setVeiculos] = useState<VeiculoFrota[]>([
+    {
+      id: 'vec_01',
+      placa: 'BRA2E19',
+      modelo: 'Renault Master L2H2 (Oficina Móvel & Almoxarifado)',
+      status: 'Em Uso',
+      kmAtual: 42180,
+      responsavelNome: 'Carlos Eduardo (Técnico)',
+      observacoes: 'Contém kit de tubos inox, prensa e cilindros de saponificante',
+    },
+    {
+      id: 'vec_02',
+      placa: 'FXT4B88',
+      modelo: 'Fiat Strada Endurance 1.4 (Instalações Rápidas)',
+      status: 'Disponível',
+      kmAtual: 18450,
+      responsavelNome: 'Pátio Central Engenharia',
+      observacoes: 'Revisão e pneus novos em dia',
+    }
+  ]);
+
+  // 3. Estado de Ferramentas & Patrimônio (baseado em FerramentasView.tsx)
+  const [ferramentas, setFerramentas] = useState<FerramentaPatrimonio[]>([
+    {
+      id: 'fer_01',
+      nome: 'Chave Dinamométrica de Precisão 1/2"',
+      numeroPatrimonio: 'PAT-OUT-0042',
+      status: 'Em Uso',
+      tecnicoResponsavelNome: 'Carlos Eduardo',
+      valorAquisicao: 1250.00,
+      dataAquisicao: '2025-11-10',
+    },
+    {
+      id: 'fer_02',
+      nome: 'Manômetro Digital Pressurização CO2',
+      numeroPatrimonio: 'PAT-OUT-0019',
+      status: 'Em Uso',
+      tecnicoResponsavelNome: 'Carlos Eduardo',
+      valorAquisicao: 2400.00,
+      dataAquisicao: '2026-01-15',
+    },
+    {
+      id: 'fer_03',
+      nome: 'Rosqueadeira Manual para Tubos Inox NPT 1"',
+      numeroPatrimonio: 'PAT-OUT-0007',
+      status: 'Disponível',
+      tecnicoResponsavelNome: 'Almoxarifado Central',
+      valorAquisicao: 3800.00,
+      dataAquisicao: '2025-08-20',
+    }
+  ]);
+
+  // 4. Estado de Despesas dos Técnicos para Aprovação
+  const [despesasTecnicos, setDespesasTecnicos] = useState<DespesaTecnico[]>([
+    {
+      id: 'desp_adm_1',
+      tecnicoId: 'tec_carlos',
+      tecnicoNome: 'Carlos Eduardo',
+      obraCliente: 'Parrilla Fasano Itaim',
+      categoria: 'Combustível',
+      descricao: 'Abastecimento utilitário ida e volta para obra',
+      valor: 120.00,
+      data: Date.now() - 3600000 * 2,
+      fotos: [],
+      status: 'Aprovada',
+      criadoEm: Date.now() - 3600000 * 2,
+    },
+    {
+      id: 'desp_adm_2',
+      tecnicoId: 'tec_carlos',
+      tecnicoNome: 'Carlos Eduardo',
+      obraCliente: 'Parrilla Fasano Itaim',
+      categoria: 'Material',
+      descricao: 'Fusíveis reserva 5A retardo adquiridos em emergência',
+      valor: 45.00,
+      data: Date.now() - 3600000 * 5,
+      fotos: [],
+      status: 'Pendente',
+      criadoEm: Date.now() - 3600000 * 5,
+    }
+  ]);
+
+  // 5. Estado do Editor Dinâmico de Checklists
+  const [checklistTemplates, setChecklistTemplates] = useState<TemplateChecklist[]>(DEFAULT_CHECKLIST_TEMPLATES);
+  const [novoItemDesc, setNovoItemDesc] = useState('');
+  const [novoItemRequerFoto, setNovoItemRequerFoto] = useState(true);
+  const [selectedTemplateForEdit, setSelectedTemplateForEdit] = useState<string>('tpl_instalacao');
 
   // Feedback banner
   const [actionSuccessMsg, setActionSuccessMsg] = useState('');
@@ -204,10 +348,15 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
       <div className="border-b border-white/10 bg-[#090b10] px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex overflow-x-auto no-scrollbar gap-2 py-2.5">
           {[
-            { key: 'obras', label: 'Gestão de Obras & Clientes', icon: Building2, count: obras.length },
-            { key: 'tecnicos', label: 'Técnicos Contratados & Instaladores', icon: HardHat, count: tecnicos.length },
-            { key: 'checklists', label: 'Aprovação de Checklists', icon: CheckCircle2, badge: obras.filter(o => o.checklist?.status === 'em_analise' || o.checklist?.status === 'pendente').length },
-            { key: 'chat', label: 'Central de Conversas (Clientes & Técnicos)', icon: MessageSquare, highlight: true }
+            { key: 'obras', label: 'Obras & Clientes', icon: Building2, count: obras.length },
+            { key: 'tecnicos', label: 'Técnicos & Campo', icon: HardHat, count: tecnicos.length },
+            { key: 'checklists', label: 'Aprovação Checklists', icon: CheckCircle2, badge: obras.filter(o => o.checklist?.status === 'em_analise' || o.checklist?.status === 'pendente').length },
+            { key: 'vendas', label: 'Vendas da Loja & Centrais', icon: ShoppingBag, count: vendas.length },
+            { key: 'frota', label: 'Frota & Veículos', icon: Truck, count: veiculos.length },
+            { key: 'ferramentas', label: 'Ferramentas & Patrimônio', icon: Wrench, count: ferramentas.length },
+            { key: 'despesas', label: 'Aprovação de Despesas', icon: Receipt, badge: despesasTecnicos.filter(d => d.status === 'Pendente').length },
+            { key: 'editor_checklists', label: 'Editor de Checklists', icon: Sliders },
+            { key: 'chat', label: 'Chat Unificado', icon: MessageSquare, highlight: true }
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -657,6 +806,472 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
 
             </div>
 
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* ABA 5: VENDAS DA LOJA DO SITE & CENTRAIS                       */}
+        {/* ============================================================== */}
+        {activeTab === 'vendas' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-[#d4af37]" />
+                  <span>Controle de Vendas da Loja & Centrais VTS</span>
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Acompanhamento em tempo real dos pedidos recebidos através do site e WhatsApp
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="p-3 rounded-2xl bg-black/40 border border-[#d4af37]/30 text-right">
+                  <span className="text-[10px] text-gray-400 font-mono block">FATURAMENTO TOTAL</span>
+                  <span className="text-base font-black text-[#f3e5ab] font-mono">
+                    R$ {vendas.reduce((acc, v) => acc + v.valorTotal, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Grid de KPIs de Vendas */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-4 rounded-2xl bg-[#0e121a] border border-white/10">
+                <span className="text-xs text-gray-400 font-mono block">TOTAL DE PEDIDOS</span>
+                <span className="text-xl font-black text-white mt-1 block">{vendas.length} pedidos</span>
+                <span className="text-[11px] text-emerald-400 font-medium">100% integrados à Engenharia</span>
+              </div>
+              <div className="p-4 rounded-2xl bg-[#0e121a] border border-white/10">
+                <span className="text-xs text-gray-400 font-mono block">TICKET MÉDIO</span>
+                <span className="text-xl font-black text-[#d4af37] mt-1 block">
+                  R$ {(vendas.reduce((acc, v) => acc + v.valorTotal, 0) / (vendas.length || 1)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
+                <span className="text-[11px] text-gray-400 font-medium">Centrais VTS + Kits Inox</span>
+              </div>
+              <div className="p-4 rounded-2xl bg-[#0e121a] border border-white/10">
+                <span className="text-xs text-gray-400 font-mono block">FORMA PRINCIPAL</span>
+                <span className="text-xl font-black text-emerald-400 mt-1 block">PIX & Boleto</span>
+                <span className="text-[11px] text-gray-400 font-medium">Cotação via WhatsApp de Vendas</span>
+              </div>
+            </div>
+
+            {/* Tabela de Vendas */}
+            <div className="rounded-2xl border border-white/10 bg-[#0c0f16] overflow-hidden shadow-xl">
+              <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">Histórico de Pedidos</span>
+                <span className="text-xs text-gray-400">Atualizado automaticamente</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#08090b] text-gray-400 font-mono uppercase text-[10px] border-b border-white/10">
+                    <tr>
+                      <th className="p-3.5">Produto / Descrição</th>
+                      <th className="p-3.5">Cliente</th>
+                      <th className="p-3.5">Qtd</th>
+                      <th className="p-3.5">Total (R$)</th>
+                      <th className="p-3.5">Pagamento</th>
+                      <th className="p-3.5">Status</th>
+                      <th className="p-3.5 text-right">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {vendas.map((v) => (
+                      <tr key={v.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3.5 font-semibold text-white">
+                          <div>{v.produtoNome}</div>
+                          <span className="text-[10px] text-gray-500 font-mono">ID: {v.id}</span>
+                        </td>
+                        <td className="p-3.5 text-gray-300">
+                          <div>{v.clienteNome || 'Cliente Direto'}</div>
+                          <span className="text-[10px] text-gray-500">{v.clienteTelefone}</span>
+                        </td>
+                        <td className="p-3.5 text-white font-mono">{v.quantidade}</td>
+                        <td className="p-3.5 font-bold text-[#f3e5ab] font-mono">
+                          R$ {v.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="p-3.5">
+                          <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-300 text-[10px] font-mono">
+                            {v.formaPagamento}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            v.status === 'Confirmada'
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              : v.status === 'Entregue'
+                              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                              : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          }`}>
+                            {v.status}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => showSuccess(`Comprovante fiscal da venda ${v.id} emitido.`)}
+                            className="text-xs text-[#d4af37] hover:underline font-semibold"
+                          >
+                            Nota / Recibo
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* ABA 6: FROTA & VEÍCULOS                                        */}
+        {/* ============================================================== */}
+        {activeTab === 'frota' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-[#d4af37]" />
+                  <span>Controle de Frota & Logística de Deslocamento</span>
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Baseado no módulo do Outfire ERP — controle de quilometragem e veículos alocados
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => showSuccess('Módulo de cadastro de novo veículo aberto.')}
+                className="py-2 px-3.5 rounded-xl bg-[#d4af37] text-black font-bold text-xs flex items-center gap-1.5 shadow-glow-gold"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Adicionar Veículo</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {veiculos.map((v) => (
+                <div key={v.id} className="p-5 rounded-2xl bg-[#0e121a] border border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="px-2.5 py-1 rounded-lg bg-black border border-white/20 font-mono font-black text-xs text-white tracking-widest">
+                        {v.placa}
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        v.status === 'Em Uso'
+                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      }`}>
+                        {v.status}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-400 font-mono">
+                      KM: <strong className="text-white">{v.kmAtual.toLocaleString('pt-BR')} km</strong>
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-bold text-white">{v.modelo}</h4>
+                    <span className="text-xs text-gray-400 block mt-0.5">
+                      Condutor: <strong className="text-gray-200">{v.responsavelNome}</strong>
+                    </span>
+                    {v.observacoes && (
+                      <p className="text-[11px] text-gray-500 mt-1 italic">{v.observacoes}</p>
+                    )}
+                  </div>
+
+                  <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const novoKm = prompt(`Atualizar KM do veículo ${v.placa}:`, String(v.kmAtual));
+                        if (novoKm && !isNaN(Number(novoKm))) {
+                          setVeiculos(veiculos.map(item => item.id === v.id ? { ...item, kmAtual: Number(novoKm) } : item));
+                          showSuccess(`KM do veículo ${v.placa} atualizado para ${novoKm} km.`);
+                        }
+                      }}
+                      className="text-[#d4af37] font-semibold hover:underline"
+                    >
+                      Atualizar Odômetro
+                    </button>
+                    <span className="text-[11px] text-gray-400">Revisão NBR 14518 OK</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* ABA 7: FERRAMENTAS & PATRIMÔNIO                                */}
+        {/* ============================================================== */}
+        {activeTab === 'ferramentas' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Wrench className="w-5 h-5 text-[#d4af37]" />
+                  <span>Controle de Ferramentas & Cautelas Técnicas</span>
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Baseado no FerramentasView do ERP — patrimônio e cautelas assinadas digitalmente
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-black/40 border border-[#d4af37]/30 text-right">
+                <span className="text-[10px] text-gray-400 font-mono block">VALOR PATRIMONIAL TOTAL</span>
+                <span className="text-base font-black text-[#f3e5ab] font-mono">
+                  R$ {ferramentas.reduce((acc, f) => acc + (f.valorAquisicao || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-[#0c0f16] overflow-hidden shadow-xl">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#08090b] text-gray-400 font-mono uppercase text-[10px] border-b border-white/10">
+                  <tr>
+                    <th className="p-3.5">Ferramenta / Equipamento</th>
+                    <th className="p-3.5">Nº Patrimônio</th>
+                    <th className="p-3.5">Responsável / Cautela</th>
+                    <th className="p-3.5">Valor (R$)</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 text-right">Ação</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {ferramentas.map((f) => (
+                    <tr key={f.id} className="hover:bg-white/5 transition-colors">
+                      <td className="p-3.5 font-bold text-white">{f.nome}</td>
+                      <td className="p-3.5 font-mono text-[#d4af37]">{f.numeroPatrimonio}</td>
+                      <td className="p-3.5 text-gray-300">{f.tecnicoResponsavelNome}</td>
+                      <td className="p-3.5 font-mono text-gray-200">
+                        R$ {(f.valorAquisicao || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="p-3.5">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          f.status === 'Disponível'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        }`}>
+                          {f.status}
+                        </span>
+                      </td>
+                      <td className="p-3.5 text-right">
+                        <button
+                          type="button"
+                          onClick={() => showSuccess(`Termo de Cautela de ${f.nome} emitido.`)}
+                          className="text-xs text-[#d4af37] hover:underline font-semibold"
+                        >
+                          Ver Cautela
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* ABA 8: APROVAÇÃO DE DESPESAS                                   */}
+        {/* ============================================================== */}
+        {activeTab === 'despesas' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Receipt className="w-5 h-5 text-[#d4af37]" />
+                  <span>Aprovação de Despesas dos Técnicos</span>
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Comprovantes e notas fiscais enviadas via smartphone pelos técnicos de campo
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-black/40 border border-emerald-500/30 text-right">
+                <span className="text-[10px] text-gray-400 font-mono block">TOTAL PENDENTE DE REEMBOLSO</span>
+                <span className="text-base font-black text-emerald-400 font-mono">
+                  R$ {despesasTecnicos.filter(d => d.status === 'Pendente').reduce((acc, d) => acc + d.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {despesasTecnicos.map((desp) => (
+                <div key={desp.id} className="p-4 rounded-2xl bg-[#0e121a] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-bold text-white">{desp.descricao}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        desp.status === 'Aprovada'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      }`}>
+                        {desp.status}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-400 block font-mono">
+                      Técnico: <strong className="text-gray-200">{desp.tecnicoNome}</strong> • Categoria: {desp.categoria} • Obra: {desp.obraCliente}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span className="text-base font-black text-[#f3e5ab] font-mono">
+                      R$ {desp.valor.toFixed(2)}
+                    </span>
+                    {desp.status === 'Pendente' && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDespesasTecnicos(despesasTecnicos.map(item => item.id === desp.id ? { ...item, status: 'Aprovada' } : item));
+                            showSuccess(`Despesa de R$ ${desp.valor.toFixed(2)} aprovada para reembolso.`);
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md"
+                        >
+                          Aprovar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDespesasTecnicos(despesasTecnicos.map(item => item.id === desp.id ? { ...item, status: 'Rejeitada' } : item));
+                            showSuccess(`Despesa de R$ ${desp.valor.toFixed(2)} rejeitada.`);
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 border border-red-500/30 text-red-300 text-xs font-bold transition-all"
+                        >
+                          Rejeitar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* ABA 9: EDITOR DINÂMICO DE CHECKLISTS                           */}
+        {/* ============================================================== */}
+        {activeTab === 'editor_checklists' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Sliders className="w-5 h-5 text-[#d4af37]" />
+                  <span>Editor Dinâmico de Checklists de Campo</span>
+                </h3>
+                <p className="text-xs text-gray-400">
+                  Crie e personalize perguntas e itens com fotos obrigatórias para os técnicos no celular
+                </p>
+              </div>
+
+              {/* Seletor de Modelo */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedTemplateForEdit}
+                  onChange={(e) => setSelectedTemplateForEdit(e.target.value)}
+                  className="bg-[#121622] border border-[#d4af37]/40 text-[#f3e5ab] text-xs font-bold rounded-xl px-3 py-2 outline-none"
+                >
+                  {checklistTemplates.map(t => (
+                    <option key={t.id} value={t.id}>{t.nome}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Adicionar novo item */}
+            <div className="p-4 rounded-2xl bg-[#0e121a] border border-white/10 space-y-3">
+              <span className="text-xs font-bold text-white block">Adicionar Pergunta / Item ao Modelo</span>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  placeholder="Ex: Verificar vedação da junta elástica de exaustão..."
+                  value={novoItemDesc}
+                  onChange={(e) => setNovoItemDesc(e.target.value)}
+                  className="flex-1 bg-[#131622] border border-white/10 text-white text-xs rounded-xl px-3.5 py-2.5 outline-none focus:border-amber-400"
+                />
+                <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={novoItemRequerFoto}
+                    onChange={(e) => setNovoItemRequerFoto(e.target.checked)}
+                    className="w-4 h-4 rounded text-amber-500 accent-amber-500"
+                  />
+                  <span>Requer Foto</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!novoItemDesc.trim()) return;
+                    setChecklistTemplates(checklistTemplates.map(tpl => {
+                      if (tpl.id === selectedTemplateForEdit) {
+                        return {
+                          ...tpl,
+                          itens: [
+                            ...tpl.itens,
+                            {
+                              id: `item_${Date.now()}`,
+                              descricao: novoItemDesc.trim(),
+                              requerFoto: novoItemRequerFoto,
+                              ordem: tpl.itens.length + 1,
+                            }
+                          ]
+                        };
+                      }
+                      return tpl;
+                    }));
+                    setNovoItemDesc('');
+                    showSuccess('Item adicionado ao modelo com sucesso!');
+                  }}
+                  className="py-2.5 px-4 rounded-xl bg-[#d4af37] text-black font-bold text-xs shadow-glow-gold hover:bg-[#e5c05d] transition-all"
+                >
+                  + Adicionar Item
+                </button>
+              </div>
+            </div>
+
+            {/* Lista dos Itens do Modelo Atual */}
+            <div className="space-y-2.5">
+              {checklistTemplates.find(t => t.id === selectedTemplateForEdit)?.itens.map((item, idx) => (
+                <div key={item.id} className="p-3.5 rounded-2xl bg-[#0c0f16] border border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-lg bg-black text-[#d4af37] font-mono font-bold text-xs flex items-center justify-center border border-white/10">
+                      {idx + 1}
+                    </span>
+                    <span className="text-xs font-semibold text-gray-200">{item.descricao}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {item.requerFoto && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                        📷 Foto Obrigatória
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setChecklistTemplates(checklistTemplates.map(tpl => {
+                          if (tpl.id === selectedTemplateForEdit) {
+                            return {
+                              ...tpl,
+                              itens: tpl.itens.filter(i => i.id !== item.id)
+                            };
+                          }
+                          return tpl;
+                        }));
+                        showSuccess('Item removido do checklist.');
+                      }}
+                      className="p-1 rounded-lg text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+                      title="Remover item"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

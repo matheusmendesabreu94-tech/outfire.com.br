@@ -315,13 +315,6 @@ export const ContactFooter: React.FC<ContactFooterProps> = ({ onOpenPortal }) =>
             >
               Área do Cliente
             </button>
-            <button 
-              type="button" 
-              onClick={() => onOpenPortal?.('admin')}
-              className="hover:text-amber-400 transition-colors cursor-pointer text-left font-medium text-amber-300/80"
-            >
-              Painel Admin (Obras & Técnicos)
-            </button>
             <a href="#hero-3d" className="hover:text-white transition-colors">Simulação 3D</a>
             <a href="#central-vts" className="hover:text-white transition-colors">Central VTS</a>
             <a href="#calculadora" className="hover:text-white transition-colors">Calculadora</a>

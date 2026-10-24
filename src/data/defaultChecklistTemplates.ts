@@ -1,0 +1,58 @@
+import { TemplateChecklist } from '../types/clientPortal';
+
+export const DEFAULT_CHECKLIST_TEMPLATES: TemplateChecklist[] = [
+  {
+    id: 'tpl_retirada_kit',
+    nome: 'Retirada de Kit no Almoxarifado',
+    tipo: 'retirada_kit',
+    ativo: true,
+    criadoEm: Date.now(),
+    atualizadoEm: Date.now(),
+    itens: [
+      { id: 'rk1', descricao: 'Central Outfire VTS 32S3 conferida com lacre de fábrica', requerFoto: true, ordem: 1 },
+      { id: 'rk2', descricao: 'Kit de bicos e conexões em aço inoxidável conferido conforme projeto', requerFoto: true, ordem: 2 },
+      { id: 'rk3', descricao: 'Cabo de aço inox e conduítes flexíveis (metragem verificada)', requerFoto: false, ordem: 3 },
+      { id: 'rk4', descricao: 'Fusíveis reserva (5 Amperes de retardo) — mínimo 5 unidades embaladas', requerFoto: true, ordem: 4 },
+      { id: 'rk5', descricao: 'Cilindros de agente saponificante e cartuchos de CO2 pressurizados', requerFoto: true, ordem: 5 },
+      { id: 'rk6', descricao: 'EPIs completos conferidos (luvas de proteção, óculos, capacete)', requerFoto: false, ordem: 6 },
+      { id: 'rk7', descricao: 'Kit de ferramentas obrigatório sob cautela conferido', requerFoto: true, ordem: 7 },
+      { id: 'rk8', descricao: 'Assinatura digital do técnico na saída do almoxarifado', requerFoto: false, requerAssinatura: true, ordem: 8 },
+    ],
+  },
+  {
+    id: 'tpl_instalacao',
+    nome: 'Instalação Concluída & Comissionamento',
+    tipo: 'instalacao_concluida',
+    ativo: true,
+    criadoEm: Date.now(),
+    atualizadoEm: Date.now(),
+    itens: [
+      { id: 'in1', descricao: 'Gabinete da Central Outfire fixado em parede sólida e nivelado', requerFoto: true, ordem: 1 },
+      { id: 'in2', descricao: 'Bicos aspersores posicionados nas coifas e dutos conforme NBR 14518', requerFoto: true, ordem: 2 },
+      { id: 'in3', descricao: 'Rede de tubulação e dutos verificados com estanqueidade garantida', requerFoto: true, ordem: 3 },
+      { id: 'in4', descricao: 'Alimentação elétrica conectada e fusíveis de 5A de retardo instalados', requerFoto: true, ordem: 4 },
+      { id: 'in5', descricao: 'Intertravamento elétrico com exaustor e válvula de gás testado com sucesso', requerFoto: true, ordem: 5 },
+      { id: 'in6', descricao: 'Acionador manual de emergência posicionado na rota de fuga desobstruída', requerFoto: true, ordem: 6 },
+      { id: 'in7', descricao: 'Sirene audiovisual de 105dB disparada em teste de bancada', requerFoto: false, ordem: 7 },
+      { id: 'in8', descricao: 'Treinamento rápido da equipe da cozinha sobre o acionador manual', requerFoto: false, ordem: 8 },
+      { id: 'in9', descricao: 'Ambiente da cozinha industrial limpo e sobras de montagem recolhidas', requerFoto: true, ordem: 9 },
+      { id: 'in10', descricao: 'Assinatura digital do responsável pelo restaurante (Termo de Aceite)', requerFoto: false, requerAssinatura: true, ordem: 10 },
+    ],
+  },
+  {
+    id: 'tpl_manutencao',
+    nome: 'Manutenção Preventiva Semestral',
+    tipo: 'manutencao',
+    ativo: true,
+    criadoEm: Date.now(),
+    atualizadoEm: Date.now(),
+    itens: [
+      { id: 'mn1', descricao: 'Inspeção visual da Central VTS e verificação de corrosão ou danos', requerFoto: true, ordem: 1 },
+      { id: 'mn2', descricao: 'Desobstrução e limpeza dos bicos aspersores da coifa e dutos', requerFoto: true, ordem: 2 },
+      { id: 'mn3', descricao: 'Verificação da integridade dos fusíveis de 5A de retardo', requerFoto: true, ordem: 3 },
+      { id: 'mn4', descricao: 'Pesagem e conferência da pressão dos cilindros de saponificante', requerFoto: true, ordem: 4 },
+      { id: 'mn5', descricao: 'Simulação elétrica de disparo sem descarga de agente extintor', requerFoto: true, ordem: 5 },
+      { id: 'mn6', descricao: 'Emissão e assinatura digital do Laudo Técnico / ART', requerFoto: false, requerAssinatura: true, ordem: 6 },
+    ],
+  },
+];

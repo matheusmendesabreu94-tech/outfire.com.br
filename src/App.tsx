@@ -16,15 +16,32 @@ import { CartItem, ProductItem } from './types';
 import { WhatsAppModalProvider } from './context/WhatsAppModalContext';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { ClientPortalModal } from './components/portal/ClientPortalModal';
+import { OutfireOpsPortal } from './components/ops/OutfireOpsPortal';
 
 function AppContent() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPortalOpen, setIsPortalOpen] = useState(false);
-  const [portalInitialMode, setPortalInitialMode] = useState<'client' | 'admin'>('client');
 
-  const handleOpenPortal = (mode: 'client' | 'admin' = 'client') => {
-    setPortalInitialMode(mode);
+  // Rota secreta exclusiva para a Engenharia e Técnicos Outfire
+  const [isOpsRoute, setIsOpsRoute] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.pathname.startsWith('/outfire-ops') || window.location.hash === '#ops';
+  });
+
+  React.useEffect(() => {
+    const handleRouteChange = () => {
+      setIsOpsRoute(window.location.pathname.startsWith('/outfire-ops') || window.location.hash === '#ops');
+    };
+    window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('hashchange', handleRouteChange);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('hashchange', handleRouteChange);
+    };
+  }, []);
+
+  const handleOpenPortal = () => {
     setIsPortalOpen(true);
   };
 
@@ -70,6 +87,11 @@ function AppContent() {
   };
 
   const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  // Se o usuário acessou a rota secreta /outfire-ops ou #ops, exibe o portal interno
+  if (isOpsRoute) {
+    return <OutfireOpsPortal />;
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0c0e] text-slate-100 flex flex-col font-sans selection:bg-amber-500/30 selection:text-amber-200">
@@ -126,11 +148,10 @@ function AppContent() {
       {/* Persistent WhatsApp Floating Button */}
       <FloatingWhatsApp />
 
-      {/* Client Portal Modal (Portal do Cliente & Obras / Painel Admin) */}
+      {/* Client Portal Modal (Portal do Cliente & Obras - Exclusivo Restaurante) */}
       <ClientPortalModal 
         isOpen={isPortalOpen} 
         onClose={() => setIsPortalOpen(false)} 
-        initialMode={portalInitialMode}
       />
 
       {/* LGPD Cookie Consent Banner */}

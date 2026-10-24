@@ -162,3 +162,229 @@ export interface ObraItem {
 
   dataPrevisaoConclusao: string;
 }
+
+// ---------------------------------------------------------------------------
+// Checklist Templates
+// ---------------------------------------------------------------------------
+
+export interface ItemTemplateChecklist {
+  id: string;
+  descricao: string;
+  requerFoto: boolean;
+  requerAssinatura?: boolean;
+  ordem: number;
+}
+
+export type TipoChecklist = 'retirada_kit' | 'instalacao_concluida' | 'manutencao' | 'pre_instalacao_cliente';
+
+export interface TemplateChecklist {
+  id: string;
+  nome: string;
+  tipo: TipoChecklist;
+  itens: ItemTemplateChecklist[];
+  criadoEm: number;
+  atualizadoEm: number;
+  ativo: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Technician GPS & Attendance
+// ---------------------------------------------------------------------------
+
+export type TipoPonto = 'checkin' | 'checkout' | 'pausa' | 'retorno';
+
+export interface RegistroPontoGps {
+  id: string;
+  tecnicoId: string;
+  tecnicoNome: string;
+  obraId?: string;
+  obraCliente?: string;
+  tipo: TipoPonto;
+  lat: number;
+  lng: number;
+  precisaoMetros?: number;
+  timestamp: number;
+  observacao?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Fleet Management
+// ---------------------------------------------------------------------------
+
+export type StatusVeiculo = 'Disponível' | 'Em Uso' | 'Manutenção' | 'Alugado';
+
+export interface VeiculoFrota {
+  id: string;
+  placa: string;
+  modelo: string;
+  ano?: number;
+  cor?: string;
+  status: StatusVeiculo;
+  kmAtual: number;
+  responsavelId?: string;
+  responsavelNome?: string;
+  observacoes?: string;
+  fotos?: string[]; // base64
+}
+
+export interface RegistroUsoVeiculoPortal {
+  id: string;
+  veiculoId: string;
+  veiculoPlaca: string;
+  tecnicoId: string;
+  tecnicoNome: string;
+  obraId?: string;
+  kmSaida: number;
+  kmRetorno?: number;
+  kmPercorrido?: number;
+  dataSaida: number;
+  dataRetorno?: number;
+  observacoes?: string;
+  assinatura?: string; // base64
+}
+
+// ---------------------------------------------------------------------------
+// Tools & Assets
+// ---------------------------------------------------------------------------
+
+export type StatusFerramenta = 'Disponível' | 'Em Uso' | 'Manutenção' | 'Perdida';
+
+export interface FerramentaPatrimonio {
+  id: string;
+  nome: string;
+  descricao?: string;
+  numeroPatrimonio?: string;
+  numeroSerie?: string;
+  dataAquisicao?: string;
+  valorAquisicao?: number;
+  status: StatusFerramenta;
+  tecnicoResponsavelId?: string;
+  tecnicoResponsavelNome?: string;
+  fotos?: string[]; // base64
+}
+
+export interface CautelaFerramenta {
+  id: string;
+  ferramentaId: string;
+  ferramentaNome: string;
+  tecnicoId: string;
+  tecnicoNome: string;
+  obraId?: string;
+  dataRetirada: number;
+  dataDevolucao?: number;
+  assinaturaRetirada?: string; // base64
+  assinaturaDevolucao?: string; // base64
+  observacoes?: string;
+  status: 'Ativa' | 'Devolvida';
+}
+
+// ---------------------------------------------------------------------------
+// Technician Expenses
+// ---------------------------------------------------------------------------
+
+export type CategoriaDespesa =
+  | 'Combustível'
+  | 'Alimentação'
+  | 'Material'
+  | 'Transporte'
+  | 'Hospedagem'
+  | 'Outros';
+
+export type StatusDespesa = 'Pendente' | 'Aprovada' | 'Rejeitada' | 'Reembolsada';
+
+export interface DespesaTecnico {
+  id: string;
+  tecnicoId: string;
+  tecnicoNome: string;
+  obraId?: string;
+  obraCliente?: string;
+  categoria: CategoriaDespesa;
+  descricao: string;
+  valor: number;
+  data: number;
+  fotos: string[]; // base64 receipts
+  audioUrl?: string;
+  status: StatusDespesa;
+  aprovadoPor?: string;
+  observacoes?: string;
+  criadoEm: number;
+}
+
+// ---------------------------------------------------------------------------
+// Technician Remuneration
+// ---------------------------------------------------------------------------
+
+export type TipoRemuneracao = 'Diária' | 'Por Obra' | 'Comissão';
+
+export interface RemuneracaoObraTecnico {
+  id: string;
+  tecnicoId: string;
+  tecnicoNome: string;
+  obraId: string;
+  obraCliente: string;
+  tipo: TipoRemuneracao;
+  valorBase: number;
+  valorDespesasAprovadas: number;
+  totalAPagar: number;
+  status: 'Pendente' | 'Aprovado' | 'Pago';
+  dataFechamento?: number;
+  dataPagamento?: number;
+  aprovadoPor?: string;
+  observacoes?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Site Store Sales
+// ---------------------------------------------------------------------------
+
+export type FormaPagamento = 'PIX' | 'Cartão de Crédito' | 'Cartão de Débito' | 'Boleto' | 'WhatsApp';
+export type StatusVenda = 'Pendente' | 'Confirmada' | 'Cancelada' | 'Entregue';
+
+export interface VendaSite {
+  id: string;
+  produtoId: string;
+  produtoNome: string;
+  quantidade: number;
+  valorUnitario: number;
+  valorTotal: number;
+  clienteId?: string;
+  clienteNome?: string;
+  clienteTelefone?: string;
+  formaPagamento: FormaPagamento;
+  status: StatusVenda;
+  dataVenda: number;
+  observacoes?: string;
+  vendedorId?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Checklist Response (from technician)
+// ---------------------------------------------------------------------------
+
+export interface RespostaItemChecklist {
+  itemId: string;
+  descricao: string;
+  concluido: boolean;
+  observacao?: string;
+  fotos: string[]; // base64
+  audioUrl?: string;
+  timestamp?: number;
+}
+
+export interface RespostaChecklist {
+  id: string;
+  templateId: string;
+  templateNome: string;
+  tipo: TipoChecklist;
+  tecnicoId: string;
+  tecnicoNome: string;
+  obraId: string;
+  obraCliente: string;
+  itens: RespostaItemChecklist[];
+  status: 'Rascunho' | 'Concluído' | 'Aprovado';
+  criadoEm: number;
+  concluidoEm?: number;
+  assinaturaTecnico?: string; // base64
+  assinaturaCliente?: string; // base64
+  coordenadasConclusao?: { lat: number; lng: number };
+}
