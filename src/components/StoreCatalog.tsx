@@ -5,7 +5,7 @@ import {
   Mail, User, MapPin, CheckCircle2, FileSpreadsheet
 } from 'lucide-react';
 import { ProductItem } from '../types';
-import { PRODUCTS } from '../data/products';
+import { useStoreCatalog } from '../utils/catalogStorage';
 import { dispatchAndOpenWhatsApp } from '../utils/leadDispatcher';
 import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
@@ -15,6 +15,7 @@ interface StoreCatalogProps {
 
 export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
   const { openLeadModal } = useWhatsAppModal();
+  const products = useStoreCatalog();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -62,7 +63,7 @@ export const StoreCatalog: React.FC<StoreCatalogProps> = ({ onAddToCart }) => {
     { id: 'acessorios', name: 'Acessórios & Acionadores' },
   ];
 
-  const filteredProducts = PRODUCTS.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||

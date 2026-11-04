@@ -16,6 +16,8 @@ import {
   getMensagensChat, enviarMensagemChat, saveObra 
 } from '../../utils/portalStorage';
 import { DEFAULT_CHECKLIST_TEMPLATES } from '../../data/defaultChecklistTemplates';
+import { CatalogManager } from './CatalogManager';
+import { useStoreCatalog } from '../../utils/catalogStorage';
 
 interface Props {
   adminUser: ClientUser;
@@ -25,6 +27,7 @@ interface Props {
 
 type AdminTab = 
   | 'obras' 
+  | 'catalogo'
   | 'tecnicos' 
   | 'checklists' 
   | 'vendas' 
@@ -36,6 +39,7 @@ type AdminTab =
 
 export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onSwitchToClientMode }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('obras');
+  const produtosCatalogo = useStoreCatalog();
   const [obras, setObras] = useState<ObraItem[]>(() => getObrasDoCliente());
   const [tecnicos, setTecnicos] = useState<TecnicoContratado[]>(() => getTecnicosContratados());
   
@@ -349,9 +353,10 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
         <div className="max-w-7xl mx-auto flex overflow-x-auto no-scrollbar gap-2 py-2.5">
           {[
             { key: 'obras', label: 'Obras & Clientes', icon: Building2, count: obras.length },
+            { key: 'catalogo', label: 'Catálogo da Loja & Preços', icon: Tag, count: produtosCatalogo.length },
+            { key: 'vendas', label: 'Vendas da Loja & Centrais', icon: ShoppingBag, count: vendas.length },
             { key: 'tecnicos', label: 'Técnicos & Campo', icon: HardHat, count: tecnicos.length },
             { key: 'checklists', label: 'Aprovação Checklists', icon: CheckCircle2, badge: obras.filter(o => o.checklist?.status === 'em_analise' || o.checklist?.status === 'pendente').length },
-            { key: 'vendas', label: 'Vendas da Loja & Centrais', icon: ShoppingBag, count: vendas.length },
             { key: 'frota', label: 'Frota & Veículos', icon: Truck, count: veiculos.length },
             { key: 'ferramentas', label: 'Ferramentas & Patrimônio', icon: Wrench, count: ferramentas.length },
             { key: 'despesas', label: 'Aprovação de Despesas', icon: Receipt, badge: despesasTecnicos.filter(d => d.status === 'Pendente').length },
@@ -491,6 +496,13 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
               ))}
             </div>
 
+          </div>
+        )}
+
+        {/* ================= TAB: GESTÃO DO CATÁLOGO DE PRODUTOS ================= */}
+        {activeTab === 'catalogo' && (
+          <div className="animate-fadeIn">
+            <CatalogManager />
           </div>
         )}
 
