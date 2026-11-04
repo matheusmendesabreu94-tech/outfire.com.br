@@ -97,7 +97,7 @@ const presentationSlides: SlideItem[] = [
     title: 'Proteção Dedicada de Dutos (Injeção de CO2)',
     category: 'engenharia',
     categoryLabel: 'Proteção de Dutos',
-    image: '/assets/presentation/protecao_duto_co2.jpg',
+    image: '/assets/presentation/protecao_duto_co2.jpg?v=2',
     description: 'Módulo de combate por CO2 exclusivo para a coluna de exaustão, impedindo que as chamas migrem para os andares superiores do edifício.',
     highlights: ['Inundação rápida por CO2', 'Interrupção da tiragem', 'Proteção vertical do duto']
   },
@@ -115,7 +115,7 @@ const presentationSlides: SlideItem[] = [
     title: 'Infográfico: A Central do Futuro (7 Inovações)',
     category: 'inovacao',
     categoryLabel: 'Tecnologia Avançada',
-    image: '/assets/presentation/central_do_futuro.jpg',
+    image: '/assets/presentation/central_do_futuro.jpg?v=2',
     description: 'Os 7 pilares tecnológicos exclusivos da engenharia Outfire: display IPS, dupla detecção, corte elétrico, no-break interno e garantia estendida.',
     highlights: ['Dupla detecção térmica', 'No-break integrado 24h', 'Sem cabos de aço frágeis']
   },
