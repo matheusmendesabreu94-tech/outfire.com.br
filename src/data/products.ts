@@ -2,6 +2,27 @@ import { ProductItem } from '../types';
 
 export const PRODUCTS: ProductItem[] = [
   {
+    id: 'central-outfire-kit-loja-pequena',
+    sku: 'OUT-KIT-LP',
+    name: 'Central Outfire - Kit Instalação Loja Pequena',
+    category: 'kit',
+    priceBRL: 7490,
+    description: 'Sistema completo integrado de supressão para cozinhas compactas, cafeterias, hamburguerias e lojas de shopping. Inclui Central Outfire VTS com IHM touchscreen, cilindro inox de saponificante Classe K, cilindro vermelho de CO2 para duto, detector de vazamento de gás, acionador manual de emergência e rolos de cabo blindado para instalação rápida.',
+    image: '/assets/presentation/kit_instalacao_loja_pequena.jpg',
+    specs: [
+      'Central Outfire VTS com IHM Touchscreen colorida e avisos sonoros',
+      '1x Cilindro Inox Saponificante Classe K com cabeçote solenoide rápido',
+      '1x Cilindro CO2 Vermelho de alta pressão para proteção de duto',
+      '1x Detector Industrial de Vazamento de Gás (GLP / Gás Natural)',
+      '1x Acionador Manual Vermelho de Emergência (padrão quebre o vidro)',
+      'Rolos de Cabo Blindado Antichama 2x1.5mm² para infraestrutura',
+      'Válvula de corte de gás automática e intertravamento de exaustor',
+      'Homologado e em total conformidade com ABNT NBR 14518 e AVCB'
+    ],
+    featured: true,
+    inStock: true
+  },
+  {
     id: 'central-outfire-vts-1',
     sku: 'OUT-VTS-1C',
     name: 'Central Outfire VTS 32S3 - 1 Coifa (Kit Completo)',

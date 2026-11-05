@@ -7,6 +7,7 @@ const CATALOG_UPDATE_EVENT = 'outfire_catalog_updated';
 
 // Fotos oficiais da Outfire disponíveis no repositório para escolha rápida
 export const OUTFIRE_ASSET_GALLERY = [
+  { label: 'Kit Instalação Loja Pequena (Completo)', url: '/assets/presentation/kit_instalacao_loja_pequena.jpg' },
   { label: 'Central VTS (Fundo Transparente)', url: '/assets/central-outfire-fundo-removido.png' },
   { label: 'Central VTS (Vista Frontal)', url: '/assets/central-outfire-front.png' },
   { label: 'Central VTS (IHM Touch Acesa)', url: '/assets/central-outfire-ihm.jpg' },
@@ -39,6 +40,14 @@ export function getCatalogProducts(): ProductItem[] {
     }
     const parsed = JSON.parse(stored);
     if (Array.isArray(parsed) && parsed.length > 0) {
+      // Incorpora novos produtos padrão caso ainda não estejam no localStorage
+      const existingIds = new Set(parsed.map((p: ProductItem) => p.id));
+      const missingDefaults = PRODUCTS.filter(p => !existingIds.has(p.id));
+      if (missingDefaults.length > 0) {
+        const merged = [...missingDefaults, ...parsed];
+        localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(merged));
+        return merged;
+      }
       return parsed;
     }
   } catch (error) {
