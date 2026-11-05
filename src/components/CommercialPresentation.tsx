@@ -93,6 +93,15 @@ const presentationSlides: SlideItem[] = [
     highlights: ['Compacta: 36 x 26 x 15 cm', 'Peso total: 5,5 kg', 'Display 3.5" IPS colorido']
   },
   {
+    id: 'kit-loja-pequena',
+    title: 'Kit Instalação Loja Pequena (Sistema Completo)',
+    category: 'solucao',
+    categoryLabel: 'Kit Pronto para Instalação',
+    image: '/assets/presentation/kit_instalacao_loja_pequena_v2.jpg?v=3',
+    description: 'Solução completa e homologada para cozinhas compactas: Central Outfire VTS com IHM touchscreen, Saponificante 12L Inox, CO2 10kg, kit Intelbras (detector, acionador, sirene) e 5 rolos de fios coloridos.',
+    highlights: ['Central Outfire autêntica com IHM e Voz', 'Cilindro Inox 12L + CO2 10kg', 'Dispositivos Intelbras e 5 cores de fios']
+  },
+  {
     id: 'duto-co2',
     title: 'Proteção Dedicada de Dutos (Injeção de CO2)',
     category: 'engenharia',

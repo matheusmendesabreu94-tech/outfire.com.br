@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { ProductItem } from '../types';
 import { PRODUCTS } from '../data/products';
 
-const CATALOG_STORAGE_KEY = 'outfire_catalog_products';
+const CATALOG_STORAGE_KEY = 'outfire_catalog_products_v3';
 const CATALOG_UPDATE_EVENT = 'outfire_catalog_updated';
 
 // Fotos oficiais da Outfire disponíveis no repositório para escolha rápida
 export const OUTFIRE_ASSET_GALLERY = [
-  { label: 'Kit Instalação Loja Pequena (Completo)', url: '/assets/presentation/kit_instalacao_loja_pequena.jpg' },
+  { label: 'Kit Instalação Loja Pequena (Completo)', url: '/assets/presentation/kit_instalacao_loja_pequena_v2.jpg?v=3' },
   { label: 'Central VTS (Fundo Transparente)', url: '/assets/central-outfire-fundo-removido.png' },
   { label: 'Central VTS (Vista Frontal)', url: '/assets/central-outfire-front.png' },
   { label: 'Central VTS (IHM Touch Acesa)', url: '/assets/central-outfire-ihm.jpg' },
@@ -40,15 +40,26 @@ export function getCatalogProducts(): ProductItem[] {
     }
     const parsed = JSON.parse(stored);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      // Incorpora novos produtos padrão caso ainda não estejam no localStorage
-      const existingIds = new Set(parsed.map((p: ProductItem) => p.id));
+      // Sincroniza dados atualizados dos produtos padrão (como novas fotos oficiais e especificações)
+      const defaultMap = new Map(PRODUCTS.map(p => [p.id, p]));
+      let hasChanges = false;
+      const updated = parsed.map((p: ProductItem) => {
+        const def = defaultMap.get(p.id);
+        if (def && p.image !== def.image) {
+          hasChanges = true;
+          return { ...p, image: def.image, specs: def.specs, description: def.description };
+        }
+        return p;
+      });
+
+      const existingIds = new Set(updated.map((p: ProductItem) => p.id));
       const missingDefaults = PRODUCTS.filter(p => !existingIds.has(p.id));
-      if (missingDefaults.length > 0) {
-        const merged = [...missingDefaults, ...parsed];
+      if (missingDefaults.length > 0 || hasChanges) {
+        const merged = [...missingDefaults, ...updated];
         localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(merged));
         return merged;
       }
-      return parsed;
+      return updated;
     }
   } catch (error) {
     console.error('Erro ao ler catálogo do localStorage:', error);

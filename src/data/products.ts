@@ -8,7 +8,7 @@ export const PRODUCTS: ProductItem[] = [
     category: 'kit',
     priceBRL: 7490,
     description: 'Sistema completo integrado de supressão para cozinhas compactas, cafeterias, hamburguerias e lojas de shopping. Inclui a autêntica Central Outfire VTS com IHM touchscreen e avisos de voz, cilindro inox de saponificante 12L Classe K, cilindro vermelho de CO2 10kg para duto, detector branco de gás/fumaça Intelbras, acionador manual vermelho Intelbras, sirene audiovisual vermelha e kit completo com 5 rolos de fios (vermelho, preto, branco, azul e verde).',
-    image: '/assets/presentation/kit_instalacao_loja_pequena.jpg',
+    image: '/assets/presentation/kit_instalacao_loja_pequena_v2.jpg?v=3',
     specs: [
       'Central Outfire VTS autêntica com tela IHM colorida e avisos de voz',
       '1x Cilindro Inox Saponificante 12L Classe K com cabeçote solenoide e manômetro',
