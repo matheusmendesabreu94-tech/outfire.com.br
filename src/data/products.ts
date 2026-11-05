@@ -7,17 +7,18 @@ export const PRODUCTS: ProductItem[] = [
     name: 'Central Outfire - Kit Instalação Loja Pequena',
     category: 'kit',
     priceBRL: 7490,
-    description: 'Sistema completo integrado de supressão para cozinhas compactas, cafeterias, hamburguerias e lojas de shopping. Inclui Central Outfire VTS com IHM touchscreen, cilindro inox de saponificante Classe K, cilindro vermelho de CO2 para duto, detector de vazamento de gás, acionador manual de emergência e rolos de cabo blindado para instalação rápida.',
+    description: 'Sistema completo integrado de supressão para cozinhas compactas, cafeterias, hamburguerias e lojas de shopping. Inclui a autêntica Central Outfire VTS com IHM touchscreen e avisos de voz, cilindro inox de saponificante 12L Classe K, cilindro vermelho de CO2 10kg para duto, detector branco de gás/fumaça Intelbras, acionador manual vermelho Intelbras, sirene audiovisual vermelha e kit completo com 5 rolos de fios (vermelho, preto, branco, azul e verde).',
     image: '/assets/presentation/kit_instalacao_loja_pequena.jpg',
     specs: [
-      'Central Outfire VTS com IHM Touchscreen colorida e avisos sonoros',
-      '1x Cilindro Inox Saponificante Classe K com cabeçote solenoide rápido',
-      '1x Cilindro CO2 Vermelho de alta pressão para proteção de duto',
-      '1x Detector Industrial de Vazamento de Gás (GLP / Gás Natural)',
-      '1x Acionador Manual Vermelho de Emergência (padrão quebre o vidro)',
-      'Rolos de Cabo Blindado Antichama 2x1.5mm² para infraestrutura',
+      'Central Outfire VTS autêntica com tela IHM colorida e avisos de voz',
+      '1x Cilindro Inox Saponificante 12L Classe K com cabeçote solenoide e manômetro',
+      '1x Cilindro CO2 Vermelho 10kg de alta pressão com mangueira para duto',
+      '1x Detector Branco de Gás / Fumaça Intelbras',
+      '1x Acionador Manual Vermelho de Emergência Intelbras (Aperte Aqui)',
+      '1x Sirene Audiovisual Vermelha com sinalizador estroboscópico',
+      '5x Rolos de Fios de Instalação (Vermelho, Preto, Branco, Azul e Verde)',
       'Válvula de corte de gás automática e intertravamento de exaustor',
-      'Homologado e em total conformidade com ABNT NBR 14518 e AVCB'
+      'Homologado e em total conformidade com ABNT NBR 14518 e Bombeiros AVCB'
     ],
     featured: true,
     inStock: true
