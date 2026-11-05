@@ -290,3 +290,4 @@ export const SHOPPING_RESTAURANT_CHAINS: RedeRestauranteShopping[] = [
     pitchRecomendado: 'Diretoria de Obras Alsaraiva: A Outfire oferece soluções industriais robustas para fritadeiras contínuas e fornos de esfiha com corte automático de gás e certificados para liberação imediata de alvará.'
   }
 ];
+

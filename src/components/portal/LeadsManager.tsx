@@ -4,7 +4,8 @@ import {
   MapPin, Calendar, Clock, DollarSign, Download, Plus, 
   Trash2, Edit3, CheckCircle2, AlertCircle, Building2, 
   Briefcase, Sparkles, Flame, ShieldAlert, ArrowRight, 
-  Copy, ExternalLink, Check, ChevronRight, RefreshCw
+  Copy, ExternalLink, Check, ChevronRight, RefreshCw,
+  FileText, Eye, Send
 } from 'lucide-react';
 import { 
   CrmLead, RedeRestauranteShopping, LeadStatus, 
@@ -15,6 +16,8 @@ import {
   saveCrmLead, deleteCrmLead, updateChainProspectingStatus, 
   exportLeadsToCsv, exportChainsToCsv 
 } from '../../utils/crmStorage';
+import { PlantaBaixaModal } from './PlantaBaixaModal';
+import { ProposalGeneratorModal } from './ProposalGeneratorModal';
 
 export const LeadsManager: React.FC = () => {
   const leads = useCrmLeads();
@@ -37,6 +40,10 @@ export const LeadsManager: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [leadToDelete, setLeadToDelete] = useState<CrmLead | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+
+  // Modais de Planta Baixa e Orçamento Comercial
+  const [selectedLeadForPlanta, setSelectedLeadForPlanta] = useState<CrmLead | null>(null);
+  const [selectedLeadForProposal, setSelectedLeadForProposal] = useState<CrmLead | null>(null);
 
   // Modal Novo Lead Manual
   const [showNewLeadModal, setShowNewLeadModal] = useState(false);
@@ -430,6 +437,40 @@ export const LeadsManager: React.FC = () => {
                         </div>
                       )}
 
+                      {/* Status de Planta Baixa e Orçamento Comercial */}
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        {lead.plantaBaixa ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedLeadForPlanta(lead)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs font-medium hover:bg-emerald-900/40 transition-colors"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Planta Baixa: <strong>{lead.plantaBaixa.nomeArquivo}</strong></span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedLeadForPlanta(lead)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+                          >
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Aguardando Envio da Planta Baixa</span>
+                          </button>
+                        )}
+
+                        {lead.propostaComercial && (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedLeadForProposal(lead)}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#d4af37]/15 border border-[#d4af37]/40 text-[#f3e5ab] text-xs font-medium hover:bg-[#d4af37]/25 transition-colors"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-[#d4af37]" />
+                            <span>Proposta <strong>{lead.propostaComercial.numeroProposta}</strong> ({lead.propostaComercial.valorFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})</span>
+                          </button>
+                        )}
+                      </div>
+
                       {/* Anotações Comerciais Internas */}
                       <div className="flex items-center gap-2 pt-1">
                         <Edit3 className="w-3.5 h-3.5 text-gray-500 shrink-0" />
@@ -473,7 +514,37 @@ export const LeadsManager: React.FC = () => {
                       </div>
 
                       {/* Botões de Ação */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Botão Planta Baixa */}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLeadForPlanta(lead)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+                            lead.plantaBaixa
+                              ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/60'
+                              : 'bg-white/10 text-gray-300 hover:text-white hover:bg-white/15'
+                          }`}
+                          title="Gerenciar Planta Baixa e Croqui"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-[#d4af37]" />
+                          <span>{lead.plantaBaixa ? '📐 Planta' : '📐 Anexar Planta'}</span>
+                        </button>
+
+                        {/* Botão Orçamento Oficial */}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLeadForProposal(lead)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+                            lead.propostaComercial
+                              ? 'bg-[#d4af37]/20 text-[#f3e5ab] border border-[#d4af37]/50 hover:bg-[#d4af37]/30'
+                              : 'bg-gradient-to-r from-[#d4af37] to-[#b38728] text-black font-extrabold shadow-glow-gold hover:brightness-110'
+                          }`}
+                          title="Gerar Proposta Comercial / Orçamento Executivo"
+                        >
+                          <DollarSign className="w-3.5 h-3.5" />
+                          <span>{lead.propostaComercial ? '📄 Ver Orçamento' : '📄 Criar Orçamento'}</span>
+                        </button>
+
                         <a
                           href={waUrl}
                           target="_blank"
@@ -911,6 +982,35 @@ export const LeadsManager: React.FC = () => {
         </div>
       )}
 
+      {/* ============================================================== */}
+      {/* MODAL: PLANTA BAIXA E CROQUI DA COZINHA */}
+      {/* ============================================================== */}
+      {selectedLeadForPlanta && (
+        <PlantaBaixaModal
+          lead={selectedLeadForPlanta}
+          isOpen={true}
+          onClose={() => setSelectedLeadForPlanta(null)}
+          onOpenProposal={(l) => {
+            setSelectedLeadForPlanta(null);
+            setSelectedLeadForProposal(l);
+          }}
+          onShowToast={showToast}
+        />
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL: GERADOR DE ORÇAMENTO & PROPOSTA COMERCIAL */}
+      {/* ============================================================== */}
+      {selectedLeadForProposal && (
+        <ProposalGeneratorModal
+          lead={selectedLeadForProposal}
+          isOpen={true}
+          onClose={() => setSelectedLeadForProposal(null)}
+          onShowToast={showToast}
+        />
+      )}
+
     </div>
   );
 };
+

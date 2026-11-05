@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CrmLead, RedeRestauranteShopping, LeadStatus, StatusProspeccao } from '../types/crm';
+import { CrmLead, RedeRestauranteShopping, LeadStatus, StatusProspeccao, PlantaBaixaLead, LeadProposal } from '../types/crm';
 import { SHOPPING_RESTAURANT_CHAINS } from '../data/shoppingChainsData';
 import { getSavedLeads } from './leadStorage';
 
@@ -317,3 +317,82 @@ export function exportChainsToCsv(chains: RedeRestauranteShopping[]): void {
   link.click();
   document.body.removeChild(link);
 }
+
+/**
+ * Salva a Planta Baixa enviada pelo cliente no lead
+ */
+export function saveLeadPlantaBaixa(leadId: string, planta: PlantaBaixaLead): boolean {
+  try {
+    const leads = getCrmLeads();
+    const idx = leads.findIndex(l => l.id === leadId);
+    if (idx === -1) return false;
+    leads[idx].plantaBaixa = planta;
+    if (leads[idx].status === 'novo') {
+      leads[idx].status = 'em_contato';
+    }
+    localStorage.setItem(CRM_LEADS_KEY, JSON.stringify(leads));
+    window.dispatchEvent(new CustomEvent(CRM_UPDATED_EVENT));
+    return true;
+  } catch (err) {
+    console.error('Erro ao salvar planta baixa:', err);
+    return false;
+  }
+}
+
+/**
+ * Exclui a planta baixa do lead
+ */
+export function deleteLeadPlantaBaixa(leadId: string): boolean {
+  try {
+    const leads = getCrmLeads();
+    const idx = leads.findIndex(l => l.id === leadId);
+    if (idx === -1) return false;
+    delete leads[idx].plantaBaixa;
+    localStorage.setItem(CRM_LEADS_KEY, JSON.stringify(leads));
+    window.dispatchEvent(new CustomEvent(CRM_UPDATED_EVENT));
+    return true;
+  } catch (err) {
+    console.error('Erro ao excluir planta baixa:', err);
+    return false;
+  }
+}
+
+/**
+ * Salva uma Proposta / Orçamento Comercial oficial gerado para o lead
+ */
+export function saveLeadProposal(leadId: string, proposal: LeadProposal): boolean {
+  try {
+    const leads = getCrmLeads();
+    const idx = leads.findIndex(l => l.id === leadId);
+    if (idx === -1) return false;
+    leads[idx].propostaComercial = proposal;
+    leads[idx].totalPedido = proposal.valorFinal;
+    leads[idx].status = 'proposta_enviada';
+    localStorage.setItem(CRM_LEADS_KEY, JSON.stringify(leads));
+    window.dispatchEvent(new CustomEvent(CRM_UPDATED_EVENT));
+    return true;
+  } catch (err) {
+    console.error('Erro ao salvar proposta comercial:', err);
+    return false;
+  }
+}
+
+/**
+ * Exclui a proposta do lead
+ */
+export function deleteLeadProposal(leadId: string): boolean {
+  try {
+    const leads = getCrmLeads();
+    const idx = leads.findIndex(l => l.id === leadId);
+    if (idx === -1) return false;
+    delete leads[idx].propostaComercial;
+    localStorage.setItem(CRM_LEADS_KEY, JSON.stringify(leads));
+    window.dispatchEvent(new CustomEvent(CRM_UPDATED_EVENT));
+    return true;
+  } catch (err) {
+    console.error('Erro ao excluir proposta comercial:', err);
+    return false;
+  }
+}
+
+

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termo de Garantia 12 Meses & Protocolo de Montagem Noturna em Shoppings — OutFire®</title>
+<style>
+    @page {
+        size: A4 portrait;
+        margin: 12mm 14mm 14mm 14mm;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f1f5f9;
+        color: #0f172a;
+        line-height: 1.45;
+        margin: 0;
+        padding: 20px 10px;
+        -webkit-font-smoothing: antialiased;
+    }
+    .document-container {
+        max-width: 920px;
+        margin: auto;
+        background: #ffffff;
+        padding: 36px 44px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        border-top: 6px solid #d4af37;
+        position: relative;
+    }
+    .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        border-radius: 9999px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .btn-gold {
+        background: linear-gradient(135deg, #d4af37, #b38728);
+        color: #000;
+        box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    }
+    .btn-gold:hover {
+        background: linear-gradient(135deg, #e6c555, #c59b27);
+        transform: translateY(-1px);
+    }
+    .btn-outline {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+    .btn-outline:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 16px;
+    }
+    .header-logo {
+        width: 190px;
+        vertical-align: middle;
+    }
+    .header-logo img {
+        max-width: 180px;
+        height: auto;
+        display: block;
+    }
+    .header-info {
+        text-align: right;
+        font-size: 11px;
+        color: #475569;
+        vertical-align: middle;
+        line-height: 1.5;
+    }
+    .title-banner {
+        text-align: center;
+        background: linear-gradient(135deg, #0b0f17 0%, #171f2c 100%);
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        border-left: 6px solid #d4af37;
+    }
+    .doc-badge {
+        display: inline-block;
+        background: rgba(212, 175, 55, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+    .title-banner h1 {
+        margin: 4px 0 6px 0;
+        font-size: 20px;
+        font-weight: 900;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+    .title-banner p {
+        margin: 0;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+    .section-title {
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 20px 0 8px 0;
+        padding-left: 10px;
+        border-left: 4px solid #d4af37;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11.5px;
+        margin-bottom: 14px;
+    }
+    .data-table th, .data-table td {
+        border: 1px solid #cbd5e1;
+        padding: 7px 10px;
+        text-align: left;
+    }
+    .data-table th {
+        background-color: #f8fafc;
+        color: #334155;
+        font-weight: 700;
+        width: 25%;
+    }
+    .rule-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 14px;
+        font-size: 11.5px;
+        color: #334155;
+        line-height: 1.5;
+    }
+    .rule-box h4 {
+        margin: 0 0 6px 0;
+        color: #0f172a;
+        font-size: 12.5px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .badge-gold {
+        display: inline-block;
+        background: rgba(212, 175, 55, 0.15);
+        color: #b45309;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        font-weight: 800;
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+    .signatures-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        margin-top: 36px;
+        padding-top: 10px;
+        page-break-inside: avoid;
+    }
+    .signature-box {
+        text-align: center;
+        border-top: 1px solid #64748b;
+        padding-top: 8px;
+        font-size: 11px;
+        color: #334155;
+    }
+    .signature-box strong {
+        display: block;
+        color: #0f172a;
+        font-size: 12px;
+        margin-bottom: 2px;
+    }
+    @media print {
+        body { background: #fff; padding: 0; }
+        .document-container {
+            max-width: 100%;
+            padding: 0;
+            box-shadow: none;
+            border-radius: 0;
+            border-top: none;
+        }
+        .no-print { display: none !important; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="document-container">
+
+    <div class="top-actions no-print">
+        <a href="/" class="btn-action btn-outline">
+            ← Voltar ao Site OutFire
+        </a>
+        <div style="display: flex; gap: 10px;">
+            <a href="/laudo-estanqueidade-nbr14518.html" class="btn-action btn-outline">
+                📋 Ver Laudo Estanqueidade
+            </a>
+            <button onclick="window.print()" class="btn-action btn-gold">
+                🖨️ Imprimir Termo / Salvar PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Cabeçalho Oficial -->
+    <table class="header-table">
+        <tr>
+            <td class="header-logo">
+                <img src="/assets/logo-outfire-gold.png" alt="OutFire Brasil" onerror="this.onerror=null; this.src='/assets/logo-outfire.png';">
+            </td>
+            <td class="header-info">
+                <strong>OUTFIRE SISTEMAS DE SUPRESSÃO E DETECÇÃO LTDA.</strong><br>
+                CNPJ: 34.892.114/0001-08 • Divisão de Engenharia de Instalações<br>
+                Protocolo Noturno Homologado para Shoppings e Aeroportos<br>
+                Central de Atendimento 24h: (11) 94732-0947 • sac@outfire.com.br
+            </td>
+        </tr>
+    </table>
+
+    <!-- Banner Título -->
+    <div class="title-banner">
+        <div class="doc-badge">DOCUMENTO EXECUTIVO PARA CONDOMÍNIOS DE SHOPPINGS</div>
+        <h1>TERMO DE GARANTIA INTEGRAL DE 12 MESES & PROTOCOLO DE INSTALAÇÃO NOTURNA</h1>
+        <p>Condições de Garantia Nacional, Assistência Técnica Ágil e Diretrizes de Trabalho Noturno Sem Paralisação das Operações</p>
+    </div>
+
+    <!-- 01. Termo de Garantia -->
+    <div class="section-title">
+        <span>01.</span> CLÁUSULA DE GARANTIA INTEGRAL DE 12 MESES (OUTFIRE®)
+    </div>
+    <div class="rule-box">
+        <h4><span class="badge-gold">COBERTURA TOTAL</span> 1 Ano de Garantia Direta de Fábrica:</h4>
+        <p>A <strong>OutFire Sistemas Ltda.</strong> assegura a garantia total e irrestrita pelo período de <strong>12 (doze) meses</strong>, contados a partir da data de comissionamento e emissão da ART, para todos os itens integrantes do sistema:</p>
+        <ul style="margin: 6px 0; padding-left: 18px;">
+            <li><strong>Central Inteligente OutFire VTS 32S3:</strong> Placa de controle, fonte chaveada, nobreak e display touch IHM.</li>
+            <li><strong>Cilindros de Pressurização:</strong> Integridade estrutural do cilindro inox de saponificante 12L e do cilindro de CO2 10kg.</li>
+            <li><strong>Válvulas Solenoides & Atuadores:</strong> Estanqueidade e abertura eletromecânica instantânea sem travamento.</li>
+            <li><strong>Sensores e Detectores:</strong> Termostatos blindados de alta temperatura e detector de gás GLP/GN.</li>
+        </ul>
+        <p style="margin-top: 6px; font-weight: 700; color: #b45309;">
+            Compromisso de Reposição Ágil: Em caso de anomalia ou disparo não programado em shopping centers, a Outfire disponibiliza suporte técnico presencial e substituição imediata em até 24 horas.
+        </p>
+    </div>
+
+    <!-- 02. Protocolo de Montagem Noturna em Shoppings -->
+    <div class="section-title">
+        <span>02.</span> PROTOCOLO DE INSTALAÇÃO NOTURNA (TURNO DAS 23H00 ÀS 06H00)
+    </div>
+    <div class="rule-box">
+        <h4>Compromisso de Zero Impacto na Rotina do Restaurante e do Shopping:</h4>
+        <p>A montagem do sistema de combate a incêndio é executada exclusivamente durante o período de fechamento do shopping center, obedecendo às seguintes normas condominiais:</p>
+        <table class="data-table" style="margin-top: 10px; margin-bottom: 0;">
+            <tr>
+                <th>Janela de Trabalho:</th>
+                <td><strong>23h00 às 06h00 (Madrugada)</strong> — Cozinha 100% liberada para o mise en place às 06h00.</td>
+            </tr>
+            <tr>
+                <th>Sem Soldas Abertas:</th>
+                <td>Utilização de conexões prensadas e roscadas em aço inox 304, sem fagulhas, maçarico ou odores tóxicos no salão.</td>
+            </tr>
+            <tr>
+                <th>Proteção dos Equipamentos:</th>
+                <td>Isolamento completo da linha de cocção com mantas antichama e recolhimento de resíduos com aspirador industrial.</td>
+            </tr>
+            <tr>
+                <th>Qualificação da Equipe:</th>
+                <td>Técnicos certificados com <strong>NR-10</strong> (Segurança Elétrica), <strong>NR-35</strong> (Trabalho em Altura) e EPIs completos.</td>
+            </tr>
+            <tr>
+                <th>Liberação Operacional:</th>
+                <td>Às 06h00 da manhã a equipe entrega o restaurante limpo, aspirado e com a Central Outfire operando em modo monitoramento.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 03. Treinamento da Brigada e Comissionamento -->
+    <div class="section-title">
+        <span>03.</span> TREINAMENTO OPERACIONAL DA EQUIPE & ENTREGA TÉCNICA
+    </div>
+    <div class="rule-box">
+        <p>Ao término da instalação noturna, o responsável técnico da Outfire realiza uma sessão presencial de 15 minutos com o gerente e os cozinheiros do restaurante:</p>
+        <ul style="margin: 4px 0; padding-left: 18px;">
+            <li>Como interpretar os avisos de voz da IHM ("Atenção: Temperatura elevada na coifa").</li>
+            <li>Localização e modo de operação do acionador manual vermelho de emergência.</li>
+            <li>Procedimento padrão em caso de disparo real e acionamento da brigada do shopping.</li>
+            <li>Entrega do Certificado de Treinamento e do POP Pós-Disparo plastificado para fixação na parede da cozinha.</li>
+        </ul>
+    </div>
+
+    <!-- Assinaturas -->
+    <div class="signatures-row">
+        <div class="signature-box">
+            <strong>OUTFIRE SISTEMAS DE SUPRESSÃO LTDA.</strong>
+            Eng. Robson Mendes — Diretor Técnico de Engenharia<br>
+            CREA/SP 506.912/D • Termo Oficial de Garantia 2026
+        </div>
+        <div class="signature-box">
+            <strong>ADMINISTRAÇÃO DO SHOPPING / CLIENTE</strong>
+            Gerência de Operações & Obras do Condomínio<br>
+            Ciente das regras e autorização de trabalho noturno
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

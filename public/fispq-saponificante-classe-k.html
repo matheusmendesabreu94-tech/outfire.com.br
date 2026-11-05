@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FISPQ / FDS — Agente Extintor Saponificante Classe K OutFire® (ABNT NBR 14725)</title>
+<style>
+    @page {
+        size: A4 portrait;
+        margin: 12mm 14mm 14mm 14mm;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f1f5f9;
+        color: #0f172a;
+        line-height: 1.45;
+        margin: 0;
+        padding: 20px 10px;
+        -webkit-font-smoothing: antialiased;
+    }
+    .document-container {
+        max-width: 920px;
+        margin: auto;
+        background: #ffffff;
+        padding: 36px 44px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        border-top: 6px solid #d4af37;
+        position: relative;
+    }
+    .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 20px;
+        font-size: 13px;
+        font-weight: 700;
+        border-radius: 9999px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    .btn-gold {
+        background: linear-gradient(135deg, #d4af37, #b38728);
+        color: #000;
+        box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+    }
+    .btn-gold:hover {
+        background: linear-gradient(135deg, #e6c555, #c59b27);
+        transform: translateY(-1px);
+    }
+    .btn-outline {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+    .btn-outline:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    .header-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 16px;
+    }
+    .header-logo {
+        width: 190px;
+        vertical-align: middle;
+    }
+    .header-logo img {
+        max-width: 180px;
+        height: auto;
+        display: block;
+    }
+    .header-info {
+        text-align: right;
+        font-size: 11px;
+        color: #475569;
+        vertical-align: middle;
+        line-height: 1.5;
+    }
+    .title-banner {
+        text-align: center;
+        background: linear-gradient(135deg, #0b0f17 0%, #171f2c 100%);
+        color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        border-left: 6px solid #d4af37;
+    }
+    .doc-badge {
+        display: inline-block;
+        background: rgba(212, 175, 55, 0.2);
+        color: #facc15;
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+    .title-banner h1 {
+        margin: 4px 0 6px 0;
+        font-size: 20px;
+        font-weight: 900;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+    .title-banner p {
+        margin: 0;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+    .section-title {
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 20px 0 8px 0;
+        padding-left: 10px;
+        border-left: 4px solid #d4af37;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+        margin-bottom: 14px;
+    }
+    .data-table th, .data-table td {
+        border: 1px solid #cbd5e1;
+        padding: 6px 10px;
+        text-align: left;
+    }
+    .data-table th {
+        background-color: #f8fafc;
+        color: #334155;
+        font-weight: 700;
+        width: 25%;
+    }
+    .fispq-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        font-size: 11px;
+        color: #334155;
+        line-height: 1.5;
+    }
+    .fispq-box h4 {
+        margin: 0 0 4px 0;
+        color: #0f172a;
+        font-size: 12px;
+        font-weight: 800;
+    }
+    .badge-safe {
+        display: inline-block;
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #86efac;
+        font-weight: 800;
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+    @media print {
+        body { background: #fff; padding: 0; }
+        .document-container {
+            max-width: 100%;
+            padding: 0;
+            box-shadow: none;
+            border-radius: 0;
+            border-top: none;
+        }
+        .no-print { display: none !important; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
+</style>
+</head>
+<body>
+
+<div class="document-container">
+
+    <div class="top-actions no-print">
+        <a href="/" class="btn-action btn-outline">
+            ← Voltar ao Site OutFire
+        </a>
+        <div style="display: flex; gap: 10px;">
+            <a href="/pop-pos-disparo.html" class="btn-action btn-outline">
+                📖 Ver POP Pós-Disparo
+            </a>
+            <button onclick="window.print()" class="btn-action btn-gold">
+                🖨️ Imprimir FISPQ / Salvar PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Cabeçalho Oficial -->
+    <table class="header-table">
+        <tr>
+            <td class="header-logo">
+                <img src="/assets/logo-outfire-gold.png" alt="OutFire Brasil" onerror="this.onerror=null; this.src='/assets/logo-outfire.png';">
+            </td>
+            <td class="header-info">
+                <strong>OUTFIRE SISTEMAS DE SUPRESSÃO E DETECÇÃO LTDA.</strong><br>
+                CNPJ: 34.892.114/0001-08 • Divisão Química e Fluidos Extintores<br>
+                Classificação GHS • Norma Brasileira ABNT NBR 14725:2023<br>
+                Telefone de Emergência 24h: (11) 94732-0947 • ceatox: 0800-014-8110
+            </td>
+        </tr>
+    </table>
+
+    <!-- Banner Título -->
+    <div class="title-banner">
+        <div class="doc-badge">DOCUMENTO DE SEGURANÇA QUÍMICA & MEIO AMBIENTE</div>
+        <h1>FICHA DE INFORMAÇÕES DE SEGURANÇA DE PRODUTOS QUÍMICOS (FISPQ / FDS)</h1>
+        <p>Agente Químico Úmido Saponificante Classe K OutFire® — Especial para Óleos e Gorduras em Cozinhas Comerciais</p>
+    </div>
+
+    <!-- 01. Identificação do Produto -->
+    <div class="section-title">
+        <span>01.</span> IDENTIFICAÇÃO DO PRODUTO & DA EMPRESA
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>Nome Comercial:</th>
+            <td><strong>Agente Extintor Saponificante OutFire® Classe K (Wet Chemical)</strong></td>
+            <th>Uso Recomendado:</th>
+            <td>Supressão de fogo em equipamentos de cocção (Classe K: gorduras vegetais e animais)</td>
+        </tr>
+        <tr>
+            <th>Fabricante / Distribuidor:</th>
+            <td>OutFire Sistemas de Supressão e Detecção Ltda.</td>
+            <th>CNPJ:</th>
+            <td>34.892.114/0001-08</td>
+        </tr>
+        <tr>
+            <th>Classificação de Risco:</th>
+            <td><span class="badge-safe">PRODUTO BIODEGRADÁVEL • NÃO TÓXICO • GRAU ALIMENTÍCIO APÓS ENXÁGUE</span></td>
+            <th>Validade da Carga:</th>
+            <td>5 Anos em cilindro hermético inox OutFire</td>
+        </tr>
+    </table>
+
+    <!-- 02. Identificação de Perigos -->
+    <div class="section-title">
+        <span>02.</span> IDENTIFICAÇÃO DE PERIGOS (SISTEMA GHS)
+    </div>
+    <div class="fispq-box">
+        <h4>Visão Geral de Emergência:</h4>
+        <p>Líquido límpido aquoso avermelhado ou âmbar, inodoro ou com leve odor característico de sais orgânicos. <strong>Não é inflamável, não é combustível e não é explosivo.</strong> Trata-se de um agente extintor de ação rápida. Em caso de contato acidental com a pele ou olhos durante manutenção ou disparo, pode causar irritação mecânica leve devido ao pH levemente alcalino (8,5 a 9,5), facilmente neutralizado com água limpa.</p>
+    </div>
+
+    <!-- 03. Composição Química -->
+    <div class="section-title">
+        <span>03.</span> COMPOSIÇÃO & INGREDIENTES ATIVOS
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr style="background: #0f172a; color: #fff;">
+                <th style="color:#fff;">Componente Químico</th>
+                <th style="color:#fff;">Nº CAS</th>
+                <th style="color:#fff;">Concentração (%)</th>
+                <th style="color:#fff;">Função no Combate</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Acetato de Potássio</strong></td>
+                <td>127-08-2</td>
+                <td>30% – 45%</td>
+                <td>Reação de saponificação imediata formando espuma abafadora espessa</td>
+            </tr>
+            <tr>
+                <td><strong>Citrato de Potássio</strong></td>
+                <td>866-84-2</td>
+                <td>5% – 15%</td>
+                <td>Estabilizador térmico e resfriamento endotérmico rápido da gordura</td>
+            </tr>
+            <tr>
+                <td><strong>Tensoativos Tenazes Biodegradáveis</strong></td>
+                <td>Proprietário</td>
+                <td>1% – 3%</td>
+                <td>Tensão superficial reduzida para máxima penetração e cobertura da coifa</td>
+            </tr>
+            <tr>
+                <td><strong>Água Deionizada / Purificada</strong></td>
+                <td>7732-18-5</td>
+                <td>Q.S.P. 100%</td>
+                <td>Veículo aquoso condutor e resfriador por vaporização controlada</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 04. Medidas de Primeiros Socorros -->
+    <div class="section-title">
+        <span>04.</span> MEDIDAS DE PRIMEIROS SOCORROS
+    </div>
+    <div class="fispq-box">
+        <ul style="margin: 0; padding-left: 18px;">
+            <li><strong>Contato com a Pele:</strong> Lavar a área exposta com água corrente e sabão neutro. Não irritante a curto prazo.</li>
+            <li><strong>Contato com os Olhos:</strong> Lavar imediatamente com água limpa em abundância por 15 minutos mantendo as pálpebras abertas. Se persistir irritação, consultar oftalmologista.</li>
+            <li><strong>Inalação:</strong> O agente é aplicado na forma líquida de névoa direcionada (não gera gases tóxicos). Se inalado aerossol, levar a pessoa para local ventilado.</li>
+            <li><strong>Ingestão Acidental:</strong> Produto com baixa toxicidade aguda. Enxaguar a boca com água em abundância. Não induzir o vômito. Beber bastante água.</li>
+        </ul>
+    </div>
+
+    <!-- 05. Propriedades Físico-Químicas -->
+    <div class="section-title">
+        <span>05.</span> PROPRIEDADES FÍSICO-QUÍMICAS
+    </div>
+    <table class="data-table">
+        <tr>
+            <th>Estado Físico:</th>
+            <td>Líquido fluido límpido</td>
+            <th>Ponto de Ebulição:</th>
+            <td>> 105 °C</td>
+        </tr>
+        <tr>
+            <th>pH (25 °C):</th>
+            <td>8,5 a 9,5 (Levemente alcalino)</td>
+            <th>Densidade Relativa:</th>
+            <td>1,22 a 1,28 g/cm³ a 20°C</td>
+        </tr>
+        <tr>
+            <th>Solubilidade:</th>
+            <td>100% Solúvel e miscível em água</td>
+            <th>Ponto de Fulgor:</th>
+            <td>Não aplicável (Não inflamável)</td>
+        </tr>
+        <tr>
+            <th>Biodegradabilidade:</th>
+            <td>> 90% degradado em 28 dias (OECD 301)</td>
+            <th>Compatibilidade com Inox:</th>
+            <td>Excelente (Não corrói aço inox 304/316)</td>
+        </tr>
+    </table>
+
+    <!-- 06. Procedimento de Limpeza Pós-Disparo na Cozinha -->
+    <div class="section-title">
+        <span>06.</span> PROCEDIMENTO DE LIMPEZA & MEIO AMBIENTE NA COZINHA DO SHOPPING
+    </div>
+    <div class="fispq-box">
+        <p><strong>1. Resfriamento Prévio:</strong> Aguardar 15 a 20 minutos após a extinção do fogo para o resfriamento completo da chapa e óleo.</p>
+        <p><strong>2. Remoção Mecânica da Manta:</strong> Retirar a manta espumosa de sabão formada sobre a gordura com o auxílio de uma espátula plástica e panos descartáveis.</p>
+        <p><strong>3. Lavagem com Água Morna:</strong> Lavar as superfícies de inox da coifa e dos queimadores com água morna e detergente neutro. O produto é 100% solúvel em água e pode ser descartado na caixa de gordura do shopping sem danificar tubulações ou tubos de PVC.</p>
+    </div>
+
+    <!-- Rodapé de Autenticidade -->
+    <div style="margin-top: 24px; padding-top: 12px; border-top: 1px dashed #cbd5e1; font-size: 10.5px; color: #64748b; text-align: center;">
+        Documento técnico emitido pelo Departamento de Engenharia Química OutFire® • Revisão 04/2026 • Atende ABNT NBR 14725 e NBR 14518
+    </div>
+
+</div>
+
+</body>
+</html>
