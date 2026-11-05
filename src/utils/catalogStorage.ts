@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { ProductItem } from '../types';
 import { PRODUCTS } from '../data/products';
 
-const CATALOG_STORAGE_KEY = 'outfire_catalog_products_v3';
+const CATALOG_STORAGE_KEY = 'outfire_catalog_products_v4';
 const CATALOG_UPDATE_EVENT = 'outfire_catalog_updated';
 
 // Fotos oficiais da Outfire disponíveis no repositório para escolha rápida
 export const OUTFIRE_ASSET_GALLERY = [
-  { label: 'Kit Instalação Loja Pequena (Completo)', url: '/assets/presentation/kit_instalacao_loja_pequena_v2.jpg?v=3' },
+  { label: 'Kit Loja Pequena (Completo - Tubos, Bicos e Mangueiras)', url: '/assets/presentation/kit_loja_pequena_completo.jpg?v=1' },
+  { label: 'Kit Instalação Loja Pequena (Cilindros e Fios)', url: '/assets/presentation/kit_instalacao_loja_pequena_v2.jpg?v=3' },
   { label: 'Central VTS (Fundo Transparente)', url: '/assets/central-outfire-fundo-removido.png' },
   { label: 'Central VTS (Vista Frontal)', url: '/assets/central-outfire-front.png' },
   { label: 'Central VTS (IHM Touch Acesa)', url: '/assets/central-outfire-ihm.jpg' },

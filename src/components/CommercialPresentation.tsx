@@ -94,12 +94,12 @@ const presentationSlides: SlideItem[] = [
   },
   {
     id: 'kit-loja-pequena',
-    title: 'Kit Instalação Loja Pequena (Sistema Completo)',
+    title: 'Kit Instalação Loja Pequena (Sistema Completo Integrado)',
     category: 'solucao',
     categoryLabel: 'Kit Pronto para Instalação',
-    image: '/assets/presentation/kit_instalacao_loja_pequena_v2.jpg?v=3',
-    description: 'Solução completa e homologada para cozinhas compactas: Central Outfire VTS com IHM touchscreen, Saponificante 12L Inox, CO2 10kg, kit Intelbras (detector, acionador, sirene) e 5 rolos de fios coloridos.',
-    highlights: ['Central Outfire autêntica com IHM e Voz', 'Cilindro Inox 12L + CO2 10kg', 'Dispositivos Intelbras e 5 cores de fios']
+    image: '/assets/presentation/kit_loja_pequena_completo.jpg?v=1',
+    description: 'Sistema completo integrado de supressão para cozinhas compactas, cafeterias, hamburguerias e lojas de shopping: Central Outfire VTS com IHM touchscreen e voz, cilindro saponificante 12L Classe K, cilindro CO2 10kg, detector de gás, acionador manual Intelbras, sirene audiovisual, 7 bicos de saponificante inox, 3 bicos de CO2 para duto, conexões T e curvas em inox, tubos e mangueiras de alta pressão.',
+    highlights: ['Central Outfire VTS com IHM e Voz', 'Cilindro Inox 12L + CO2 10kg', 'Kit com 10 Bicos, Conexões e Mangueiras']
   },
   {
     id: 'duto-co2',
