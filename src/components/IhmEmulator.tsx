@@ -279,7 +279,7 @@ export const IhmEmulator: React.FC<IhmEmulatorProps> = ({ compact = false }) => 
 
   // Contagem regressiva do alarme
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setInterval>;
     if (fogoGeral && segundosRestantes > 0) {
       timer = setInterval(() => {
         setSegundosRestantes(prev => {

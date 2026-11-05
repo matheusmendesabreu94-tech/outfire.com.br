@@ -44,7 +44,66 @@ const USUARIOS_OPS_PADRAO: UsuarioOps[] = [
   },
 ];
 
-export const OutfireOpsPortal: React.FC = () => {
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class OpsErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('OpsErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#08090b] text-white flex flex-col items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full bg-[#10141e] border border-amber-500/40 p-6 rounded-3xl shadow-xl space-y-4">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 text-[#d4af37] flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h2 className="text-xl font-bold text-white">Falha ao Carregar o Painel Operacional</h2>
+            <p className="text-xs text-gray-300">
+              {this.state.error?.message || 'Ocorreu um erro inesperado ao carregar os dados operacionais.'}
+            </p>
+            <div className="flex gap-2 justify-center pt-2">
+              <button
+                onClick={() => {
+                  sessionStorage.removeItem('outfire_ops_session');
+                  window.location.reload();
+                }}
+                className="px-4 py-2 rounded-xl bg-[#d4af37] text-black text-xs font-bold shadow-glow-gold"
+              >
+                Limpar Sessão e Recarregar
+              </button>
+              <a
+                href="/"
+                className="px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-bold"
+              >
+                Voltar ao Site
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const OutfireOpsPortalContent: React.FC = () => {
   const [usuarioLogado, setUsuarioLogado] = useState<UsuarioOps | null>(() => {
     const saved = sessionStorage.getItem('outfire_ops_session');
     return saved ? JSON.parse(saved) : null;
@@ -329,5 +388,13 @@ export const OutfireOpsPortal: React.FC = () => {
       </div>
 
     </div>
+  );
+};
+
+export const OutfireOpsPortal: React.FC = () => {
+  return (
+    <OpsErrorBoundary>
+      <OutfireOpsPortalContent />
+    </OpsErrorBoundary>
   );
 };

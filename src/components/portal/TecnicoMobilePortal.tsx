@@ -589,7 +589,7 @@ export const TecnicoMobilePortal: React.FC<TecnicoMobilePortalProps> = ({ usuari
                               onPhotosChange={(photos) => {
                                 setChecklistRespostas({
                                   ...checklistRespostas,
-                                  [item.id]: { ...resposta, fotos }
+                                  [item.id]: { ...resposta, fotos: photos }
                                 });
                               }}
                               maxPhotos={4}

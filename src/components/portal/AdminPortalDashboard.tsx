@@ -4,7 +4,7 @@ import {
   AlertTriangle, Clock, Phone, Send, Plus, 
   ShieldCheck, User, Wrench, Download, Upload, 
   Calendar, Check, X, FileText, Sparkles, LogOut, ArrowRight,
-  ShoppingBag, Truck, Receipt, Sliders, DollarSign, Edit3, Trash2, MapPin
+  ShoppingBag, Truck, Receipt, Sliders, DollarSign, Edit3, Trash2, MapPin, Tag
 } from 'lucide-react';
 import { 
   ObraItem, TecnicoContratado, MensagemChat, ClientUser,
