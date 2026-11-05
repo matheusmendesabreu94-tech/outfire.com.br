@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Phone, Mail, MapPin, Send, Flame, Shield, 
-  Clock, CheckCircle, ArrowRight, FileText, ShoppingCart 
+  Clock, CheckCircle, ArrowRight, FileText, ShoppingCart, Lock 
 } from 'lucide-react';
 import { dispatchAndOpenWhatsApp } from '../utils/leadDispatcher';
 import { useWhatsAppModal } from '../context/WhatsAppModalContext';
@@ -315,6 +315,14 @@ export const ContactFooter: React.FC<ContactFooterProps> = ({ onOpenPortal }) =>
             >
               Área do Cliente
             </button>
+            <a 
+              href="#ops" 
+              className="hover:text-amber-400 text-gray-600 transition-colors cursor-pointer flex items-center gap-1 text-[11px]"
+              title="Acesso Restrito: Engenharia & Técnicos Outfire"
+            >
+              <Lock className="w-3 h-3 text-gray-600" />
+              <span>Acesso Operacional</span>
+            </a>
             <a href="#hero-3d" className="hover:text-white transition-colors">Simulação 3D</a>
             <a href="#central-vts" className="hover:text-white transition-colors">Central VTS</a>
             <a href="#calculadora" className="hover:text-white transition-colors">Calculadora</a>

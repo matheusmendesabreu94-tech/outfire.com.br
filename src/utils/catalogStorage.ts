@@ -120,3 +120,4 @@ export function useStoreCatalog(): ProductItem[] {
 
   return products;
 }
+

@@ -23,15 +23,28 @@ function AppContent() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPortalOpen, setIsPortalOpen] = useState(false);
 
-  // Rota secreta exclusiva para a Engenharia e Técnicos Outfire
-  const [isOpsRoute, setIsOpsRoute] = useState(() => {
+  // Rota secreta exclusiva para a Engenharia e Técnicos Outfire (aceita /outfire-ops, /ops, /admin, #ops, #admin, etc.)
+  const checkIsOpsRoute = () => {
     if (typeof window === 'undefined') return false;
-    return window.location.pathname.startsWith('/outfire-ops') || window.location.hash === '#ops';
-  });
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    return (
+      path.startsWith('/outfire-ops') ||
+      path.startsWith('/ops') ||
+      path.startsWith('/admin') ||
+      path.startsWith('/tecnico') ||
+      hash.startsWith('#ops') ||
+      hash.startsWith('#outfire-ops') ||
+      hash.startsWith('#admin') ||
+      hash.startsWith('#tecnico')
+    );
+  };
+
+  const [isOpsRoute, setIsOpsRoute] = useState(checkIsOpsRoute);
 
   React.useEffect(() => {
     const handleRouteChange = () => {
-      setIsOpsRoute(window.location.pathname.startsWith('/outfire-ops') || window.location.hash === '#ops');
+      setIsOpsRoute(checkIsOpsRoute());
     };
     window.addEventListener('popstate', handleRouteChange);
     window.addEventListener('hashchange', handleRouteChange);

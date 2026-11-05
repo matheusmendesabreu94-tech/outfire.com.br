@@ -310,6 +310,22 @@ export const OutfireOpsPortal: React.FC = () => {
           </div>
         </div>
 
+        {/* Voltar ao Site */}
+        <div className="pt-2 text-center">
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.hash = '';
+              window.history.pushState({}, '', '/');
+              window.dispatchEvent(new Event('popstate'));
+            }}
+            className="text-xs text-gray-400 hover:text-[#f3e5ab] transition-colors"
+          >
+            ← Voltar ao site público
+          </a>
+        </div>
+
       </div>
 
     </div>

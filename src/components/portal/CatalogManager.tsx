@@ -1019,3 +1019,4 @@ const QuickPhotoModal: React.FC<QuickPhotoModalProps> = ({ product, onClose, onS
     </div>
   );
 };
+
