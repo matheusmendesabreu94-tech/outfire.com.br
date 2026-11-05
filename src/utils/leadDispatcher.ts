@@ -1,5 +1,6 @@
 import { LeadItem, CartItem } from '../types';
 import { saveLead } from './leadStorage';
+import { saveCrmLead } from './crmStorage';
 
 const OFFICIAL_WHATSAPP_NUMBER = '5511916999411';
 
@@ -110,6 +111,26 @@ export async function dispatchAndOpenWhatsApp(input: DispatchLeadInput): Promise
     totalPedido: input.totalPedido,
     detalhes: input.detalhes || (input.cartItems ? input.cartItems.map(i => `${i.product.name} (${i.quantity}x)`).join(', ') : undefined)
   });
+
+  // Salva no CRM interno com status 'novo' para o Painel Admin
+  try {
+    saveCrmLead({
+      id: savedLead.id,
+      timestamp: savedLead.timestamp,
+      nome: savedLead.nome,
+      telefone: savedLead.telefone,
+      email: savedLead.email,
+      empresa: savedLead.empresa,
+      cidade: savedLead.cidade,
+      origem: (input.origem as any) || 'whatsapp',
+      detalhes: savedLead.detalhes,
+      totalPedido: savedLead.totalPedido,
+      status: 'novo',
+      temperatura: 'quente'
+    });
+  } catch (e) {
+    // Falha silenciosa de sincronização
+  }
 
   // 2. Dispara notificação de fundo (não bloqueante)
   sendBackgroundNotification(savedLead, input).catch(() => {});

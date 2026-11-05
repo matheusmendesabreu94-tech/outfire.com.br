@@ -95,7 +95,7 @@ const presentationSlides: SlideItem[] = [
   {
     id: 'kit-loja-pequena',
     title: 'Kit Instalação Loja Pequena (Sistema Completo Integrado)',
-    category: 'solucao',
+    category: 'engenharia',
     categoryLabel: 'Kit Pronto para Instalação',
     image: '/assets/presentation/kit_loja_pequena_completo.jpg?v=1',
     description: 'Sistema completo integrado de supressão para cozinhas compactas, cafeterias, hamburguerias e lojas de shopping: Central Outfire VTS com IHM touchscreen e voz, cilindro saponificante 12L Classe K, cilindro CO2 10kg, detector de gás, acionador manual Intelbras, sirene audiovisual, 7 bicos de saponificante inox, 3 bicos de CO2 para duto, conexões T e curvas em inox, tubos e mangueiras de alta pressão.',

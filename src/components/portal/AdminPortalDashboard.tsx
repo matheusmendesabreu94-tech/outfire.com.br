@@ -4,7 +4,7 @@ import {
   AlertTriangle, Clock, Phone, Send, Plus, 
   ShieldCheck, User, Wrench, Download, Upload, 
   Calendar, Check, X, FileText, Sparkles, LogOut, ArrowRight,
-  ShoppingBag, Truck, Receipt, Sliders, DollarSign, Edit3, Trash2, MapPin, Tag
+  ShoppingBag, Truck, Receipt, Sliders, DollarSign, Edit3, Trash2, MapPin, Tag, Users
 } from 'lucide-react';
 import { 
   ObraItem, TecnicoContratado, MensagemChat, ClientUser,
@@ -18,6 +18,8 @@ import {
 import { DEFAULT_CHECKLIST_TEMPLATES } from '../../data/defaultChecklistTemplates';
 import { CatalogManager } from './CatalogManager';
 import { useStoreCatalog } from '../../utils/catalogStorage';
+import { LeadsManager } from './LeadsManager';
+import { useCrmLeads } from '../../utils/crmStorage';
 
 interface Props {
   adminUser: ClientUser;
@@ -28,9 +30,10 @@ interface Props {
 type AdminTab = 
   | 'obras' 
   | 'catalogo'
+  | 'leads'
+  | 'vendas' 
   | 'tecnicos' 
   | 'checklists' 
-  | 'vendas' 
   | 'frota' 
   | 'ferramentas' 
   | 'despesas' 
@@ -40,6 +43,8 @@ type AdminTab =
 export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onSwitchToClientMode }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('obras');
   const produtosCatalogo = useStoreCatalog();
+  const crmLeads = useCrmLeads();
+  const leadsNovosCount = crmLeads.filter(l => l.status === 'novo').length;
   const [obras, setObras] = useState<ObraItem[]>(() => getObrasDoCliente());
   const [tecnicos, setTecnicos] = useState<TecnicoContratado[]>(() => getTecnicosContratados());
   
@@ -354,6 +359,7 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
           {[
             { key: 'obras', label: 'Obras & Clientes', icon: Building2, count: obras.length },
             { key: 'catalogo', label: 'Catálogo da Loja & Preços', icon: Tag, count: produtosCatalogo.length },
+            { key: 'leads', label: 'Leads & Prospecção B2B', icon: Users, count: crmLeads.length, badge: leadsNovosCount, highlight: leadsNovosCount > 0 },
             { key: 'vendas', label: 'Vendas da Loja & Centrais', icon: ShoppingBag, count: vendas.length },
             { key: 'tecnicos', label: 'Técnicos & Campo', icon: HardHat, count: tecnicos.length },
             { key: 'checklists', label: 'Aprovação Checklists', icon: CheckCircle2, badge: obras.filter(o => o.checklist?.status === 'em_analise' || o.checklist?.status === 'pendente').length },
@@ -503,6 +509,13 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
         {activeTab === 'catalogo' && (
           <div className="animate-fadeIn">
             <CatalogManager />
+          </div>
+        )}
+
+        {/* ================= TAB: LEADS DO SITE & PROSPECÇÃO B2B ================= */}
+        {activeTab === 'leads' && (
+          <div className="animate-fadeIn">
+            <LeadsManager />
           </div>
         )}
 
