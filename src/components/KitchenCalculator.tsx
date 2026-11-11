@@ -2,14 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { 
   Calculator, Plus, Trash2, Shield, Droplets, Wind, 
   Flame, CheckCircle, ArrowRight, Share2, Phone, Sparkles, 
-  HelpCircle, Settings, Layers, Box, Cpu,
+  HelpCircle, Settings, Layers, Box, Cpu, FileText,
   Maximize2, Minimize2, ZoomIn, ZoomOut, RotateCcw, X, Move
 } from 'lucide-react';
 import { Appliance, CalculationResult, HoodConfig, KitchenProjectConfig } from '../types';
 import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 interface KitchenCalculatorProps {
-  onAddToCart: (customKit: any) => void;
+  onAddToCart?: (customKit: any) => void;
 }
 
 export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCart }) => {
@@ -1085,22 +1085,22 @@ export const KitchenCalculator: React.FC<KitchenCalculatorProps> = ({ onAddToCar
                 </div>
               </div>
 
-              {/* Action Buttons: WhatsApp Quote & Add to Cart */}
+              {/* Action Buttons: WhatsApp Quote & Request Technical Proposal */}
               <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleWhatsAppQuote}
-                  className="flex-1 py-4 px-6 bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-500 hover:to-green-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 group"
+                  className="flex-1 py-4 px-6 bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-500 hover:to-green-600 text-white font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   <Phone className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   <span>Enviar Orçamento para WhatsApp</span>
                 </button>
 
                 <button
-                  onClick={handleAddCustomKitToCart}
-                  className="py-4 px-6 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black font-black rounded-2xl shadow-glow-gold transition-all flex items-center justify-center gap-2"
+                  onClick={handleWhatsAppQuote}
+                  className="py-4 px-6 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black font-black rounded-2xl shadow-glow-gold transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Box className="w-5 h-5 fill-black" />
-                  <span>Comprar Kit na Loja</span>
+                  <FileText className="w-5 h-5 fill-black" />
+                  <span>Solicitar Proposta com ART</span>
                 </button>
               </div>
 

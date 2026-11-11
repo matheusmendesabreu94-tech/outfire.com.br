@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ShieldAlert, ShoppingCart, Phone, Menu, X, Flame, 
-  FileText, Calculator, Sparkles, AlertTriangle, Video, User 
+  ShieldAlert, Phone, Menu, X, Flame, 
+  FileText, Calculator, Sparkles, Video, User, Package, MessageSquare 
 } from 'lucide-react';
 import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 interface NavbarProps {
-  cartCount: number;
-  onOpenCart: () => void;
+  cartCount?: number;
+  onOpenCart?: () => void;
   onOpenPortal?: (mode?: 'client' | 'admin') => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPortal }) => {
+export const Navbar: React.FC<NavbarProps> = ({ cartCount = 0, onOpenCart, onOpenPortal }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { openLeadModal } = useWhatsAppModal();
@@ -41,8 +41,8 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPor
     { name: 'Central VTS', href: '#central-vts', icon: ShieldAlert },
     { name: 'Apresentação', href: '#apresentacao', icon: Video },
     { name: 'Normas NBR', href: '#normas', icon: FileText },
-    { name: 'Calculadora & Diagrama', href: '#calculadora', icon: Calculator, highlight: true },
-    { name: 'Loja Virtual', href: '#loja', icon: ShoppingCart },
+    { name: 'Calculadora', href: '#calculadora', icon: Calculator },
+    { name: 'Kits & Instalação', href: '#solucoes', icon: Package, highlight: true },
     { name: 'Manuais', href: '#manuais', icon: FileText },
     { name: 'Fotos Reais', href: '#galeria', icon: Sparkles },
     { name: 'Contato', href: '#contato', icon: Phone },
@@ -120,24 +120,11 @@ export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenPor
             <button
               type="button"
               onClick={handleWhatsAppClick}
-              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-3.5 py-1.5 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
+              className="flex items-center gap-2 bg-gradient-to-r from-[#d4af37] via-[#e5c05d] to-[#b89628] hover:from-[#e5c05d] hover:to-[#d4af37] text-black text-xs font-black px-3.5 py-1.5 rounded-lg shadow-glow-gold hover:shadow-glow-gold-lg transition-all cursor-pointer"
             >
               <Phone className="w-3.5 h-3.5 fill-black" />
-              <span>(11) 91699-9411</span>
-            </button>
-
-            {/* Cart Trigger */}
-            <button
-              onClick={onOpenCart}
-              className="relative p-2 rounded-xl bg-[#14171e] hover:bg-[#1a1f28] border border-[#d4af37]/25 text-[#f3e5ab] hover:text-white transition-all flex items-center justify-center group shadow-md"
-              title="Ver Carrinho de Compras"
-            >
-              <ShoppingCart className="w-5 h-5 group-hover:scale-105 transition-transform" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#d4af37] text-black font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-glow-gold animate-pulse">
-                  {cartCount}
-                </span>
-              )}
+              <span className="hidden sm:inline">(11) 91699-9411</span>
+              <span className="sm:hidden">Orçamento</span>
             </button>
 
             {/* Mobile Menu Toggle */}
