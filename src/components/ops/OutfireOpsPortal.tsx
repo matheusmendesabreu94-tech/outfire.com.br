@@ -14,33 +14,33 @@ interface UsuarioOps {
   nome: string;
   pin: string;
   role: 'admin_outfire' | 'tecnico';
-  perfil: 'Engenheiro Chefe' | 'Técnico Instalador' | 'Diretoria';
+  perfil: 'Diretoria' | 'Diretoria & Operações' | 'Engenheiro Chefe' | 'Engenheiro Responsável Técnico' | 'Técnico Instalador';
   telefone: string;
 }
 
 const USUARIOS_OPS_PADRAO: UsuarioOps[] = [
   {
-    id: 'usr_robson_eng',
-    nome: 'Eng. Robson',
-    pin: '4321',
+    id: 'usr_matheus_mendes',
+    nome: 'Matheus Mendes',
+    pin: '864173',
     role: 'admin_outfire',
-    perfil: 'Engenheiro Chefe',
+    perfil: 'Diretoria & Operações',
     telefone: '(11) 91699-9411',
   },
   {
     id: 'usr_carlos_tec',
     nome: 'Carlos Eduardo (Técnico SP)',
-    pin: '1234',
+    pin: '2468',
     role: 'tecnico',
     perfil: 'Técnico Instalador',
     telefone: '(11) 98765-4321',
   },
   {
-    id: 'usr_diretoria',
-    nome: 'Diretoria Executiva Outfire',
-    pin: '9999',
+    id: 'usr_robson_eng',
+    nome: 'Eng. Robson Mendes',
+    pin: '864173',
     role: 'admin_outfire',
-    perfil: 'Diretoria',
+    perfil: 'Engenheiro Responsável Técnico',
     telefone: '(11) 91699-9411',
   },
 ];
@@ -148,11 +148,11 @@ const OutfireOpsPortalContent: React.FC = () => {
 
     if (clean === adminPin) {
       const adminUser: UsuarioOps = {
-        id: 'usr_robson_eng',
-        nome: 'Eng. Robson',
+        id: 'usr_matheus_mendes',
+        nome: 'Matheus Mendes',
         pin: adminPin,
         role: 'admin_outfire',
-        perfil: 'Engenheiro Chefe',
+        perfil: 'Diretoria & Operações',
         telefone: '(11) 91699-9411',
       };
       setUsuarioLogado(adminUser);

@@ -63,15 +63,15 @@ export const DEFAULT_TECNICOS_CONTRATADOS: TecnicoContratado[] = [
 
 // Administrador Master (Engenharia Outfire)
 export const ADMIN_USER: ClientUser = {
-  id: 'usr_admin_robson',
-  email: 'engenharia@outfire.com.br',
-  nome: 'Eng. Robson (Administrador)',
+  id: 'usr_matheus_mendes',
+  email: 'contato@outfire.com.br',
+  nome: 'Matheus Mendes (Administrador)',
   telefone: '(11) 91699-9411',
   role: 'admin_outfire',
   empresaId: 'emp_outfire_matriz',
-  empresaNome: 'Outfire Sistemas — Matriz Engenharia',
+  empresaNome: 'Outfire Engenharia contra Incêndio (Matriz)',
   cidade: 'São Paulo - SP',
-  avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
+  avatarUrl: '/assets/logo-outfire-gold.png',
   criadoEm: '2026-01-01T00:00:00Z'
 };
 

@@ -66,7 +66,7 @@ export const AiPitchConsultantChat: React.FC<Props> = ({
       id: 'msg_welcome',
       sender: 'ai',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      content: `👋 Olá, Eng. Robson! Sou seu **Copiloto Estratégico de Vendas B2B & Fechamento de Contratos** da Outfire.
+      content: `👋 Olá, Matheus Mendes! Sou seu **Copiloto Estratégico de Vendas B2B & Fechamento de Contratos** da Outfire.
 
 Estou configurado para guiar você do **primeiro contato com a rede até a assinatura do contrato mais lucrativo possível** para a Outfire Engenharia.
 
@@ -127,8 +127,8 @@ Em shopping centers e redes corporativas, **nunca tente vender para o atendente 
 3. **Franqueado / Sócio Proprietário (em lojas franqueadas):** Quem assina o cheque e se preocupa com o valor do investimento.
 
 ### 📞 Script Cirúrgico para Furar o Bloqueio da Recepção/Central:
-*"Olá, boa tarde! Aqui é o Robson, engenheiro de sistemas da Outfire Engenharia contra Incêndio. Estamos finalizando a revisão das exigências técnicas da NBR 14518 e Bombeiros para a aprovação das coifas e emissão de ART da operação de vocês no shopping. Preciso falar diretamente com o Engenheiro de Implantação/Obras ou com o responsável por Facilities para alinhar os pontos de intertravamento de gás. Poderia me transferir para o ramal dele ou me passar o WhatsApp corporativo de obras?"*`,
-            scriptCopiar: `Olá, boa tarde! Aqui é o Robson, engenheiro da Outfire Engenharia de Supressão. Estamos revisando as exigências da NBR 14518 e do Corpo de Bombeiros para a liberação de AVCB das coifas da rede no shopping. Preciso falar com o Engenheiro de Obras ou Facilities para alinharmos a memória de cálculo e emissão de ART. Pode me passar o contato direto ou transferir o ramal?`
+*"Olá, boa tarde! Aqui é o Matheus Mendes, da Outfire Engenharia de Supressão contra Incêndio. Estamos finalizando a revisão das exigências técnicas da NBR 14518 e Bombeiros para a aprovação das coifas e emissão de ART da operação de vocês no shopping. Preciso falar diretamente com o Engenheiro de Implantação/Obras ou com o responsável por Facilities para alinhar os pontos de intertravamento de gás. Poderia me transferir para o ramal dele ou me passar o WhatsApp corporativo de obras?"*`,
+            scriptCopiar: `Olá, boa tarde! Aqui é o Matheus Mendes, da Outfire Engenharia de Supressão. Estamos revisando as exigências da NBR 14518 e do Corpo de Bombeiros para a liberação de AVCB das coifas da rede no shopping. Preciso falar com o Engenheiro de Obras ou Facilities para alinharmos a memória de cálculo e emissão de ART. Pode me passar o contato direto ou transferir o ramal?`
           };
           break;
 
@@ -220,7 +220,7 @@ Abaixo está a minuta jurídica pronta, elaborada para proteger nossa margem, ga
 Você pode **copiar o texto completo com 1 clique** para enviar em PDF ou anexar ao e-mail!`,
             contratoMinuta: `INSTRUMENTO PARTICULAR DE PRESTAÇÃO DE SERVIÇOS DE ENGENHARIA DE SUPRESSÃO CONTRA INCÊNDIO, FORNECIMENTO DE SISTEMA AUTOMATIZADO E MANUTENÇÃO PREVENTIVA
 
-CONTRATADA: OUTFIRE ENGENHARIA DE SUPRESSÃO DE INCÊNDIO LTDA, CNPJ sob o nº 00.000.000/0001-00, com sede técnica no Estado de São Paulo, representada por seu Responsável Técnico Eng. Robson (CREA-SP).
+CONTRATADA: OUTFIRE ENGENHARIA DE SUPRESSÃO DE INCÊNDIO LTDA, CNPJ sob o nº 00.000.000/0001-00, com sede técnica no Estado de São Paulo, representada por seu Diretor Executivo Matheus Mendes e por seu Responsável Técnico Eng. Robson Mendes (CREA-SP).
 
 CONTRATANTE: ${selectedTargetName.toUpperCase()}, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº [CNPJ CLIENTE], com sede em [ENDEREÇO CLIENTE].
 
@@ -250,7 +250,8 @@ São Paulo/SP, ${new Date().toLocaleDateString('pt-BR')}.
 
 ___________________________________             ___________________________________
 OUTFIRE ENGENHARIA LTDA                         CONTRATANTE: ${selectedTargetName}
-Engenheiro Responsável Técnico CREA/SP          Representante Legal / Diretor de Obras`,
+Matheus Mendes (Diretoria Executiva)             Representante Legal / Diretor de Obras
+Eng. Robson Mendes (CREA/SP 506.912/D)`,
             scriptCopiar: `Prezado responsável de Obras da ${selectedTargetName}: Minuta do contrato Outfire para instalação do Sistema de Supressão NBR 14518 estruturada com fornecimento do Kit VTS 32S3 Inox, execução noturna e ART inclusa. Segue minuta em anexo para assinatura. Qualquer ajuste comercial estamos à disposição!`
           };
           break;
@@ -325,7 +326,7 @@ Como a liberação do AVCB costuma ser o gargalo final antes da inauguração, v
         scriptExtra = `Olá [Nome], tudo bem? Estamos fechando a escala de engenharia para instalações noturnas e emissão de ART das próximas semanas. Você ainda precisa da reserva de data para a liberação da sua coifa junto ao shopping/Bombeiros? Me avise para eu segurar sua data na agenda da equipe!`;
       }
       else {
-        respostaTexto = `Entendido, Eng. Robson! Sobre a abordagem para **${selectedTargetName}**:
+        respostaTexto = `Entendido, Matheus! Sobre a abordagem para **${selectedTargetName}**:
 
 1. **Foco Técnico:** Esta rede opera com cozinhas de alto fluxo em shoppings onde a gordura volatilizada no duto é o maior risco de ignição espontânea.
 2. **Nosso Gancho:** Apresentar a Central Outfire VTS 32S3 com o corte automático de gás e proteção de saponificante Classe K + CO2.
@@ -488,7 +489,7 @@ Deseja que eu redija um e-mail formal executivo ou uma mensagem curta e persuasi
               <span className="text-gray-400 font-mono text-[11px]">Telefone/WhatsApp: <strong className="text-white">{targetTelefone}</strong></span>
               {targetTelefone && (
                 <a
-                  href={`https://wa.me/55${targetTelefone.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá! Sou Robson da Outfire Engenharia. Gostaria de falar com o responsável de Engenharia/Obras da ${selectedTargetName}.`)}`}
+                  href={`https://wa.me/55${targetTelefone.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá! Sou Matheus Mendes da Outfire Engenharia. Gostaria de falar com o responsável de Engenharia/Obras da ${selectedTargetName}.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] flex items-center gap-1 shadow-md"
@@ -507,7 +508,7 @@ Deseja que eu redija um e-mail formal executivo ou uma mensagem curta e persuasi
               className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} space-y-1`}
             >
               <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-mono px-1">
-                <span>{msg.sender === 'user' ? 'Robson (Engenharia Chefe)' : 'IA Outfire B2B Specialist'}</span>
+                <span>{msg.sender === 'user' ? 'Matheus Mendes (Diretoria / Operações)' : 'IA Outfire B2B Specialist'}</span>
                 <span>•</span>
                 <span>{msg.timestamp}</span>
               </div>

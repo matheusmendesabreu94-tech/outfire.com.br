@@ -545,7 +545,7 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
                     </button>
 
                     <a
-                      href={`https://wa.me/5511987654321?text=Ol%C3%A1%2C%20aqui%20%C3%A9%20o%20Eng.%20Robson%20da%20Outfire%20sobre%20a%20obra%20${encodeURIComponent(obra.nomeLoja)}.`}
+                      href={`https://wa.me/5511987654321?text=Ol%C3%A1%2C%20aqui%20%C3%A9%20o%20Matheus%20Mendes%20da%20Outfire%20sobre%20a%20obra%20${encodeURIComponent(obra.nomeLoja)}.`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-2 rounded-xl bg-white/5 hover:bg-emerald-600 text-gray-300 hover:text-white transition-all"
@@ -827,7 +827,7 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
                     </button>
 
                     <a
-                      href={`https://wa.me/${tec.telefoneWhatsApp}?text=Ol%C3%A1%20${encodeURIComponent(tec.nome)}%2C%20aqui%20%C3%A9%20o%20Eng.%20Robson%20da%20Outfire.%20Seguem%20as%20instru%C3%A7%C3%B5es%20da%20pr%C3%B3xima%20obra.`}
+                      href={`https://wa.me/${tec.telefoneWhatsApp}?text=Ol%C3%A1%20${encodeURIComponent(tec.nome)}%2C%20aqui%20%C3%A9%20o%20Matheus%20Mendes%20da%20Outfire.%20Seguem%20as%20instru%C3%A7%C3%B5es%20da%20pr%C3%B3xima%20obra.`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
