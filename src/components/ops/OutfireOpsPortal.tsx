@@ -430,8 +430,8 @@ const OutfireOpsPortalContent: React.FC = () => {
           </p>
         </div>
 
-        {/* Voltar ao Site */}
-        <div className="pt-2 text-center">
+        {/* Voltar ao Site & Atualizar Versao */}
+        <div className="pt-2 flex items-center justify-between text-xs text-gray-400">
           <a
             href="/"
             onClick={(e) => {
@@ -440,10 +440,22 @@ const OutfireOpsPortalContent: React.FC = () => {
               window.history.pushState({}, '', '/');
               window.dispatchEvent(new Event('popstate'));
             }}
-            className="text-xs text-gray-400 hover:text-[#f3e5ab] transition-colors"
+            className="hover:text-[#f3e5ab] transition-colors"
           >
             ← Voltar ao site público
           </a>
+
+          <button
+            type="button"
+            onClick={() => {
+              sessionStorage.clear();
+              window.location.reload();
+            }}
+            className="hover:text-[#d4af37] underline text-[10px] font-mono cursor-pointer text-gray-500 hover:text-gray-300"
+            title="Recarregar nova versão e limpar sessão"
+          >
+            Atualizar / Nova Versão
+          </button>
         </div>
 
       </div>

@@ -397,6 +397,18 @@ export const ClientPortalModal: React.FC<Props> = ({ isOpen, onClose }) => {
               )}
 
             </div>
+
+            {/* Atalho para Acesso Operacional (#ops) */}
+            <div className="p-3 bg-[#08090b] border-t border-white/10 text-center">
+              <a
+                href="#ops"
+                onClick={() => onClose()}
+                className="text-[11px] text-gray-400 hover:text-[#d4af37] flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <Lock className="w-3 h-3 text-[#d4af37]" />
+                <span>Acesso exclusivo Engenharia e Técnicos: <strong className="text-[#f3e5ab] underline">Entrar no Acesso Operacional (#ops)</strong></span>
+              </a>
+            </div>
           </div>
         )}
 

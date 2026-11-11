@@ -18,6 +18,7 @@ import {
 } from '../../utils/crmStorage';
 import { PlantaBaixaModal } from './PlantaBaixaModal';
 import { ProposalGeneratorModal } from './ProposalGeneratorModal';
+import { AiPitchConsultantChat } from './AiPitchConsultantChat';
 
 export const LeadsManager: React.FC = () => {
   const leads = useCrmLeads();
@@ -25,6 +26,20 @@ export const LeadsManager: React.FC = () => {
   
   // Controle de sub-aba: 'leads_site' ou 'prospeccao_shoppings'
   const [subTab, setSubTab] = useState<'leads_site' | 'prospeccao_shoppings'>('leads_site');
+
+  // Copiloto IA de Negociação e Fechamento B2B
+  const [showAiConsultantChat, setShowAiConsultantChat] = useState(false);
+  const [aiConsultantTarget, setAiConsultantTarget] = useState<{
+    tipo: 'rede' | 'lead' | 'personalizado';
+    nome: string;
+    contato?: string;
+    telefone?: string;
+    email?: string;
+    categoria?: string;
+    cidade?: string;
+    detalhes?: string;
+    unidades?: number;
+  } | undefined>(undefined);
 
   // Filtros Leads do Site
   const [searchLead, setSearchLead] = useState('');
@@ -545,6 +560,29 @@ export const LeadsManager: React.FC = () => {
                           <span>{lead.propostaComercial ? '📄 Ver Orçamento' : '📄 Criar Orçamento'}</span>
                         </button>
 
+                        {/* Botão Estratégia IA de Fechamento */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAiConsultantTarget({
+                              tipo: 'lead',
+                              nome: lead.empresa || lead.nome,
+                              contato: lead.cargo || 'Responsável Comercial/Obras',
+                              telefone: lead.telefone,
+                              email: lead.email,
+                              categoria: lead.tipoCozinha || 'Cozinha Comercial',
+                              cidade: lead.cidade,
+                              detalhes: lead.detalhes
+                            });
+                            setShowAiConsultantChat(true);
+                          }}
+                          className="px-3 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                          title="Abrir Copiloto IA para orientar o fechamento de contrato com este lead"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Estratégia IA</span>
+                        </button>
+
                         <a
                           href={waUrl}
                           target="_blank"
@@ -617,6 +655,48 @@ export const LeadsManager: React.FC = () => {
                 <span>Atualizar Varredura IA</span>
               </button>
             </div>
+          </div>
+
+          {/* BANNER COPILOTO IA DE FECHAMENTO & CONTRATOS */}
+          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-purple-950/40 via-[#161226] to-[#0f111a] border border-purple-500/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-600/30 shrink-0">
+                <Sparkles className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm sm:text-base font-black text-white">
+                    Copiloto IA de Negociação, Pitches & Contratos B2B
+                  </h4>
+                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-mono font-bold border border-purple-500/40">
+                    5 Etapas de Fechamento
+                  </span>
+                </div>
+                <p className="text-xs text-gray-300 mt-0.5">
+                  Orientação passo a passo: localizar o decisor de obras, diagnosticar a dor do AVCB, apresentar a Central VTS e gerar contratos de alto ticket com receita recorrente.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setAiConsultantTarget({
+                  tipo: 'rede',
+                  nome: 'Outback Steakhouse & Abbraccio (Bloomin\' Brands Brasil)',
+                  contato: 'Diretoria de Obras, Instalações & Expansão de Lojas',
+                  telefone: '(11) 4949-9100',
+                  email: 'novosnegocios@bloominbrands.com.br',
+                  categoria: 'Steakhouses & Carnes'
+                });
+                setShowAiConsultantChat(true);
+              }}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#b89628] hover:from-[#f3e5ab] hover:to-[#d4af37] text-black font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-glow-gold hover:scale-105 transition-all shrink-0 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 fill-black" />
+              <span>Abrir Copiloto IA de Fechamento</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Filtros das Redes */}
@@ -767,6 +847,27 @@ export const LeadsManager: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAiConsultantTarget({
+                            tipo: 'rede',
+                            nome: chain.nomeRede,
+                            contato: chain.contatoSetor,
+                            telefone: chain.telefones[0],
+                            email: chain.emailExpansaoObras,
+                            categoria: chain.categoria,
+                            unidades: chain.unidadesEstimadas
+                          });
+                          setShowAiConsultantChat(true);
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                        title="Abrir Copiloto IA para orientar o fechamento de contrato com esta rede"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                        <span className="hidden sm:inline">Estratégia & Contrato IA</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => copyToClipboard(chain.pitchRecomendado, chain.id, `Pitch de vendas copiado para ${chain.nomeRede}!`)}
@@ -1009,6 +1110,16 @@ export const LeadsManager: React.FC = () => {
           onShowToast={showToast}
         />
       )}
+
+      {/* ============================================================== */}
+      {/* MODAL: COPILOTO IA DE VENDAS, PITCHES & CONTRATOS B2B */}
+      {/* ============================================================== */}
+      <AiPitchConsultantChat
+        isOpen={showAiConsultantChat}
+        onClose={() => setShowAiConsultantChat(false)}
+        initialTarget={aiConsultantTarget}
+        leadsDisponiveis={leads}
+      />
 
     </div>
   );
