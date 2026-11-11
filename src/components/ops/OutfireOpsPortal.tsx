@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Lock, ShieldCheck, Wrench, Building2, 
   ArrowRight, KeyRound, Sparkles, AlertCircle, Eye, EyeOff,
@@ -7,6 +7,7 @@ import {
 import { AdminPortalDashboard } from '../portal/AdminPortalDashboard';
 import { TecnicoMobilePortal } from '../portal/TecnicoMobilePortal';
 import { ADMIN_USER } from '../../utils/portalStorage';
+import { getAdminPin, getTechnicianPin } from '../../utils/opsAuth';
 
 interface UsuarioOps {
   id: string;
@@ -110,18 +111,21 @@ const OutfireOpsPortalContent: React.FC = () => {
   });
 
   const [pinInput, setPinInput] = useState('');
+  const [showPin, setShowPin] = useState(false);
   const [erroPin, setErroPin] = useState<string | null>(null);
   const [modoVisao, setModoVisao] = useState<'admin' | 'tecnico'>('admin');
 
   // Adicionar dígito do PIN
   const handleDigitPress = (digit: string) => {
-    if (pinInput.length < 4) {
+    if (pinInput.length < 10) {
       const novoPin = pinInput + digit;
       setPinInput(novoPin);
       setErroPin(null);
 
-      // Auto-submit no 4º dígito
-      if (novoPin.length === 4) {
+      // Auto-submit se coincidir com o PIN do admin ou do técnico
+      const adminPin = getAdminPin();
+      const techPin = getTechnicianPin();
+      if (novoPin === adminPin || novoPin === techPin) {
         validarPin(novoPin);
       }
     }
@@ -132,18 +136,70 @@ const OutfireOpsPortalContent: React.FC = () => {
     setErroPin(null);
   };
 
+  const handleClear = () => {
+    setPinInput('');
+    setErroPin(null);
+  };
+
   const validarPin = (pinParaValidar: string) => {
-    const achou = USUARIOS_OPS_PADRAO.find((u) => u.pin === pinParaValidar);
-    if (achou) {
-      setUsuarioLogado(achou);
-      setModoVisao(achou.role === 'admin_outfire' ? 'admin' : 'tecnico');
-      sessionStorage.setItem('outfire_ops_session', JSON.stringify(achou));
+    const clean = pinParaValidar.trim();
+    const adminPin = getAdminPin();
+    const techPin = getTechnicianPin();
+
+    if (clean === adminPin) {
+      const adminUser: UsuarioOps = {
+        id: 'usr_robson_eng',
+        nome: 'Eng. Robson',
+        pin: adminPin,
+        role: 'admin_outfire',
+        perfil: 'Engenheiro Chefe',
+        telefone: '(11) 91699-9411',
+      };
+      setUsuarioLogado(adminUser);
+      setModoVisao('admin');
+      sessionStorage.setItem('outfire_ops_session', JSON.stringify(adminUser));
       setPinInput('');
+      setErroPin(null);
+    } else if (clean === techPin) {
+      const techUser: UsuarioOps = {
+        id: 'usr_campo_tec',
+        nome: 'Técnico Credenciado Outfire',
+        pin: techPin,
+        role: 'tecnico',
+        perfil: 'Técnico Instalador',
+        telefone: '(11) 91699-9411',
+      };
+      setUsuarioLogado(techUser);
+      setModoVisao('tecnico');
+      sessionStorage.setItem('outfire_ops_session', JSON.stringify(techUser));
+      setPinInput('');
+      setErroPin(null);
     } else {
-      setErroPin('PIN inválido. Tente 4321 (Admin) ou 1234 (Técnico).');
+      setErroPin('Senha de acesso incorreta. Tente novamente.');
       setPinInput('');
     }
   };
+
+  // Suporte a teclado físico na tela de login
+  useEffect(() => {
+    if (usuarioLogado) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      if (e.key >= '0' && e.key <= '9') {
+        handleDigitPress(e.key);
+      } else if (e.key === 'Backspace') {
+        handleBackspace();
+      } else if (e.key === 'Enter') {
+        if (pinInput.length >= 3) {
+          validarPin(pinInput);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pinInput, usuarioLogado]);
 
   const handleLogout = () => {
     sessionStorage.removeItem('outfire_ops_session');
@@ -269,43 +325,66 @@ const OutfireOpsPortalContent: React.FC = () => {
         </div>
 
         {/* Display do PIN */}
-        <div className="space-y-2 text-center">
-          <span className="text-xs text-gray-300 font-semibold block">
-            Digite seu PIN de 4 dígitos:
-          </span>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-gray-300 font-semibold flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span>Senha de Acesso Operacional</span>
+            </span>
+            {pinInput.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowPin(!showPin)}
+                className="text-gray-400 hover:text-[#d4af37] text-[11px] flex items-center gap-1 transition-colors"
+                title={showPin ? 'Ocultar senha' : 'Ver senha digitada'}
+              >
+                {showPin ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                <span>{showPin ? 'Ocultar' : 'Ver'}</span>
+              </button>
+            )}
+          </div>
 
-          <div className="flex justify-center gap-3 py-2">
-            {[0, 1, 2, 3].map((index) => {
-              const preenchido = pinInput.length > index;
-              return (
-                <div
-                  key={index}
-                  className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                    preenchido
-                      ? 'bg-[#d4af37] shadow-glow-gold scale-110'
-                      : 'border-2 border-white/20 bg-black/40'
-                  }`}
-                />
-              );
-            })}
+          <div className="h-14 rounded-2xl bg-black/60 border border-white/15 px-4 flex items-center justify-between text-center relative focus-within:border-[#d4af37]/60 shadow-inner">
+            <div className="flex-1 flex items-center justify-center tracking-[0.35em] font-mono text-xl text-[#f3e5ab] select-all">
+              {pinInput.length === 0 ? (
+                <span className="text-gray-600 text-xs tracking-normal font-sans font-normal">
+                  Digite seu PIN ou use o teclado
+                </span>
+              ) : showPin ? (
+                <span>{pinInput}</span>
+              ) : (
+                <span className="text-lg">{'•'.repeat(pinInput.length)}</span>
+              )}
+            </div>
+
+            {pinInput.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="text-gray-500 hover:text-red-400 text-xs p-1 transition-colors ml-2 font-bold"
+                title="Limpar campo"
+              >
+                Limpar
+              </button>
+            )}
           </div>
 
           {erroPin && (
-            <div className="p-2 rounded-xl bg-red-950/50 border border-red-500/40 text-[11px] text-red-300 flex items-center justify-center gap-1.5 font-medium animate-shake">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            <div className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-xs text-red-300 flex items-center justify-center gap-1.5 font-medium animate-shake">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
               <span>{erroPin}</span>
             </div>
           )}
         </div>
 
         {/* Teclado Numérico */}
-        <div className="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto">
+        <div className="grid grid-cols-3 gap-2.5 max-w-[280px] mx-auto">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
             <button
               key={num}
               type="button"
               onClick={() => handleDigitPress(num)}
-              className="h-14 rounded-2xl bg-[#141824] hover:bg-[#1c2233] active:bg-[#d4af37] active:text-black border border-white/10 hover:border-[#d4af37]/40 text-lg font-bold text-white transition-all shadow-md cursor-pointer flex items-center justify-center"
+              className="h-14 rounded-2xl bg-[#141824] hover:bg-[#1c2233] active:bg-[#d4af37] active:text-black border border-white/10 hover:border-[#d4af37]/40 text-xl font-bold text-white transition-all shadow-md cursor-pointer flex items-center justify-center"
             >
               {num}
             </button>
@@ -314,15 +393,16 @@ const OutfireOpsPortalContent: React.FC = () => {
           <button
             type="button"
             onClick={handleBackspace}
+            aria-label="Apagar último dígito"
             className="h-14 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-gray-400 hover:text-white transition-all flex items-center justify-center cursor-pointer"
           >
-            Limpar
+            Apagar
           </button>
 
           <button
             type="button"
             onClick={() => handleDigitPress('0')}
-            className="h-14 rounded-2xl bg-[#141824] hover:bg-[#1c2233] active:bg-[#d4af37] active:text-black border border-white/10 hover:border-[#d4af37]/40 text-lg font-bold text-white transition-all shadow-md cursor-pointer flex items-center justify-center"
+            className="h-14 rounded-2xl bg-[#141824] hover:bg-[#1c2233] active:bg-[#d4af37] active:text-black border border-white/10 hover:border-[#d4af37]/40 text-xl font-bold text-white transition-all shadow-md cursor-pointer flex items-center justify-center"
           >
             0
           </button>
@@ -330,43 +410,24 @@ const OutfireOpsPortalContent: React.FC = () => {
           <button
             type="button"
             onClick={() => validarPin(pinInput)}
-            disabled={pinInput.length !== 4}
-            className="h-14 rounded-2xl bg-[#d4af37] hover:bg-[#e5c05d] text-black font-extrabold text-xs transition-all shadow-glow-gold flex items-center justify-center cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            disabled={pinInput.length < 3}
+            aria-label="Confirmar e Entrar"
+            className="h-14 rounded-2xl bg-gradient-to-r from-[#d4af37] to-[#b89628] hover:from-[#e5c05d] hover:to-[#cda835] text-black font-extrabold text-sm transition-all shadow-glow-gold flex items-center justify-center gap-1 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            <ArrowRight className="w-5 h-5" />
+            <span>Entrar</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Atalhos Rápidos para Demonstração */}
-        <div className="pt-2 border-t border-white/10 text-[11px] text-gray-400 space-y-2">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-gray-500 block text-center">
-            Atalhos Rápidos de Acesso:
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => validarPin('4321')}
-              className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[#f3e5ab] text-left hover:bg-amber-500/25 transition-all"
-            >
-              <div className="font-bold flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#d4af37]" />
-                <span>Admin (Robson)</span>
-              </div>
-              <span className="text-[10px] text-gray-400 font-mono">PIN: 4321</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => validarPin('1234')}
-              className="p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-left hover:bg-emerald-500/25 transition-all"
-            >
-              <div className="font-bold flex items-center gap-1">
-                <Wrench className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Técnico (Campo)</span>
-              </div>
-              <span className="text-[10px] text-gray-400 font-mono">PIN: 1234</span>
-            </button>
+        {/* Rodapé de Segurança Sem Exposição de Senhas */}
+        <div className="pt-3 border-t border-white/10 text-center space-y-1">
+          <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400 font-mono">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#d4af37]" />
+            <span>Ambiente Operacional Seguro & Criptografado</span>
           </div>
+          <p className="text-[10px] text-gray-500">
+            Acesso restrito à Engenharia Chefe e Técnicos autorizados Outfire.
+          </p>
         </div>
 
         {/* Voltar ao Site */}

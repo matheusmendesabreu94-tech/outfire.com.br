@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, HardHat, MessageSquare, CheckCircle2, 
   AlertTriangle, Clock, Phone, Send, Plus, 
   ShieldCheck, User, Wrench, Download, Upload, 
   Calendar, Check, X, FileText, Sparkles, LogOut, ArrowRight,
-  ShoppingBag, Truck, Receipt, Sliders, DollarSign, Edit3, Trash2, MapPin, Tag, Users
+  ShoppingBag, Truck, Receipt, Sliders, DollarSign, Edit3, Trash2, MapPin, Tag, Users,
+  Lock, KeyRound, Eye, EyeOff, Copy
 } from 'lucide-react';
 import { 
   ObraItem, TecnicoContratado, MensagemChat, ClientUser,
@@ -20,6 +21,7 @@ import { CatalogManager } from './CatalogManager';
 import { useStoreCatalog } from '../../utils/catalogStorage';
 import { LeadsManager } from './LeadsManager';
 import { useCrmLeads } from '../../utils/crmStorage';
+import { useOpsAuthPins } from '../../utils/opsAuth';
 
 interface Props {
   adminUser: ClientUser;
@@ -47,6 +49,61 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
   const leadsNovosCount = crmLeads.filter(l => l.status === 'novo').length;
   const [obras, setObras] = useState<ObraItem[]>(() => getObrasDoCliente());
   const [tecnicos, setTecnicos] = useState<TecnicoContratado[]>(() => getTecnicosContratados());
+  
+  // Gestão de Senhas Operacionais (#ops)
+  const { adminPin, techPin, setAdminPin, setTechnicianPin } = useOpsAuthPins();
+  const [tempTechPin, setTempTechPin] = useState(techPin);
+  const [tempAdminPin, setTempAdminPin] = useState(adminPin);
+  const [showTechPinInput, setShowTechPinInput] = useState(false);
+  const [showAdminPinInput, setShowAdminPinInput] = useState(false);
+  const [feedbackTech, setFeedbackTech] = useState<string | null>(null);
+  const [feedbackAdmin, setFeedbackAdmin] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTempTechPin(techPin);
+  }, [techPin]);
+
+  useEffect(() => {
+    setTempAdminPin(adminPin);
+  }, [adminPin]);
+
+  const handleSaveTechPin = () => {
+    const cleaned = tempTechPin.trim();
+    if (!cleaned || cleaned.length < 3) {
+      setFeedbackTech('A senha deve conter no mínimo 3 caracteres.');
+      return;
+    }
+    const ok = setTechnicianPin(cleaned);
+    if (ok) {
+      setFeedbackTech('Senha dos técnicos atualizada com sucesso!');
+      setTimeout(() => setFeedbackTech(null), 3500);
+    }
+  };
+
+  const handleSaveAdminPin = () => {
+    const cleaned = tempAdminPin.trim();
+    if (!cleaned || cleaned.length < 4) {
+      setFeedbackAdmin('A senha admin deve ter no mínimo 4 caracteres.');
+      return;
+    }
+    const ok = setAdminPin(cleaned);
+    if (ok) {
+      setFeedbackAdmin('Senha mestra do Administrador atualizada!');
+      setTimeout(() => setFeedbackAdmin(null), 3500);
+    }
+  };
+
+  const handleShareTechPinWhatsApp = () => {
+    const pinAtual = tempTechPin.trim() || techPin;
+    const texto = encodeURIComponent(
+      `🔒 *OUTFIRE ENGENHARIA - Acesso Operacional Técnico*\n\n` +
+      `Olá! A sua senha de acesso ao portal do técnico Outfire foi atualizada:\n\n` +
+      `🔑 *Sua Senha de Acesso:* ${pinAtual}\n` +
+      `📱 *Link do Portal:* https://outfire.com.br/#ops\n\n` +
+      `Acesse diariamente para preencher checklists, vistorias e ordens de serviço.`
+    );
+    window.open(`https://wa.me/?text=${texto}`, '_blank');
+  };
   
   // Chat state
   const [activeChannelId, setActiveChannelId] = useState<string>('obra_fasano_jardins_01');
@@ -541,6 +598,184 @@ export const AdminPortalDashboard: React.FC<Props> = ({ adminUser, onLogout, onS
                 <Plus className="w-4 h-4" />
                 <span>Cadastrar Novo Técnico</span>
               </button>
+            </div>
+
+            {/* PAINEL EXECUTIVO: GESTÃO DE SENHAS OPERACIONAIS */}
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-[#12151e] to-[#0c0e15] border border-[#d4af37]/40 shadow-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37]">
+                    <KeyRound className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>Gestão de Senhas de Acesso Operacional (#ops)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold border border-emerald-500/30">
+                        Criptografia Ativa
+                      </span>
+                    </h4>
+                    <p className="text-[11px] text-gray-400">
+                      Configure a senha que os técnicos de campo usam no aplicativo e gerencie a senha mestra da Engenharia Chefe.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-gray-400 font-mono flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[#d4af37]" />
+                  <span>Senhas 100% ocultadas na tela de login público</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                {/* CARD 1: SENHA DO TÉCNICO DE CAMPO */}
+                <div className="p-4 rounded-2xl bg-[#090b10] border border-emerald-500/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Wrench className="w-4 h-4 text-emerald-400" />
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">
+                        Senha de Acesso dos Técnicos
+                      </span>
+                    </div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 font-mono font-bold">
+                      Acesso aos Checklists & OS
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-gray-400">
+                    Defina a senha que a equipe técnica usará para entrar no portal móvel e registrar vistorias.
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showTechPinInput ? 'text' : 'password'}
+                        value={tempTechPin}
+                        onChange={(e) => setTempTechPin(e.target.value)}
+                        placeholder="Ex: 2468"
+                        className="w-full bg-black/60 border border-emerald-500/40 rounded-xl px-3 py-2 text-sm font-mono text-emerald-300 focus:outline-none focus:border-emerald-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowTechPinInput(!showTechPinInput)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        title={showTechPinInput ? 'Ocultar' : 'Ver'}
+                      >
+                        {showTechPinInput ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSaveTechPin}
+                      className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1 cursor-pointer"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Salvar</span>
+                    </button>
+                  </div>
+
+                  {feedbackTech && (
+                    <p className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{feedbackTech}</span>
+                    </p>
+                  )}
+
+                  <div className="pt-2 border-t border-white/5 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={handleShareTechPinWhatsApp}
+                      className="px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>Enviar aos Técnicos via WhatsApp</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(tempTechPin || techPin);
+                        setFeedbackTech('Senha copiada com sucesso!');
+                        setTimeout(() => setFeedbackTech(null), 3000);
+                      }}
+                      className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>Copiar Senha</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* CARD 2: SENHA DO ADMINISTRADOR (ENGENHARIA CHEFE) */}
+                <div className="p-4 rounded-2xl bg-[#090b10] border border-[#d4af37]/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-[#d4af37]" />
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">
+                        Senha Mestra Admin (Engenharia Chefe)
+                      </span>
+                    </div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-[#f3e5ab] font-mono font-bold">
+                      Acesso Total Irrestrito
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-gray-400">
+                    Senha mestra para acesso total ao CRM, Leads, Clientes, Obras e Gestão de Senhas.
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showAdminPinInput ? 'text' : 'password'}
+                        value={tempAdminPin}
+                        onChange={(e) => setTempAdminPin(e.target.value)}
+                        placeholder="Ex: 864173"
+                        className="w-full bg-black/60 border border-[#d4af37]/40 rounded-xl px-3 py-2 text-sm font-mono text-[#f3e5ab] focus:outline-none focus:border-[#d4af37]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminPinInput(!showAdminPinInput)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        title={showAdminPinInput ? 'Ocultar' : 'Ver'}
+                      >
+                        {showAdminPinInput ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSaveAdminPin}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#b89628] text-black text-xs font-bold transition-all shadow-glow-gold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Salvar</span>
+                    </button>
+                  </div>
+
+                  {feedbackAdmin && (
+                    <p className="text-[11px] text-amber-300 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{feedbackAdmin}</span>
+                    </p>
+                  )}
+
+                  <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-gray-500 font-mono">
+                    <span>Senha atual ativa: {showAdminPinInput ? (tempAdminPin || adminPin) : '••••••'}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTempAdminPin('864173');
+                        setAdminPin('864173');
+                        setFeedbackAdmin('Senha restaurada para a oficial: 864173');
+                        setTimeout(() => setFeedbackAdmin(null), 3500);
+                      }}
+                      className="text-gray-400 hover:text-[#d4af37] underline cursor-pointer"
+                    >
+                      Restaurar padrão (864173)
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
