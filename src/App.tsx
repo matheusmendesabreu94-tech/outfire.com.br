@@ -15,6 +15,7 @@ import { WhatsAppModalProvider } from './context/WhatsAppModalContext';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { ClientPortalModal } from './components/portal/ClientPortalModal';
 import { OutfireOpsPortal } from './components/ops/OutfireOpsPortal';
+import { SolutionsPopupModal } from './components/SolutionsPopupModal';
 
 function AppContent() {
   const [isPortalOpen, setIsPortalOpen] = useState(false);
@@ -107,6 +108,9 @@ function AppContent() {
         isOpen={isPortalOpen} 
         onClose={() => setIsPortalOpen(false)} 
       />
+
+      {/* Pop-up Inteligente de Soluções (Dispara ao passar pelos Slides de Apresentação) */}
+      <SolutionsPopupModal triggerSectionId="apresentacao" />
 
       {/* LGPD Cookie Consent Banner */}
       <CookieConsentBanner />
