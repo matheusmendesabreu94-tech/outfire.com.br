@@ -40,7 +40,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const autoPlayRafRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
-  const [showModeExplanation, setShowModeExplanation] = useState<boolean>(false);
+
+  // Pop-up Automático de Entrada (Aperte o Play vs Modo Descendo a Tela)
+  const [showEntryModal, setShowEntryModal] = useState<boolean>(false);
+  const hasShownEntryModalRef = useRef<boolean>(false);
+  const [showScrollPromptArrows, setShowScrollPromptArrows] = useState<boolean>(false);
 
   // Manual Trigger Override (if user clicks Acionador Manual)
   const [manualOverride, setManualOverride] = useState<boolean>(false);
@@ -173,6 +177,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     } else {
       window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
     }
+    hasShownEntryModalRef.current = true;
+    setTimeout(() => {
+      setShowEntryModal(true);
+    }, 450);
   };
 
   const handleScrollDownStep = () => {
@@ -197,11 +205,35 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     window.scrollTo({ top: containerBottom + 10, behavior: 'smooth' });
   };
 
+  // --- SELEÇÃO NO POP-UP DE ENTRADA & CONTROLES ---
+  // 1. Apresentação Automática Rápida (Aperte o Play ~13s)
+  const handleSelectAutoPlay = useCallback(() => {
+    setShowEntryModal(false);
+    setShowScrollPromptArrows(false);
+    if (scrollProgressRef.current >= 0.94 || scrollProgressRef.current < 0.02) {
+      if (containerRef.current) {
+        const containerTop = containerRef.current.offsetTop;
+        window.scrollTo({ top: containerTop + 20, behavior: 'auto' });
+        scrollProgressRef.current = 0.02;
+        setScrollProgress(0.02);
+      }
+    }
+    setIsPlaying(true);
+  }, []);
+
+  // 2. Modo Descendo a Tela (Rolagem Manual)
+  const handleSelectScrollMode = useCallback(() => {
+    setShowEntryModal(false);
+    setIsPlaying(false);
+    setShowScrollPromptArrows(true);
+  }, []);
+
   // --- CONTROLES DE AUTO-PLAY / PAUSE & MODO MANUAL SCROLL ---
   const togglePlayPause = useCallback(() => {
     setIsPlaying((prev) => {
       const next = !prev;
       if (next) {
+        setShowScrollPromptArrows(false);
         // Se a simulação já estava no final (> 0.94), reinicia do início da cozinha instantaneamente
         if (scrollProgressRef.current >= 0.94) {
           if (containerRef.current) {
@@ -217,6 +249,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             window.scrollTo({ top: containerTop + 20, behavior: 'auto' });
           }
         }
+      } else {
+        setShowScrollPromptArrows(true);
       }
       return next;
     });
@@ -224,9 +258,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
   const handleSetManualMode = useCallback(() => {
     setIsPlaying(false);
+    setShowScrollPromptArrows(true);
   }, []);
 
-  // Loop contínuo e suave com requestAnimationFrame para o Auto-Play cinematográfico
+  // Loop contínuo e suave com requestAnimationFrame para o Auto-Play acelerado e dinâmico
   useEffect(() => {
     if (!isPlaying) {
       if (autoPlayRafRef.current) {
@@ -260,8 +295,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             return;
           }
 
-          // Duração cinematográfica completa: ~24 segundos para percorrer todo o scrollytelling
-          const totalDuration = 24;
+          // Duração acelerada solicitada pelo cliente: ~13.5 segundos para apresentação rápida e impactante
+          const totalDuration = 13.5;
           const pixelsPerSec = scrollDist / totalDuration;
           const step = pixelsPerSec * dt;
 
@@ -288,6 +323,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     const handleUserInterrupt = () => {
       setIsPlaying(false);
+      setShowScrollPromptArrows(true);
     };
 
     window.addEventListener('wheel', handleUserInterrupt, { passive: true });
@@ -383,6 +419,21 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       const p = Math.min(1, Math.max(0, scrolled / scrollDist));
       scrollProgressRef.current = p;
       setScrollProgress(p);
+
+      // Dispara o pop-up de boas-vindas na primeira vez que a seção 3D entrar em visão
+      if (!hasShownEntryModalRef.current && rect.top <= window.innerHeight * 0.65 && rect.bottom >= window.innerHeight * 0.3) {
+        hasShownEntryModalRef.current = true;
+        setShowEntryModal(true);
+      }
+
+      // Ao avançar na simulação (p >= 0.15), oculta as setas indicadoras de scroll
+      if (p >= 0.15) {
+        setShowScrollPromptArrows(false);
+      }
+      // Se voltar ao início em modo manual, reativa as setas para continuar orientando
+      if (p <= 0.05 && !isPlaying) {
+        setShowScrollPromptArrows(true);
+      }
 
       // Se a contagem regressiva manual da botoeira estiver em andamento, não sobrescrever por rolagem
       if (manualOverrideRef.current && isManualCountdown) return;
@@ -1591,122 +1642,156 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             </div>
           )}
 
-          {/* 4. BARRA INFERIOR COM CONTROLES DE REPRODUÇÃO (PLAY/PAUSE & SCROLL), SETA DOURADA E FASES */}
-          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3 pointer-events-none">
-            
-            {/* CARD EXPLICATIVO DOS MODOS (POP-UP ELEGANTE DOURADO / PRETO OBSIDIANA) */}
-            {showModeExplanation && (
-              <div className="w-full max-w-xl bg-black/95 backdrop-blur-xl border border-[#d4af37]/60 rounded-2xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.95)] text-white pointer-events-auto animate-fadeIn relative mb-1">
-                {/* Cabeçalho do Card */}
-                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3.5">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#d4af37]" />
-                    <h4 className="font-black text-xs sm:text-sm tracking-wide text-[#f3e5ab] uppercase">
-                      Como Navegar na Simulação 3D Outfire
-                    </h4>
+          {/* POP-UP AUTOMÁTICO DE ENTRADA: ESCOLHA ENTRE PLAY RÁPIDO OU MODO DESCENDO A TELA */}
+          {showEntryModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn pointer-events-auto">
+              <div className="relative w-full max-w-xl bg-[#090b0e] border-2 border-[#d4af37]/80 rounded-3xl p-5 sm:p-7 shadow-[0_0_60px_rgba(212,175,55,0.35)] text-white overflow-hidden">
+                {/* Brilho dourado de fundo */}
+                <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#d4af37]/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                {/* Botão de Fechar */}
+                <button
+                  onClick={handleSelectScrollMode}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-sm transition-all cursor-pointer z-10"
+                  title="Fechar e ir para o Modo Descendo a Tela"
+                  aria-label="Fechar pop-up"
+                >
+                  ✕
+                </button>
+
+                {/* Cabeçalho */}
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/50 text-[#f3e5ab] text-xs font-black uppercase tracking-wider mb-3">
+                    <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <span>Simulação 3D • Cozinha Industrial</span>
                   </div>
-                  <button 
-                    onClick={() => setShowModeExplanation(false)}
-                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-xs transition-all cursor-pointer"
-                    aria-label="Fechar explicação dos modos"
-                  >
-                    ✕
-                  </button>
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                    Como você prefere ver a apresentação?
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-300 mt-1.5 max-w-md mx-auto">
+                    Escolha se prefere assistir tudo automaticamente ou controlar cada etapa descendo a tela:
+                  </p>
                 </div>
 
-                {/* Grid comparativo dos 2 Modos */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  {/* 1. Modo Automático (Play) */}
-                  <div 
-                    onClick={() => {
-                      if (!isPlaying) togglePlayPause();
-                      setShowModeExplanation(false);
-                    }}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                      isPlaying 
-                        ? 'bg-amber-500/15 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)]' 
-                        : 'bg-white/5 border-white/10 hover:border-amber-400/60 hover:bg-white/10'
-                    }`}
+                {/* Os 2 Cards de Escolha */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  
+                  {/* Opção 1: Apresentação Automática (Play Rápido) */}
+                  <button
+                    type="button"
+                    onClick={handleSelectAutoPlay}
+                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-[#d4af37]/20 via-black/80 to-black border-2 border-[#d4af37] hover:border-[#f3e5ab] shadow-[0_0_25px_rgba(212,175,55,0.3)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
                   >
-                    <div className="flex items-center justify-between gap-1 mb-2 font-black text-amber-300 text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <Play className="w-3.5 h-3.5 fill-amber-300" />
-                        <span>Modo Automático (Play)</span>
-                      </div>
-                      {isPlaying && (
-                        <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded font-black tracking-wider">
-                          ATIVO
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <span className="px-2 py-0.5 rounded-md bg-[#d4af37] text-black font-black text-[10px] uppercase tracking-wider">
+                          Recomendado
                         </span>
-                      )}
+                        <span className="text-[11px] font-bold text-amber-300">~13 segundos</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div className="w-8 h-8 rounded-full bg-[#d4af37] flex items-center justify-center shrink-0 shadow-md">
+                          <Play className="w-4 h-4 fill-black text-black ml-0.5" />
+                        </div>
+                        <span className="text-sm font-black text-white group-hover:text-[#f3e5ab]">
+                          Apresentação Automática
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-300 leading-relaxed">
+                        Aperte o Play e veja a simulação acontecer <strong>sozinha de forma acelerada</strong>: fogo, alarme 145°C na central, corte de gás e extinção total.
+                      </p>
                     </div>
-                    <p className="text-gray-300 text-[11px] leading-relaxed mb-2">
-                      Aperte o <strong>Play ▶️</strong> e a simulação roda <strong>sozinha</strong> de forma contínua e cinematográfica, sem precisar tocar em nada.
-                    </p>
-                    <div className="text-[10px] text-amber-200/90 bg-amber-950/40 p-2 rounded-lg border border-amber-500/20 leading-relaxed">
-                      Ótimo para assistir como um vídeo: o óleo esquenta, o alarme térmico 145°C apita por 60s, o gás fecha e a extinção Classe K + CO2 atua.
-                    </div>
-                  </div>
 
-                  {/* 2. Modo Manual (Scroll) */}
-                  <div 
-                    onClick={() => {
-                      if (isPlaying) setIsPlaying(false);
-                      setShowModeExplanation(false);
-                    }}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                      !isPlaying 
-                        ? 'bg-blue-500/15 border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.25)]' 
-                        : 'bg-white/5 border-white/10 hover:border-blue-400/60 hover:bg-white/10'
-                    }`}
+                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#b89628] text-black font-extrabold text-xs uppercase tracking-wide group-hover:brightness-110 shadow-glow-gold">
+                      <Play className="w-3.5 h-3.5 fill-black" />
+                      <span>Aperte o Play</span>
+                    </div>
+                  </button>
+
+                  {/* Opção 2: Modo Descendo a Tela (Rolagem) */}
+                  <button
+                    type="button"
+                    onClick={handleSelectScrollMode}
+                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-black/70 hover:bg-white/5 border border-white/20 hover:border-blue-400 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
                   >
-                    <div className="flex items-center justify-between gap-1 mb-2 font-black text-blue-300 text-xs">
-                      <div className="flex items-center gap-1.5">
-                        <MousePointer className="w-3.5 h-3.5 text-blue-300" />
-                        <span>Modo Manual (Scroll)</span>
-                      </div>
-                      {!isPlaying && (
-                        <span className="text-[9px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-black tracking-wider">
-                          ATIVO
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <span className="px-2 py-0.5 rounded-md bg-blue-500/30 text-blue-300 border border-blue-400/40 font-bold text-[10px] uppercase tracking-wider">
+                          Manual
                         </span>
-                      )}
+                        <span className="text-[11px] font-bold text-gray-400">No seu ritmo</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-400/50 flex items-center justify-center shrink-0">
+                          <MousePointer className="w-4 h-4 text-blue-300" />
+                        </div>
+                        <span className="text-sm font-black text-white group-hover:text-blue-200">
+                          Modo Descendo a Tela
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-300 leading-relaxed">
+                        Você controla as etapas <strong>descendo a tela</strong> com o mouse ou deslizando o dedo no celular, analisando cada detalhe técnico com calma.
+                      </p>
                     </div>
-                    <p className="text-gray-300 text-[11px] leading-relaxed mb-2">
-                      Role a tela com a <strong>rodinha do mouse 🖱️</strong> ou <strong>deslize o dedo 📱</strong> para controlar o ritmo de cada fase da engenharia.
-                    </p>
-                    <div className="text-[10px] text-blue-200/90 bg-blue-950/40 p-2 rounded-lg border border-blue-500/20 leading-relaxed">
-                      Perfeito para pausar na temperatura exata, observar os sensores da coifa, conferir as conexões inox e inspecionar a tela da central.
+
+                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-gray-200 font-bold text-xs uppercase tracking-wide group-hover:border group-hover:border-blue-400/60">
+                      <ChevronDown className="w-3.5 h-3.5 text-blue-300" />
+                      <span>Descendo a Tela</span>
                     </div>
-                  </div>
+                  </button>
+
                 </div>
 
                 {/* Rodapé / Dica */}
-                <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-300">
-                  <span className="flex items-center gap-1.5 text-gray-300">
-                    <span className="text-amber-400 font-bold">💡 Alternância Fácil:</span> Se você rolar a tela durante o Play, a simulação pausa na hora para você assumir!
-                  </span>
-                  <button
-                    onClick={() => setShowModeExplanation(false)}
-                    className="px-3 py-1 rounded-lg bg-[#d4af37] text-black font-extrabold text-[11px] hover:bg-[#f3e5ab] transition-all cursor-pointer"
-                  >
-                    Entendido
-                  </button>
+                <div className="mt-5 pt-3 border-t border-white/10 text-center text-[11px] text-gray-400">
+                  💡 Você pode alternar entre os dois modos a qualquer momento durante a simulação!
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* BARRA CENTRAL DE COMANDOS (PLAY/PAUSE, MODO SCROLL, AJUDA E FASES) */}
+          {/* INDICADOR COM SETAS ANIMADAS PARA BAIXO (MODO DESCENDO A TELA) */}
+          {!isPlaying && (simStage === 'STANDBY' || showScrollPromptArrows) && (
+            <div 
+              onClick={handleScrollDownStep}
+              className="absolute bottom-24 sm:bottom-28 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 cursor-pointer group pointer-events-auto select-none"
+              title="Role para baixo com o mouse ou deslize o dedo para ver a simulação"
+            >
+              {/* Badge Chamativo */}
+              <div className="px-4 py-2 rounded-2xl bg-black/90 backdrop-blur-md border border-[#d4af37] shadow-[0_0_30px_rgba(212,175,55,0.5)] flex items-center gap-2.5 text-xs font-bold text-[#f3e5ab] group-hover:scale-105 transition-all">
+                <MousePointer className="w-4 h-4 text-[#d4af37] animate-pulse" />
+                <span className="font-extrabold uppercase tracking-wide text-white">
+                  Role a tela para baixo
+                </span>
+                <span className="text-[#d4af37] font-black text-sm">👇</span>
+              </div>
+
+              {/* Setas Douradas Triplas em Cascata Animadas */}
+              <div className="flex flex-col items-center -space-y-2 mt-1">
+                <ChevronDown className="w-7 h-7 text-[#d4af37] animate-bounce" />
+                <ChevronDown className="w-6 h-6 text-[#f3e5ab] animate-bounce [animation-delay:150ms]" />
+                <ChevronDown className="w-5 h-5 text-white/80 animate-bounce [animation-delay:300ms]" />
+              </div>
+            </div>
+          )}
+
+          {/* 4. BARRA INFERIOR COM CONTROLES DE REPRODUÇÃO (PLAY/PAUSE & SCROLL), SETA DOURADA E FASES */}
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3 pointer-events-none">
+
+            {/* BARRA CENTRAL DE COMANDOS (PLAY/PAUSE, MODO DESCENDO A TELA, ESCOLHER MODO E FASES) */}
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 bg-black/90 backdrop-blur-md px-3.5 sm:px-5 py-2 rounded-2xl border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full pointer-events-auto">
               
               {/* Botão Play / Pause Auto-Scroll */}
               <button
                 onClick={togglePlayPause}
-                aria-label={isPlaying ? 'Pausar apresentação automática' : 'Iniciar apresentação automática'}
+                aria-label={isPlaying ? 'Pausar apresentação automática' : 'Aperte o Play para apresentação automática'}
                 className={`py-1.5 px-3.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all duration-300 shadow-md cursor-pointer ${
                   isPlaying
                     ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-[#d4af37] text-black shadow-[0_0_20px_rgba(245,158,11,0.8)] scale-105 animate-pulse'
                     : 'bg-[#181a20] hover:bg-[#22252c] text-[#f3e5ab] border border-[#d4af37]/50 hover:border-[#d4af37]'
                 }`}
-                title={isPlaying ? 'Pausar simulação automática' : 'Iniciar apresentação automática contínua'}
+                title={isPlaying ? 'Pausar simulação automática' : 'Iniciar apresentação automática acelerada (~13s)'}
               >
                 {isPlaying ? (
                   <>
@@ -1716,12 +1801,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 ) : (
                   <>
                     <Play className="w-3.5 h-3.5 fill-[#d4af37]" />
-                    <span>Play (Auto)</span>
+                    <span>Aperte o Play</span>
                   </>
                 )}
               </button>
 
-              {/* Botão / Indicador de Modo Scroll Manual */}
+              {/* Botão / Indicador de Modo Descendo a Tela */}
               <button
                 onClick={handleSetManualMode}
                 className={`py-1.5 px-2.5 sm:px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border ${
@@ -1729,26 +1814,22 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                     ? 'bg-blue-950/40 text-blue-200 border-blue-400/50 shadow-sm'
                     : 'bg-black/50 hover:bg-white/10 text-gray-400 border-white/10'
                 }`}
-                title="Modo Manual: Role a tela livremente com o mouse ou deslize o dedo"
+                title="Modo Descendo a Tela: Role a tela livremente com o mouse ou deslize o dedo"
               >
                 <MousePointer className="w-3 h-3 text-blue-400" />
                 <span className="hidden sm:inline">Modo</span>
-                <span>Scroll</span>
+                <span>Descendo a Tela</span>
               </button>
 
-              {/* Botão de Ajuda / Explicação dos Modos */}
+              {/* Botão para Reabrir Escolha dos Modos */}
               <button
-                onClick={() => setShowModeExplanation((prev) => !prev)}
-                className={`p-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1 text-xs ${
-                  showModeExplanation
-                    ? 'bg-[#d4af37] text-black border-[#d4af37] shadow-glow-gold'
-                    : 'bg-white/5 hover:bg-white/15 text-gray-300 border-white/15'
-                }`}
-                title="Entenda a diferença entre o Modo Automático (Play) e Modo Manual (Scroll)"
-                aria-label="Ajuda sobre os modos"
+                onClick={() => setShowEntryModal(true)}
+                className="py-1.5 px-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white transition-all cursor-pointer flex items-center gap-1 text-xs"
+                title="Escolher entre Apresentação Automática ou Modo Descendo a Tela"
+                aria-label="Escolher Modo"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-[#d4af37]" />
-                <span className="text-[11px] hidden md:inline font-bold">Modos</span>
+                <span className="text-[11px] font-bold">Escolher Modo</span>
               </button>
 
               {/* Divisor vertical */}
@@ -1770,7 +1851,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                     <span className="text-xs sm:text-sm font-bold text-gray-200">
-                      Cozinha em Standby • <span className="text-[#d4af37]">{isPlaying ? 'Reproduzindo...' : 'Play ou Role para descer'}</span>
+                      Cozinha em Standby • <span className="text-[#d4af37]">{isPlaying ? 'Reproduzindo...' : 'Aperte o Play ou Desça a tela'}</span>
                     </span>
                   </div>
                 )}
