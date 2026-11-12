@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { 
   Flame, ShieldCheck, AlertOctagon, ZapOff, Wind, Droplets, 
   RotateCcw, Sparkles, BellRing, Eye, Camera, CheckCircle2,
-  ChevronDown, Radio, XCircle, User
+  ChevronDown, Radio, XCircle, User, Play, Pause, MousePointer, HelpCircle
 } from 'lucide-react';
 import { 
   createNormalizedIhmScreenCanvas, 
@@ -35,6 +35,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   // Scrollytelling Scroll Progress (0 to 1)
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const scrollProgressRef = useRef<number>(0);
+
+  // Auto-Play / Pause State & Modo Scroll
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const autoPlayRafRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number>(0);
+  const [showModeExplanation, setShowModeExplanation] = useState<boolean>(false);
 
   // Manual Trigger Override (if user clicks Acionador Manual)
   const [manualOverride, setManualOverride] = useState<boolean>(false);
@@ -118,6 +124,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   // Regra crítica do cliente: ao puxar o acionador manual, inicia a contagem regressiva
   // e NÃO despeja o saponificante antes de zerar a contagem!
   const handleManualTrigger = useCallback(() => {
+    setIsPlaying(false);
     if (simStage === 'SUPPRESSION' || simStage === 'EXTINGUISHED') return;
 
     if (manualPullLeverRef.current) {
@@ -141,6 +148,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
   // --- ABORTAR DISPARO (ANULAR DISPARO EM FALSO CONFORME REQUISITO) ---
   const handleAbortDisparo = useCallback(() => {
+    setIsPlaying(false);
     manualOverrideRef.current = false;
     setManualOverride(false);
     setIsManualCountdown(false);
@@ -183,10 +191,113 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   };
 
   const scrollToNextSection = () => {
+    setIsPlaying(false);
     if (!containerRef.current) return;
     const containerBottom = containerRef.current.offsetTop + containerRef.current.offsetHeight;
     window.scrollTo({ top: containerBottom + 10, behavior: 'smooth' });
   };
+
+  // --- CONTROLES DE AUTO-PLAY / PAUSE & MODO MANUAL SCROLL ---
+  const togglePlayPause = useCallback(() => {
+    setIsPlaying((prev) => {
+      const next = !prev;
+      if (next) {
+        // Se a simulação já estava no final (> 0.94), reinicia do início da cozinha instantaneamente
+        if (scrollProgressRef.current >= 0.94) {
+          if (containerRef.current) {
+            const containerTop = containerRef.current.offsetTop;
+            window.scrollTo({ top: containerTop + 20, behavior: 'auto' });
+            scrollProgressRef.current = 0.02;
+            setScrollProgress(0.02);
+          }
+        } else if (scrollProgressRef.current < 0.02 && containerRef.current) {
+          // Se o usuário estiver acima da seção 3D, rola até o início da cozinha
+          const containerTop = containerRef.current.offsetTop;
+          if (window.scrollY < containerTop - 50) {
+            window.scrollTo({ top: containerTop + 20, behavior: 'auto' });
+          }
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSetManualMode = useCallback(() => {
+    setIsPlaying(false);
+  }, []);
+
+  // Loop contínuo e suave com requestAnimationFrame para o Auto-Play cinematográfico
+  useEffect(() => {
+    if (!isPlaying) {
+      if (autoPlayRafRef.current) {
+        cancelAnimationFrame(autoPlayRafRef.current);
+        autoPlayRafRef.current = null;
+      }
+      return;
+    }
+
+    lastTimeRef.current = performance.now();
+
+    const loop = (currentTime: number) => {
+      const dt = Math.min((currentTime - lastTimeRef.current) / 1000, 0.1);
+      lastTimeRef.current = currentTime;
+
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const scrollDist = containerRef.current.offsetHeight - window.innerHeight;
+        
+        if (scrollDist > 0) {
+          const scrolled = -rect.top;
+          const p = scrolled / scrollDist;
+
+          // Ao atingir o final da simulação (Fase 4 extinta), pausa automaticamente
+          if (p >= 0.985) {
+            setIsPlaying(false);
+            if (autoPlayRafRef.current) {
+              cancelAnimationFrame(autoPlayRafRef.current);
+              autoPlayRafRef.current = null;
+            }
+            return;
+          }
+
+          // Duração cinematográfica completa: ~24 segundos para percorrer todo o scrollytelling
+          const totalDuration = 24;
+          const pixelsPerSec = scrollDist / totalDuration;
+          const step = pixelsPerSec * dt;
+
+          window.scrollBy({ top: step, behavior: 'auto' });
+        }
+      }
+
+      autoPlayRafRef.current = requestAnimationFrame(loop);
+    };
+
+    autoPlayRafRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      if (autoPlayRafRef.current) {
+        cancelAnimationFrame(autoPlayRafRef.current);
+        autoPlayRafRef.current = null;
+      }
+    };
+  }, [isPlaying]);
+
+  // Interrupção inteligente por rolagem manual (mouse wheel ou touchmove na tela)
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const handleUserInterrupt = () => {
+      setIsPlaying(false);
+    };
+
+    window.addEventListener('wheel', handleUserInterrupt, { passive: true });
+    window.addEventListener('touchmove', handleUserInterrupt, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleUserInterrupt);
+      window.removeEventListener('touchmove', handleUserInterrupt);
+    };
+  }, [isPlaying]);
 
 
 
@@ -233,6 +344,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
   // --- RESET SCENE ACTION ---
   const handleResetScene = useCallback(() => {
+    setIsPlaying(false);
     manualOverrideRef.current = false;
     setManualOverride(false);
     setIsManualCountdown(false);
@@ -1317,11 +1429,14 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         <button 
           onClick={scrollToKitchen}
           aria-label="Descer para a simulação da cozinha"
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 group cursor-pointer focus:outline-none"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 group cursor-pointer focus:outline-none z-30"
         >
           <div className="w-12 h-12 rounded-full border border-[#d4af37]/50 bg-black/70 backdrop-blur-md flex items-center justify-center shadow-[0_0_25px_rgba(212,175,55,0.35)] group-hover:border-[#d4af37] group-hover:scale-110 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all">
             <ChevronDown className="w-6 h-6 text-[#d4af37] animate-bounce" />
           </div>
+          <span className="text-[11px] font-bold text-[#f3e5ab] tracking-wide uppercase opacity-85 group-hover:opacity-100 flex items-center gap-1.5 bg-black/60 px-3 py-1 rounded-full border border-[#d4af37]/30 backdrop-blur-sm shadow-md">
+            <span>Iniciar Simulação 3D Interativa</span>
+          </span>
         </button>
       </section>
 
@@ -1476,45 +1591,204 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             </div>
           )}
 
-          {/* 4. BARRA INFERIOR COM SETA DOURADA PISCANTE E INDICADOR DE FASES */}
+          {/* 4. BARRA INFERIOR COM CONTROLES DE REPRODUÇÃO (PLAY/PAUSE & SCROLL), SETA DOURADA E FASES */}
           <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3 pointer-events-none">
             
-            {/* BARRA CENTRAL DE FASES E SETA DOURADA */}
-            <div className="flex items-center gap-3 bg-black/85 backdrop-blur-md px-5 py-2.5 rounded-full border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full overflow-hidden pointer-events-auto">
+            {/* CARD EXPLICATIVO DOS MODOS (POP-UP ELEGANTE DOURADO / PRETO OBSIDIANA) */}
+            {showModeExplanation && (
+              <div className="w-full max-w-xl bg-black/95 backdrop-blur-xl border border-[#d4af37]/60 rounded-2xl p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.95)] text-white pointer-events-auto animate-fadeIn relative mb-1">
+                {/* Cabeçalho do Card */}
+                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3.5">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                    <h4 className="font-black text-xs sm:text-sm tracking-wide text-[#f3e5ab] uppercase">
+                      Como Navegar na Simulação 3D Outfire
+                    </h4>
+                  </div>
+                  <button 
+                    onClick={() => setShowModeExplanation(false)}
+                    className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-xs transition-all cursor-pointer"
+                    aria-label="Fechar explicação dos modos"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Grid comparativo dos 2 Modos */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  {/* 1. Modo Automático (Play) */}
+                  <div 
+                    onClick={() => {
+                      if (!isPlaying) togglePlayPause();
+                      setShowModeExplanation(false);
+                    }}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      isPlaying 
+                        ? 'bg-amber-500/15 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.25)]' 
+                        : 'bg-white/5 border-white/10 hover:border-amber-400/60 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1 mb-2 font-black text-amber-300 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <Play className="w-3.5 h-3.5 fill-amber-300" />
+                        <span>Modo Automático (Play)</span>
+                      </div>
+                      {isPlaying && (
+                        <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded font-black tracking-wider">
+                          ATIVO
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-300 text-[11px] leading-relaxed mb-2">
+                      Aperte o <strong>Play ▶️</strong> e a simulação roda <strong>sozinha</strong> de forma contínua e cinematográfica, sem precisar tocar em nada.
+                    </p>
+                    <div className="text-[10px] text-amber-200/90 bg-amber-950/40 p-2 rounded-lg border border-amber-500/20 leading-relaxed">
+                      Ótimo para assistir como um vídeo: o óleo esquenta, o alarme térmico 145°C apita por 60s, o gás fecha e a extinção Classe K + CO2 atua.
+                    </div>
+                  </div>
+
+                  {/* 2. Modo Manual (Scroll) */}
+                  <div 
+                    onClick={() => {
+                      if (isPlaying) setIsPlaying(false);
+                      setShowModeExplanation(false);
+                    }}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      !isPlaying 
+                        ? 'bg-blue-500/15 border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.25)]' 
+                        : 'bg-white/5 border-white/10 hover:border-blue-400/60 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1 mb-2 font-black text-blue-300 text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <MousePointer className="w-3.5 h-3.5 text-blue-300" />
+                        <span>Modo Manual (Scroll)</span>
+                      </div>
+                      {!isPlaying && (
+                        <span className="text-[9px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-black tracking-wider">
+                          ATIVO
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-300 text-[11px] leading-relaxed mb-2">
+                      Role a tela com a <strong>rodinha do mouse 🖱️</strong> ou <strong>deslize o dedo 📱</strong> para controlar o ritmo de cada fase da engenharia.
+                    </p>
+                    <div className="text-[10px] text-blue-200/90 bg-blue-950/40 p-2 rounded-lg border border-blue-500/20 leading-relaxed">
+                      Perfeito para pausar na temperatura exata, observar os sensores da coifa, conferir as conexões inox e inspecionar a tela da central.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rodapé / Dica */}
+                <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-300">
+                  <span className="flex items-center gap-1.5 text-gray-300">
+                    <span className="text-amber-400 font-bold">💡 Alternância Fácil:</span> Se você rolar a tela durante o Play, a simulação pausa na hora para você assumir!
+                  </span>
+                  <button
+                    onClick={() => setShowModeExplanation(false)}
+                    className="px-3 py-1 rounded-lg bg-[#d4af37] text-black font-extrabold text-[11px] hover:bg-[#f3e5ab] transition-all cursor-pointer"
+                  >
+                    Entendido
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* BARRA CENTRAL DE COMANDOS (PLAY/PAUSE, MODO SCROLL, AJUDA E FASES) */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 bg-black/90 backdrop-blur-md px-3.5 sm:px-5 py-2 rounded-2xl border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full pointer-events-auto">
+              
+              {/* Botão Play / Pause Auto-Scroll */}
+              <button
+                onClick={togglePlayPause}
+                aria-label={isPlaying ? 'Pausar apresentação automática' : 'Iniciar apresentação automática'}
+                className={`py-1.5 px-3.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all duration-300 shadow-md cursor-pointer ${
+                  isPlaying
+                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-[#d4af37] text-black shadow-[0_0_20px_rgba(245,158,11,0.8)] scale-105 animate-pulse'
+                    : 'bg-[#181a20] hover:bg-[#22252c] text-[#f3e5ab] border border-[#d4af37]/50 hover:border-[#d4af37]'
+                }`}
+                title={isPlaying ? 'Pausar simulação automática' : 'Iniciar apresentação automática contínua'}
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="w-3.5 h-3.5 fill-black" />
+                    <span>Pausar</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3.5 h-3.5 fill-[#d4af37]" />
+                    <span>Play (Auto)</span>
+                  </>
+                )}
+              </button>
+
+              {/* Botão / Indicador de Modo Scroll Manual */}
+              <button
+                onClick={handleSetManualMode}
+                className={`py-1.5 px-2.5 sm:px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border ${
+                  !isPlaying
+                    ? 'bg-blue-950/40 text-blue-200 border-blue-400/50 shadow-sm'
+                    : 'bg-black/50 hover:bg-white/10 text-gray-400 border-white/10'
+                }`}
+                title="Modo Manual: Role a tela livremente com o mouse ou deslize o dedo"
+              >
+                <MousePointer className="w-3 h-3 text-blue-400" />
+                <span className="hidden sm:inline">Modo</span>
+                <span>Scroll</span>
+              </button>
+
+              {/* Botão de Ajuda / Explicação dos Modos */}
+              <button
+                onClick={() => setShowModeExplanation((prev) => !prev)}
+                className={`p-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1 text-xs ${
+                  showModeExplanation
+                    ? 'bg-[#d4af37] text-black border-[#d4af37] shadow-glow-gold'
+                    : 'bg-white/5 hover:bg-white/15 text-gray-300 border-white/15'
+                }`}
+                title="Entenda a diferença entre o Modo Automático (Play) e Modo Manual (Scroll)"
+                aria-label="Ajuda sobre os modos"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-[#d4af37]" />
+                <span className="text-[11px] hidden md:inline font-bold">Modos</span>
+              </button>
+
+              {/* Divisor vertical */}
+              <div className="w-[1px] h-5 bg-white/20 hidden sm:block" />
+
               {/* Seta Dourada Interativa com Bounce / Pulse */}
               <button 
                 onClick={handleScrollDownStep}
                 aria-label="Avançar simulação para baixo"
-                className="w-10 h-10 rounded-full bg-gradient-to-b from-[#d4af37]/25 to-black/80 border border-[#d4af37]/60 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-gradient-to-b from-[#d4af37]/25 to-black/80 border border-[#d4af37]/60 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(212,175,55,0.4)] cursor-pointer shrink-0"
+                title="Avançar um passo na simulação"
               >
-                <ChevronDown className={`w-5 h-5 text-[#d4af37] ${simStage !== 'STANDBY' ? 'animate-bounce' : 'animate-pulse'}`} />
+                <ChevronDown className={`w-4 h-4 text-[#d4af37] ${simStage !== 'STANDBY' ? 'animate-bounce' : 'animate-pulse'}`} />
               </button>
 
               {/* Indicador Dinâmico de Fase ao Lado da Seta */}
-              <div className="flex items-center gap-2 truncate">
+              <div className="flex items-center gap-2 truncate max-w-[260px] sm:max-w-md">
                 {simStage === 'STANDBY' && (
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                     <span className="text-xs sm:text-sm font-bold text-gray-200">
-                      Cozinha Industrial em Standby • <span className="text-[#d4af37]">Role para descer</span>
+                      Cozinha em Standby • <span className="text-[#d4af37]">{isPlaying ? 'Reproduzindo...' : 'Play ou Role para descer'}</span>
                     </span>
                   </div>
                 )}
 
                 {simStage === 'HEATING' && (
                   <div className="flex items-center gap-2 animate-pulse">
-                    <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/60 text-amber-300 font-black text-xs shrink-0">
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/60 text-amber-300 font-black text-xs shrink-0">
                       FASE 1
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-amber-200 truncate">
-                      Princípio de Incêndio (Óleo a {telemetry.temp}°C) — Continue descendo
+                      Princípio de Incêndio (Óleo a {telemetry.temp}°C)
                     </span>
                   </div>
                 )}
 
                 {simStage === 'FIRE_ALARM' && (
                   <div className="flex items-center gap-2 animate-pulse">
-                    <span className="px-2.5 py-0.5 rounded-md bg-red-600/30 border border-red-500 text-red-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                    <span className="px-2 py-0.5 rounded-md bg-red-600/30 border border-red-500 text-red-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
                       FASE 2
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-red-200 truncate">
@@ -1525,7 +1799,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
                 {simStage === 'SUPPRESSION' && (
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md bg-cyan-600/30 border border-cyan-400 text-cyan-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+                    <span className="px-2 py-0.5 rounded-md bg-cyan-600/30 border border-cyan-400 text-cyan-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(34,211,238,0.5)]">
                       FASE 3
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-cyan-200 truncate">
@@ -1536,11 +1810,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
                 {simStage === 'EXTINGUISHED' && (
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md bg-emerald-600/30 border border-emerald-400 text-emerald-200 font-black text-xs shrink-0">
+                    <span className="px-2 py-0.5 rounded-md bg-emerald-600/30 border border-emerald-400 text-emerald-200 font-black text-xs shrink-0">
                       FASE 4
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-emerald-200 truncate">
-                      Cozinha Preservada • NBR 14518 Cumprida — Continue descendo
+                      Cozinha Preservada • NBR 14518 Cumprida
                     </span>
                   </div>
                 )}
@@ -1647,9 +1921,23 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
           {/* 5. BARRA DE ROLAGEM LATERAL DOURADA & NAVEGADOR DE FASES (SLIM & ELEGANT) */}
           <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-auto">
+            {/* Mini Botão Play/Pause Lateral */}
+            <button
+              onClick={togglePlayPause}
+              title={isPlaying ? "Pausar apresentação automática" : "Auto-Play apresentação contínua"}
+              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+                isPlaying
+                  ? 'bg-amber-400 text-black shadow-[0_0_12px_rgba(251,191,36,0.9)] scale-110'
+                  : 'bg-black/85 hover:bg-[#d4af37] text-[#d4af37] hover:text-black border border-[#d4af37]/50'
+              }`}
+            >
+              {isPlaying ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current ml-0.5" />}
+            </button>
+
             {/* Trilho da Barra Dourada */}
             <div 
               onClick={(e) => {
+                setIsPlaying(false);
                 const rect = e.currentTarget.getBoundingClientRect();
                 const clickY = e.clientY - rect.top;
                 const ratio = Math.max(0, Math.min(1, clickY / rect.height));
@@ -1678,7 +1966,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 return (
                   <button
                     key={item.label}
-                    onClick={() => scrollToProgress(item.progress)}
+                    onClick={() => {
+                      setIsPlaying(false);
+                      scrollToProgress(item.progress);
+                    }}
                     title={item.title}
                     className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all ${
                       isActive
@@ -1694,7 +1985,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
             {/* Atalho para sair da simulação / avançar para a próxima seção */}
             <button
-              onClick={scrollToNextSection}
+              onClick={() => {
+                setIsPlaying(false);
+                scrollToNextSection();
+              }}
               title="Avançar para a Central Outfire"
               className="mt-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black/80 hover:bg-black border border-[#d4af37]/50 text-[#d4af37] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-glow-gold"
               aria-label="Avançar para a próxima seção"
