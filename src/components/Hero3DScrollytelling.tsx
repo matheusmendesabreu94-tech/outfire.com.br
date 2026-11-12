@@ -1587,6 +1587,19 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                     <span>Restaurar</span>
                   </button>
                 )}
+
+                {/* Botao Direto de Conversao na Fase 4 */}
+                {simStage === 'EXTINGUISHED' && (
+                  <button
+                    onClick={scrollToNextSection}
+                    className="py-2 px-3.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#b89628] hover:from-[#f3e5ab] hover:to-[#d4af37] text-black font-extrabold text-xs flex items-center gap-1.5 shadow-glow-gold hover:scale-105 active:scale-95 transition-all animate-pulse"
+                    title="Avançar para a escolha de Kits e Instalação"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 fill-black" />
+                    <span>Escolher Minha Solução</span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
 
               {/* Câmeras Rápidas */}

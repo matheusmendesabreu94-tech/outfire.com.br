@@ -16,6 +16,7 @@ import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { ClientPortalModal } from './components/portal/ClientPortalModal';
 import { OutfireOpsPortal } from './components/ops/OutfireOpsPortal';
 import { SolutionsPopupModal } from './components/SolutionsPopupModal';
+import { ActionHubFastPath } from './components/ActionHubFastPath';
 
 function AppContent() {
   const [isPortalOpen, setIsPortalOpen] = useState(false);
@@ -72,7 +73,10 @@ function AppContent() {
         {/* 1. 3D Scrollytelling Hero */}
         <Hero3DScrollytelling onOpenPortal={handleOpenPortal} />
 
-        {/* 2. Central Outfire VTS 32S3 Presentation */}
+        {/* 2. Hub de Ação Rápida & Conversão Direta (Os 4 Caminhos Comerciais) */}
+        <ActionHubFastPath />
+
+        {/* 3. Central Outfire VTS 32S3 Presentation */}
         <SystemPresentation />
 
         {/* 3. Why Outfire: The Danger of Water & Class K Chemistry */}
