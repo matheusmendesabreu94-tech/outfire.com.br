@@ -72,10 +72,10 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     name: 'Sensor 145°C + Damper',
     timeStart: 9.5,
     timeEnd: 14.5,
-    camPos: [-0.45, 2.10, 0.70],
-    camLook: [-0.55, 2.05, 0.08],
-    camPosMobile: [-0.45, 2.10, 0.95],
-    camLookMobile: [-0.55, 2.05, 0.08],
+    camPos: [-0.45, 1.95, 0.85],
+    camLook: [-0.55, 1.85, 0.20],
+    camPosMobile: [-0.45, 1.95, 1.10],
+    camLookMobile: [-0.55, 1.85, 0.20],
     badgeTitle: '3. Sensor Blindado 145°C Detecta Calor Crítico (NBR 14518)',
     badgeDesc: 'Ao atingir 145°C na coifa, o sensor térmico blindado emite sinal eletrônico instantâneo para disparo do damper e central!',
     icon: 'damper',
@@ -1289,7 +1289,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     // - Ponta chanfrada com fecho hermético soldado
     // =========================================================================
     const sensorGroup = new THREE.Group();
-    sensorGroup.position.set(-0.55, -0.16, 0.10);
+    sensorGroup.position.set(-0.55, -0.28, 0.20); // Posicionado visivelmente abaixo da linha da coifa
     sensorGroup.rotation.x = 0.08; // Ligeira inclinação realista para a zona de convecção de calor
     hoodGroup.add(sensorGroup);
     shieldedSensorGroupRef.current = sensorGroup;
@@ -1587,7 +1587,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     // - Bicos aspersores Classe K com orifício de alta pressão
     // - Capas protetoras brancas de borracha/silicone na ponta dos bicos
     // =========================================================================
-    
+
     // 1. Duas Luminárias Navais Herméticas Tipo Tartaruga no Teto da Coifa
     const matBulkheadBase = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6, roughness: 0.4 });
     const matBulkheadGlass = new THREE.MeshStandardMaterial({
@@ -1655,11 +1655,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     }
 
     // 3. Quatro Tubos Verticais Descendentes com União Sextavada e Bicos com Capa de Borracha
+    // Estendidos bem abaixo da linha inferior da coifa para visualização 100% clara e desobstruída
     const nozzleDropSpecs = [
-      { x: -0.70, z: 0.08, angleX: 0.12, target: 'Fritadeira (Esquerda)' },
-      { x: -0.38, z: 0.08, angleX: 0.10, target: 'Fritadeira (Centro)' },
-      { x: 0.48, z: 0.08, angleX: 0.08, target: 'Fogão / Panela' },
-      { x: 0.85, z: 0.08, angleX: 0.08, target: 'Chapa / Cooktop' },
+      { x: -0.70, z: 0.16, target: 'Fritadeira (Esquerda)' },
+      { x: -0.38, z: 0.16, target: 'Fritadeira (Centro)' },
+      { x: 0.48, z: 0.16, target: 'Fogão / Panela' },
+      { x: 0.85, z: 0.16, target: 'Chapa / Cooktop' },
     ];
 
     const matWhiteCap = new THREE.MeshStandardMaterial({
@@ -1690,53 +1691,56 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
       // Tubo de avanço superior horizontal
       const horizSub = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.007, 0.007, 0.20, 16),
+        new THREE.CylinderGeometry(0.007, 0.007, 0.28, 16),
         matStainlessSteel
       );
       horizSub.rotation.x = Math.PI / 2;
-      horizSub.position.set(0, 0, 0.10);
+      horizSub.position.set(0, 0, 0.14);
       dropAssembly.add(horizSub);
 
       // Tubo Vertical Descendente em Aço Inox (Drop Pipe)
+      // Desce da linha do teto (y = 0.18) ultrapassando a borda inferior da coifa (y = -0.30)
       const vertDropGroup = new THREE.Group();
-      vertDropGroup.position.set(0, 0, 0.20);
+      vertDropGroup.position.set(0, 0, 0.28);
       dropAssembly.add(vertDropGroup);
 
+      // Tubo descendente longo (0.70m) que desce ~22cm abaixo da borda da coifa
       const dropPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.007, 0.007, 0.38, 16),
+        new THREE.CylinderGeometry(0.007, 0.007, 0.70, 16),
         matStainlessSteel
       );
-      dropPipe.position.set(0, -0.19, 0);
+      dropPipe.position.set(0, -0.35, 0);
       vertDropGroup.add(dropPipe);
 
       // UNIÃO SEXTAVADA DUPLA DE COMPRESSÃO (Exatamente como na foto real!)
+      // Posicionada 22.5cm abaixo da linha da coifa, visível no ar livre
       const upperHexNut = new THREE.Mesh(
         new THREE.CylinderGeometry(0.013, 0.013, 0.015, 6),
         matStainlessSteel
       );
-      upperHexNut.position.set(0, -0.375, 0);
+      upperHexNut.position.set(0, -0.705, 0);
       vertDropGroup.add(upperHexNut);
 
       const unionBody = new THREE.Mesh(
         new THREE.CylinderGeometry(0.010, 0.010, 0.012, 16),
         matStainlessSteel
       );
-      unionBody.position.set(0, -0.387, 0);
+      unionBody.position.set(0, -0.720, 0);
       vertDropGroup.add(unionBody);
 
       const lowerHexNut = new THREE.Mesh(
         new THREE.CylinderGeometry(0.013, 0.013, 0.015, 6),
         matStainlessSteel
       );
-      lowerHexNut.position.set(0, -0.399, 0);
+      lowerHexNut.position.set(0, -0.735, 0);
       vertDropGroup.add(lowerHexNut);
 
-      // CORPO USINADO DO BICO ASPERSOR CLASSE K
+      // CORPO USINADO DO BICO ASPERSOR CLASSE K (27.5cm abaixo da linha da coifa)
       const nozzleBody = new THREE.Mesh(
         new THREE.CylinderGeometry(0.011, 0.008, 0.024, 6),
         matStainlessSteel
       );
-      nozzleBody.position.set(0, -0.415, 0);
+      nozzleBody.position.set(0, -0.755, 0);
       vertDropGroup.add(nozzleBody);
 
       // Orifício de descarga de alta pressão
@@ -1744,22 +1748,23 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         new THREE.CylinderGeometry(0.0035, 0.0035, 0.008, 16),
         new THREE.MeshBasicMaterial({ color: 0x0f172a })
       );
-      nozzleOrifice.position.set(0, -0.428, 0);
+      nozzleOrifice.position.set(0, -0.770, 0);
       vertDropGroup.add(nozzleOrifice);
 
       // CAPA PROTETORA BRANCA DE BORRACHA/SILICONE (Blow-off Cap na foto real!)
+      // Quase 30cm abaixo da linha da coifa, 100% destacada e visível em primeiro plano
       const blowOffCap = new THREE.Mesh(
         new THREE.CylinderGeometry(0.010, 0.010, 0.018, 16),
         matWhiteCap
       );
-      blowOffCap.position.set(0, -0.426, 0);
+      blowOffCap.position.set(0, -0.768, 0);
       vertDropGroup.add(blowOffCap);
 
       const capTipDome = new THREE.Mesh(
         new THREE.SphereGeometry(0.010, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
         matWhiteCap
       );
-      capTipDome.position.set(0, -0.435, 0);
+      capTipDome.position.set(0, -0.778, 0);
       vertDropGroup.add(capTipDome);
 
       // Tira flexível de borracha de retenção da capa
@@ -1768,7 +1773,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         matWhiteCap
       );
       capStrap.rotation.x = Math.PI / 2;
-      capStrap.position.set(0, -0.410, 0.006);
+      capStrap.position.set(0, -0.748, 0.006);
       vertDropGroup.add(capStrap);
     });
 
@@ -2161,9 +2166,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     for (let i = 0; i < sprayCount; i++) {
       const sp = new THREE.Mesh(sprayGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 }));
-      sp.position.set(-0.55, 1.9, 0);
+      sp.position.set(-0.55, 1.70, 0.16);
       sp.userData = {
-        origY: 1.98,
+        origY: 1.70,
         speed: 3.5 + Math.random() * 2.0,
         spread: (Math.random() - 0.5) * 0.4,
       };
