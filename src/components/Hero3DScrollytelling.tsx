@@ -187,8 +187,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const activeScenarioRef = useRef<'real_fire' | 'accidental_discharge'>('real_fire');
   activeScenarioRef.current = activeScenario;
 
-  const [accidentalStep, setAccidentalStep] = useState<'idle' | 'walking' | 'falling' | 'alarm_waiting_click' | 'aborted'>('idle');
-  const accidentalStepRef = useRef<'idle' | 'walking' | 'falling' | 'alarm_waiting_click' | 'aborted'>('idle');
+  const [accidentalStep, setAccidentalStep] = useState<'idle' | 'wide_kitchen' | 'worker_entering' | 'plates_falling' | 'alarm_waiting_click' | 'aborted'>('idle');
+  const accidentalStepRef = useRef<'idle' | 'wide_kitchen' | 'worker_entering' | 'plates_falling' | 'alarm_waiting_click' | 'aborted'>('idle');
   accidentalStepRef.current = accidentalStep;
 
   // Áudio Mudo / Ligado & Controle do Áudio Oficial da Central
@@ -473,8 +473,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     stopAllAudioCycles();
     setActiveScenario('accidental_discharge');
     activeScenarioRef.current = 'accidental_discharge';
-    setAccidentalStep('walking');
-    accidentalStepRef.current = 'walking';
+    
+    // Inicia na Etapa 1: Cozinha Completa (visão ampla panorâmica)
+    setAccidentalStep('wide_kitchen');
+    accidentalStepRef.current = 'wide_kitchen';
+    
     setShowAbortedModal(false);
     setActiveCameraView('geral');
     setManualAdvanced(false);
@@ -485,19 +488,25 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     hasPlayedSuppressionRef.current = false;
     hasPlayedDamperSnapRef.current = false;
 
+    // Reseta o tempo da simulação para o início (0.0s)
+    simTimeRef.current = 0.0;
+    setSimTime(0.0);
+
+    // Câmera começa em vista panorâmica completa da cozinha
     const isMobile = window.innerWidth < 768;
     if (isMobile) {
-      targetCamPos.current.set(1.4, 1.6, 2.8);
-      targetCamLook.current.set(1.5, 1.35, 0.1);
+      targetCamPos.current.set(0.5, 2.1, 6.8);
+      targetCamLook.current.set(0.5, 1.3, 0);
     } else {
-      targetCamPos.current.set(1.4, 1.6, 2.3);
-      targetCamLook.current.set(1.5, 1.35, 0.1);
+      targetCamPos.current.set(0, 2.2, 4.4);
+      targetCamLook.current.set(0, 1.4, 0);
     }
 
+    // Lavador começa fora de cena (à direita)
     if (dishwasherGroupRef.current) {
-      dishwasherGroupRef.current.visible = true;
-      dishwasherGroupRef.current.position.set(2.8, 0, 0.3);
-      dishwasherGroupRef.current.rotation.y = -Math.PI / 2;
+      dishwasherGroupRef.current.visible = false;
+      dishwasherGroupRef.current.position.set(3.8, 0, 0.35);
+      dishwasherGroupRef.current.rotation.set(0, -Math.PI / 2, 0);
     }
     if (platesStackGroupRef.current) {
       platesStackGroupRef.current.rotation.set(0, 0, 0);
@@ -519,7 +528,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setCountdown(60);
     countdownRef.current = 60;
     setTelemetry({
-      temp: 180,
+      temp: 24,
       gasStatus: 'ABERTO',
       exhaustStatus: 'LIGADO',
       systemStatus: 'PRONTIDÃO',
@@ -595,19 +604,31 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   }, [startRealFireScenario]);
 
   const jumpToTime = useCallback((timeSec: number) => {
-    const clamped = Math.max(0, Math.min(TOTAL_SIM_DURATION, timeSec));
+    const maxDur = activeScenarioRef.current === 'real_fire' ? TOTAL_SIM_DURATION : 70.0;
+    const clamped = Math.max(0, Math.min(maxDur, timeSec));
     simTimeRef.current = clamped;
     setSimTime(clamped);
 
-    // Se o usuário pular para trás antes do alarme, reseta áudios
-    if (clamped < 6.8) {
-      hasPlayedDamperSnapRef.current = false;
-    }
-    if (clamped < 10.5) {
-      hasPlayedAlarmAudioRef.current = false;
-      hasPlayedGasCutoffRef.current = false;
-      hasPlayedSuppressionRef.current = false;
-      stopAllAudioCycles();
+    if (activeScenarioRef.current === 'real_fire') {
+      // Se o usuário pular para trás antes do alarme, reseta áudios
+      if (clamped < 6.8) {
+        hasPlayedDamperSnapRef.current = false;
+      }
+      if (clamped < 10.5) {
+        hasPlayedAlarmAudioRef.current = false;
+        hasPlayedGasCutoffRef.current = false;
+        hasPlayedSuppressionRef.current = false;
+        stopAllAudioCycles();
+      }
+    } else {
+      // Disparo acidental
+      if (clamped < 9.2) {
+        if (manualPullLeverRef.current) manualPullLeverRef.current.rotation.x = 0;
+      }
+      if (clamped < 10.2) {
+        hasPlayedAlarmAudioRef.current = false;
+        stopAllAudioCycles();
+      }
     }
   }, [stopAllAudioCycles]);
 
@@ -1905,12 +1926,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       const time = clock.getElapsedTime();
 
       // --- AVANÇO AUTOMATIZADO DO TEMPO DA SIMULAÇÃO ---
-      if (isPlayingRef.current && activeScenarioRef.current === 'real_fire') {
-        const nextTime = Math.min(TOTAL_SIM_DURATION, simTimeRef.current + delta);
+      if (isPlayingRef.current) {
+        const maxDuration = activeScenarioRef.current === 'real_fire' ? TOTAL_SIM_DURATION : 70.0;
+        const nextTime = Math.min(maxDuration, simTimeRef.current + delta);
         simTimeRef.current = nextTime;
         setSimTime(nextTime);
 
-        if (nextTime >= TOTAL_SIM_DURATION) {
+        if (nextTime >= maxDuration) {
           setIsPlaying(false);
           isPlayingRef.current = false;
         }
@@ -2302,55 +2324,167 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
       // 6. Cenário Cômico de Disparo Acidental (Lavador de Pratos)
       if (activeScenarioRef.current === 'accidental_discharge') {
-        const step = accidentalStepRef.current;
+        const isMobile = window.innerWidth < 768;
         const dw = dishwasherGroupRef.current;
         const plates = platesStackGroupRef.current;
         const fallingPlate = fallingPlateMeshRef.current;
 
-        if (dw && dw.visible) {
-          if (step === 'walking') {
-            dw.position.x = Math.max(1.78, dw.position.x - delta * 0.95);
-            dw.rotation.z = Math.sin(time * 12) * 0.08;
+        // ETAPA 1: COMEÇA MOSTRANDO A COZINHA TODA EM STANDBY (0.0s a 3.2s)
+        if (curTime < 3.2) {
+          if (accidentalStepRef.current !== 'wide_kitchen') {
+            setAccidentalStep('wide_kitchen');
+            accidentalStepRef.current = 'wide_kitchen';
+          }
+          if (dw) {
+            dw.visible = false;
+            dw.position.set(3.8, 0, 0.35);
+            dw.rotation.set(0, -Math.PI / 2, 0);
+          }
+          if (plates) plates.rotation.set(0, 0, 0);
+          if (fallingPlate) {
+            fallingPlate.position.set(0, 11 * 0.026 + 0.02, 0);
+            fallingPlate.rotation.set(0, 0, 0);
+          }
+          if (manualPullLeverRef.current) manualPullLeverRef.current.rotation.x = 0;
+
+          // Câmera aberta panorâmica da cozinha completa
+          targetCamPos.current.set(isMobile ? 0.5 : 0, isMobile ? 2.1 : 2.2, isMobile ? 6.8 : 4.4);
+          targetCamLook.current.set(isMobile ? 0.5 : 0, isMobile ? 1.3 : 1.4, 0);
+
+          setCinematicBadge({
+            title: '1. Cozinha em Operação Normal',
+            desc: 'Supervisão eletrônica Outfire em prontidão. Cozinha a pleno vapor com equipes e equipamentos em atividade.',
+            iconType: 'shield',
+          });
+
+          setSimStage('STANDBY');
+          simStageRef.current = 'STANDBY';
+          setCountdown(60);
+          countdownRef.current = 60;
+          setTelemetry({
+            temp: 24,
+            gasStatus: 'ABERTO',
+            exhaustStatus: 'LIGADO',
+            systemStatus: 'PRONTIDÃO',
+            countdown: 60,
+          });
+
+        // ETAPA 2: FUNCIONÁRIO DESAJEITADO ENTRA COM A PILHA DE PRATOS (3.2s a 7.8s)
+        } else if (curTime < 7.8) {
+          if (accidentalStepRef.current !== 'worker_entering') {
+            setAccidentalStep('worker_entering');
+            accidentalStepRef.current = 'worker_entering';
+          }
+          if (dw) {
+            dw.visible = true;
+            // Movimento suave de entrada da porta (3.8) até perto da botoeira (1.80)
+            const walkProgress = (curTime - 3.2) / 4.6;
+            dw.position.x = THREE.MathUtils.lerp(3.8, 1.80, walkProgress);
+            dw.position.z = 0.32;
+
+            // Animação cômica de caminhada e bamboleio desajeitado
+            dw.rotation.z = Math.sin(time * 8) * 0.12;
+            dw.position.y = Math.abs(Math.sin(time * 8)) * 0.035;
+
             if (plates) {
-              plates.rotation.z = Math.sin(time * 14) * 0.14;
+              // Pilha gigante oscilando perigosamente
+              plates.rotation.z = Math.sin(time * 9) * 0.22;
+              plates.rotation.x = Math.sin(time * 7) * 0.10;
             }
-            targetCamPos.current.set(1.4, 1.6, 2.3);
-            targetCamLook.current.set(1.45, 1.35, 0.1);
+          }
 
-            if (dw.position.x <= 1.82) {
-              setAccidentalStep('falling');
-              accidentalStepRef.current = 'falling';
-            }
-          } else if (step === 'falling') {
-            if (plates) {
-              plates.rotation.x = Math.min(0.68, plates.rotation.x + delta * 2.8);
-            }
-            if (fallingPlate) {
-              fallingPlate.position.y -= delta * 1.6;
-              fallingPlate.position.z -= delta * 0.75;
-              fallingPlate.position.x -= delta * 0.55;
-              fallingPlate.rotation.x += delta * 9;
+          // Câmera acompanha o funcionário suavemente aproximando
+          targetCamPos.current.set(isMobile ? 1.5 : 1.45, 1.6, isMobile ? 2.8 : 2.4);
+          targetCamLook.current.set(1.65, 1.35, 0.15);
 
-              if (fallingPlate.position.y <= 0.22) {
-                soundEffects.playClackImpact();
-                if (manualPullLeverRef.current) {
-                  manualPullLeverRef.current.rotation.x = 0.65;
-                }
-                startOfficialAlarmAudioCycle();
-                setAccidentalStep('alarm_waiting_click');
-                accidentalStepRef.current = 'alarm_waiting_click';
-                setSimStage('FIRE_ALARM');
-                simStageRef.current = 'FIRE_ALARM';
-                setCountdown(60);
-                countdownRef.current = 60;
+          setCinematicBadge({
+            title: '2. Funcionário Desajeitado Entra na Cozinha',
+            desc: 'Cuidado! O lavador de pratos tenta equilibrar uma pilha gigante de louças perto dos comandos de emergência...',
+            iconType: 'plates',
+          });
 
-                targetCamPos.current.set(2.1, 1.8, 0.65);
-                targetCamLook.current.set(2.1, 1.8, 0.15);
-              }
+        // ETAPA 3: O FUNCIONÁRIO DERRUBA OS PRATOS NA BOTOEIRA (7.8s a 10.2s)
+        } else if (curTime < 10.2) {
+          if (accidentalStepRef.current !== 'plates_falling') {
+            setAccidentalStep('plates_falling');
+            accidentalStepRef.current = 'plates_falling';
+          }
+
+          const fallProg = Math.min(1, (curTime - 7.8) / 1.6);
+          if (dw) {
+            // Funcionário tomba para trás em desespero
+            dw.rotation.x = THREE.MathUtils.lerp(0, -0.38, fallProg);
+            dw.rotation.z = THREE.MathUtils.lerp(0, 0.25, fallProg);
+          }
+          if (plates) {
+            // Pilha tomba para frente em direção à parede da botoeira
+            plates.rotation.x = THREE.MathUtils.lerp(0, 0.85, fallProg);
+          }
+          if (fallingPlate) {
+            // O prato do topo voa em arco e atinge a alavanca do acionador manual
+            fallingPlate.position.y = THREE.MathUtils.lerp(11 * 0.026 + 0.02, -0.22, fallProg);
+            fallingPlate.position.z = THREE.MathUtils.lerp(0, -0.42, fallProg);
+            fallingPlate.position.x = THREE.MathUtils.lerp(0, -0.30, fallProg);
+            fallingPlate.rotation.x += delta * 12;
+            fallingPlate.rotation.y += delta * 8;
+          }
+
+          // Momento do impacto na botoeira (aos 9.2s)
+          if (curTime >= 9.2 && manualPullLeverRef.current && manualPullLeverRef.current.rotation.x < 0.5) {
+            manualPullLeverRef.current.rotation.x = 0.65;
+            soundEffects.playClackImpact();
+          }
+
+          // Câmera focada no acidente e na botoeira sendo acionada
+          targetCamPos.current.set(1.38, 1.5, 1.85);
+          targetCamLook.current.set(1.45, 1.35, 0.05);
+
+          setCinematicBadge({
+            title: '3. Acidente! Pilha de Pratos Atinge a Botoeira',
+            desc: 'A louça se choca contra a alavanca vermelha de emergência, desarmando o comando manual por engano!',
+            iconType: 'flame',
+          });
+
+        // ETAPA 4: DISPARO DO SISTEMA & ZOOM NA CENTRAL IHM (10.2s em diante)
+        } else {
+          if (accidentalStepRef.current !== 'alarm_waiting_click' && accidentalStepRef.current !== 'aborted') {
+            setAccidentalStep('alarm_waiting_click');
+            accidentalStepRef.current = 'alarm_waiting_click';
+          }
+
+          if (accidentalStepRef.current === 'alarm_waiting_click') {
+            // Dispara o ciclo sonoro oficial se ainda não iniciou
+            if (!hasPlayedAlarmAudioRef.current && !isMutedRef.current) {
+              hasPlayedAlarmAudioRef.current = true;
+              startOfficialAlarmAudioCycle();
             }
-          } else if (step === 'alarm_waiting_click') {
-            targetCamPos.current.set(2.1, 1.8, 0.65);
+
+            setSimStage('FIRE_ALARM');
+            simStageRef.current = 'FIRE_ALARM';
+
+            // Contagem regressiva de segurança diminuindo suavemente a partir de 60s
+            const elapsedSinceAlarm = curTime - 10.2;
+            const cDown = Math.max(1, Math.round(60 - elapsedSinceAlarm));
+            setCountdown(cDown);
+            countdownRef.current = cDown;
+
+            setTelemetry({
+              temp: 24,
+              gasStatus: 'ABERTO',
+              exhaustStatus: 'INTERTRAVADO',
+              systemStatus: 'ALERTA DE FOGO',
+              countdown: cDown,
+            });
+
+            // Zoom cinematográfico dramático na tela LCD da Central Outfire IHM
+            targetCamPos.current.set(isMobile ? 2.05 : 2.1, 1.8, isMobile ? 0.90 : 0.65);
             targetCamLook.current.set(2.1, 1.8, 0.15);
+
+            setCinematicBadge({
+              title: '4. Central Outfire em Alarme — Tempo de Segurança',
+              desc: 'Alarme sonoro ativo! Toque na tela da Central 3D para cancelar o disparo e economizar R$ 15.000!',
+              iconType: 'central',
+            });
           }
         }
       }
@@ -2667,8 +2801,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             </div>
           )}
 
-          {/* BADGE CINEMATOGRÁFICO DE ETAPA (INCÊNDIO REAL - 8 ZOOMS) */}
-          {activeScenario === 'real_fire' && cinematicBadge && (
+          {/* BADGE CINEMATOGRÁFICO DE ETAPA (INCÊNDIO REAL & DISPARO ACIDENTAL) */}
+          {cinematicBadge && accidentalStep !== 'aborted' && (
             <div className="absolute bottom-28 sm:bottom-32 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-xl pointer-events-none animate-fadeIn">
               <div className="bg-black/90 backdrop-blur-xl border border-[#d4af37]/60 p-3.5 sm:p-4 rounded-2xl shadow-[0_0_35px_rgba(212,175,55,0.35)] flex items-center gap-3 text-left">
                 <div className="w-10 h-10 rounded-xl bg-[#d4af37]/20 border border-[#d4af37]/50 flex items-center justify-center shrink-0 shadow-md">
@@ -2680,6 +2814,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                   {cinematicBadge.iconType === 'electrical' && <ZapOff className="w-5 h-5 text-amber-400" />}
                   {cinematicBadge.iconType === 'central' && <Radio className="w-5 h-5 text-[#d4af37] animate-pulse" />}
                   {cinematicBadge.iconType === 'droplets' && <Droplets className="w-5 h-5 text-cyan-300 animate-spin" />}
+                  {cinematicBadge.iconType === 'plates' && <UtensilsCrossed className="w-5 h-5 text-amber-300 animate-bounce" />}
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs sm:text-sm font-black text-white tracking-tight flex items-center gap-2">
@@ -2975,20 +3110,21 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
                     const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-                    jumpToTime(ratio * TOTAL_SIM_DURATION);
+                    const maxDur = activeScenario === 'real_fire' ? TOTAL_SIM_DURATION : 15.0;
+                    jumpToTime(ratio * maxDur);
                   }}
                   className="relative flex-1 h-3 rounded-full bg-white/15 cursor-pointer overflow-hidden group hover:h-3.5 transition-all"
                   title="Clique para avançar ou voltar na simulação"
                 >
                   <div
                     className="h-full bg-gradient-to-r from-red-500 via-amber-400 to-[#d4af37] shadow-[0_0_10px_rgba(212,175,55,0.8)] transition-all duration-75"
-                    style={{ width: `${(simTime / TOTAL_SIM_DURATION) * 100}%` }}
+                    style={{ width: `${Math.min(100, (simTime / (activeScenario === 'real_fire' ? TOTAL_SIM_DURATION : 15.0)) * 100)}%` }}
                   />
                 </div>
 
                 {/* Mostrador de Tempo */}
                 <div className="font-mono text-xs font-bold text-[#f3e5ab] shrink-0">
-                  {formatTime(simTime)} / {formatTime(TOTAL_SIM_DURATION)}
+                  {formatTime(simTime)} / {formatTime(activeScenario === 'real_fire' ? TOTAL_SIM_DURATION : 15.0)}
                 </div>
 
                 {/* Reset Button */}
@@ -3002,27 +3138,52 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 </button>
               </div>
 
-              {/* Linha Inferior: 8 Marcadores de Etapas Cinematográficas */}
+              {/* Linha Inferior: Marcadores de Etapas Cinematográficas */}
               <div className="flex items-center justify-between gap-1 overflow-x-auto py-1 scrollbar-none">
-                {CINEMATIC_ZOOM_STOPS.map((stop, idx) => {
-                  const isActive = activeScenario === 'real_fire' && activeZoomIndex === idx;
-                  return (
-                    <button
-                      key={stop.id}
-                      type="button"
-                      onClick={() => jumpToStage(idx)}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-                        isActive
-                          ? 'bg-[#d4af37] text-black font-extrabold shadow-[0_0_12px_rgba(212,175,55,0.8)] scale-105'
-                          : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
-                      }`}
-                      title={stop.badgeTitle}
-                    >
-                      <span className="font-mono">{stop.label}.</span>
-                      <span className="hidden md:inline">{stop.name}</span>
-                    </button>
-                  );
-                })}
+                {activeScenario === 'real_fire' ? (
+                  CINEMATIC_ZOOM_STOPS.map((stop, idx) => {
+                    const isActive = activeScenario === 'real_fire' && activeZoomIndex === idx;
+                    return (
+                      <button
+                        key={stop.id}
+                        type="button"
+                        onClick={() => jumpToStage(idx)}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isActive
+                            ? 'bg-[#d4af37] text-black font-extrabold shadow-[0_0_12px_rgba(212,175,55,0.8)] scale-105'
+                            : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                        }`}
+                        title={stop.badgeTitle}
+                      >
+                        <span className="font-mono">{stop.label}.</span>
+                        <span className="hidden md:inline">{stop.name}</span>
+                      </button>
+                    );
+                  })
+                ) : (
+                  [
+                    { id: 1, label: '1', name: 'Cozinha Geral', time: 0.0, active: accidentalStep === 'wide_kitchen' },
+                    { id: 2, label: '2', name: 'Entrada dos Pratos', time: 3.2, active: accidentalStep === 'worker_entering' },
+                    { id: 3, label: '3', name: 'Queda na Botoeira', time: 7.8, active: accidentalStep === 'plates_falling' },
+                    { id: 4, label: '4', name: 'Central IHM Alarme', time: 10.2, active: accidentalStep === 'alarm_waiting_click' },
+                  ].map((stop) => {
+                    return (
+                      <button
+                        key={stop.id}
+                        type="button"
+                        onClick={() => jumpToTime(stop.time)}
+                        className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                          stop.active
+                            ? 'bg-amber-400 text-black font-extrabold shadow-[0_0_12px_rgba(245,158,11,0.8)] scale-105'
+                            : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                        }`}
+                      >
+                        <span className="font-mono">{stop.label}.</span>
+                        <span>{stop.name}</span>
+                      </button>
+                    );
+                  })
+                )}
               </div>
 
             </div>
