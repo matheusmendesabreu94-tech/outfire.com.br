@@ -167,48 +167,86 @@ export function drawAlarmScreenToCanvas(canvas: HTMLCanvasElement, seconds: numb
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // 1. Fundo vermelho vívido de alarme
-  ctx.fillStyle = '#ba1016';
+  // 1. Fundo vermelho vívido de alarme (idêntico ao T_ALARME da IHM)
+  ctx.fillStyle = '#b91c1c';
   ctx.fillRect(0, 0, 1024, 768);
 
-  // 2. Header: FOGO DETECTADO
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 54px "Courier New", Courier, monospace';
+  // Helper para desenhar retângulos com cantos arredondados
+  const drawRoundedRect = (x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  };
+
+  // 2. Header Bar com Badge do Setor
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  drawRoundedRect(220, 25, 584, 52, 12);
+  ctx.fill();
+
+  ctx.fillStyle = '#fef08a';
+  ctx.font = 'bold 30px "Courier New", Courier, monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('FOGO DETECTADO', 490, 75);
+  ctx.fillText('SETOR: COIFA 145°C', 512, 51);
 
-  // LED Verde superior direito
+  // LED Verde superior direito de supervisão ativa
   ctx.beginPath();
-  ctx.arc(950, 75, 18, 0, Math.PI * 2);
+  ctx.arc(950, 50, 16, 0, Math.PI * 2);
   ctx.fillStyle = '#22c55e';
   ctx.fill();
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 3.5;
   ctx.strokeStyle = '#ffffff';
   ctx.stroke();
 
-  // 3. Subtítulo: FOGO DETECTADO: SUB-1 / EM DISPARO
+  // 3. Título de Alarme
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 42px "Courier New", Courier, monospace';
-  ctx.fillText('FOGO DETECTADO: SUB-1', 512, 175);
-  ctx.fillText('EM DISPARO', 512, 240);
+  ctx.font = '900 46px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.fillText('DISPARO AUTOMÁTICO EM:', 512, 145);
 
-  // 4. Cronômetro Digital em Ciano (#67e8f9) com efeito de brilho TFT
+  // 4. Cronômetro Digital Gigante (idêntico à IHM)
   const sec = Math.max(0, Math.round(seconds));
-  const timeStr = `${sec}s`;
+  const timeStr = `${String(sec).padStart(2, '0')}s`;
 
   ctx.save();
-  ctx.shadowColor = 'rgba(103, 232, 249, 0.75)';
-  ctx.shadowBlur = 24;
-  ctx.fillStyle = '#67e8f9';
-  ctx.font = '900 185px "Courier New", Courier, monospace';
-  ctx.fillText(timeStr, 512, 440);
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 8;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 220px "Courier New", Courier, monospace';
+  ctx.fillText(timeStr, 512, 360);
   ctx.restore();
 
-  // 5. Rodapé: TOQUE NA TELA PARA ABORTAR
+  // 5. Botão Tátil Branco com texto vermelho: TOQUE NA TELA PARA ABORTAR
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+  ctx.shadowBlur = 25;
+  ctx.shadowOffsetY = 6;
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 38px "Courier New", Courier, monospace';
-  ctx.fillText('TOQUE NA TELA PARA ABORTAR', 512, 670);
+  drawRoundedRect(120, 520, 784, 125, 24);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.strokeStyle = '#fca5a5';
+  ctx.lineWidth = 4;
+  drawRoundedRect(120, 520, 784, 125, 24);
+  ctx.stroke();
+
+  ctx.fillStyle = '#b91c1c';
+  ctx.font = '900 44px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.fillText('TOQUE NA TELA PARA ABORTAR', 512, 582);
+
+  // 6. Subtexto explicativo no rodapé
+  ctx.fillStyle = '#fecaca';
+  ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.fillText('Gás cortado • Dampers fechados • Solenoide armada', 512, 695);
 }
 
 /**

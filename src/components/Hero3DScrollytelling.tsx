@@ -180,15 +180,14 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const accidentalStepRef = useRef<'idle' | 'walking' | 'falling' | 'alarm_waiting_click' | 'aborted'>('idle');
   accidentalStepRef.current = accidentalStep;
 
-  // Áudio Mudo / Ligado
+  // Áudio Mudo / Ligado & Controle do Áudio Oficial da Central
   const [isMuted, setIsMuted] = useState<boolean>(false);
-  const toggleMute = useCallback(() => {
-    setIsMuted((prev) => {
-      const next = !prev;
-      soundEffects.setMuted(next);
-      return next;
-    });
-  }, []);
+  const isMutedRef = useRef<boolean>(false);
+  isMutedRef.current = isMuted;
+
+  const officialAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCycleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sirenStopFnRef = useRef<(() => void) | null>(null);
 
   // Overlay de Notificação Cinematográfica da Câmera
   const [cinematicBadge, setCinematicBadge] = useState<{ title: string; desc: string; iconType: string } | null>(null);
@@ -199,6 +198,79 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const hasPlayedAlarmAudioRef = useRef<boolean>(false);
   const hasPlayedEvacuationRef = useRef<boolean>(false);
   const hasPlayedGasCutoffRef = useRef<boolean>(false);
+
+  const stopAllAudioCycles = useCallback(() => {
+    if (audioCycleTimeoutRef.current) {
+      clearTimeout(audioCycleTimeoutRef.current);
+      audioCycleTimeoutRef.current = null;
+    }
+    if (officialAudioRef.current) {
+      try {
+        officialAudioRef.current.pause();
+        officialAudioRef.current.currentTime = 0;
+      } catch {}
+      officialAudioRef.current = null;
+    }
+    if (sirenStopFnRef.current) {
+      try {
+        sirenStopFnRef.current();
+      } catch {}
+      sirenStopFnRef.current = null;
+    }
+    soundEffects.stopAll();
+  }, []);
+
+  const startOfficialAlarmAudioCycle = useCallback(() => {
+    stopAllAudioCycles();
+    if (isMutedRef.current) return;
+
+    const runCycle = () => {
+      try {
+        // 1. Toca a voz oficial de disparo da coifa 1 (/assets/audio/sensor_coifa.m4a) por 11 segundos
+        const audio = new Audio('/assets/audio/sensor_coifa.m4a');
+        officialAudioRef.current = audio;
+        audio.play().catch(e => console.log('Audio autoplay prevented:', e));
+
+        // 2. Após 11 segundos da voz, toca a sirene de evacuação por 5 segundos
+        audioCycleTimeoutRef.current = setTimeout(() => {
+          if (officialAudioRef.current) {
+            officialAudioRef.current.pause();
+            officialAudioRef.current = null;
+          }
+
+          sirenStopFnRef.current = soundEffects.playEvacuationSiren(5);
+
+          // 3. Após 5 segundos de sirene (total 16s de ciclo), se ainda em alarme, repete a voz por 11s!
+          audioCycleTimeoutRef.current = setTimeout(() => {
+            sirenStopFnRef.current = null;
+            if (simStageRef.current === 'FIRE_ALARM' || accidentalStepRef.current === 'alarm_waiting_click') {
+              runCycle();
+            }
+          }, 5000);
+
+        }, 11000);
+      } catch (err) {
+        console.warn('Erro ao inicializar áudio oficial:', err);
+      }
+    };
+
+    runCycle();
+  }, [stopAllAudioCycles]);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      soundEffects.setMuted(next);
+      if (next) {
+        stopAllAudioCycles();
+      } else {
+        if (simStageRef.current === 'FIRE_ALARM' || accidentalStepRef.current === 'alarm_waiting_click') {
+          startOfficialAlarmAudioCycle();
+        }
+      }
+      return next;
+    });
+  }, [stopAllAudioCycles, startOfficialAlarmAudioCycle]);
 
   // Manual Trigger Override (if user clicks Acionador Manual)
   const [manualOverride, setManualOverride] = useState<boolean>(false);
@@ -322,7 +394,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   // --- ABORTAR DISPARO (ANULAR DISPARO EM FALSO CONFORME REQUISITO) ---
   const handleAbortDisparo = useCallback(() => {
     setIsPlaying(false);
-    soundEffects.stopAll();
+    stopAllAudioCycles();
     soundEffects.playSuccessChime();
 
     manualOverrideRef.current = false;
@@ -331,6 +403,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     if (activeScenarioRef.current === 'accidental_discharge') {
       setAccidentalStep('aborted');
+      setShowAbortedModal(true);
+    } else {
       setShowAbortedModal(true);
     }
 
@@ -361,12 +435,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       systemStatus: 'PRONTIDÃO',
       countdown: 60,
     });
-  }, []);
+  }, [stopAllAudioCycles]);
 
   // --- CENÁRIO 1: INICIAR SIMULAÇÃO DE INCÊNDIO REAL (8 ZOOMS CINEMATOGRÁFICOS) ---
-  const startRealFireScenario = useCallback(() => {
+  const startRealFireScenario = useCallback((autoPlay: boolean = true) => {
     setIsPlaying(false);
-    soundEffects.stopAll();
+    stopAllAudioCycles();
     setActiveScenario('real_fire');
     setAccidentalStep('idle');
     setShowAbortedModal(false);
@@ -406,12 +480,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
       lcdScreenMatRef.current.needsUpdate = true;
     }
-  }, []);
+
+    if (autoPlay) {
+      setIsPlaying(true);
+      setShowScrollPromptArrows(false);
+    }
+  }, [stopAllAudioCycles]);
 
   // --- CENÁRIO 2: INICIAR SIMULAÇÃO DE DISPARO ACIDENTAL (COMÉDIA DOS PRATOS) ---
   const startAccidentalDischargeScenario = useCallback(() => {
     setIsPlaying(false);
-    soundEffects.stopAll();
+    stopAllAudioCycles();
     setActiveScenario('accidental_discharge');
     setAccidentalStep('walking');
     setShowAbortedModal(false);
@@ -447,7 +526,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
       lcdScreenMatRef.current.needsUpdate = true;
     }
-  }, []);
+  }, [stopAllAudioCycles]);
 
   // Helpers de rolagem suave da tela
   const scrollToKitchen = () => {
@@ -574,8 +653,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             return;
           }
 
-          // Duração acelerada solicitada pelo cliente: ~13.5 segundos para apresentação rápida e impactante
-          const totalDuration = 13.5;
+          // Duração cinematográfica completa solicitada pelo cliente: ~25.0 segundos para percorrer as 8 etapas com locução e extinção
+          const totalDuration = 25.0;
           const pixelsPerSec = scrollDist / totalDuration;
           const step = pixelsPerSec * dt;
 
@@ -810,12 +889,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           });
           if (!hasPlayedAlarmAudioRef.current && !isMuted) {
             hasPlayedAlarmAudioRef.current = true;
-            soundEffects.playAlarmBeeps(11);
-            setTimeout(() => {
-              if (activeScenarioRef.current === 'real_fire') {
-                soundEffects.playEvacuationSiren(5);
-              }
-            }, 11000);
+            startOfficialAlarmAudioCycle();
           }
         } else {
           zoomIdx = 7;
@@ -828,6 +902,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             systemStatus: 'INCÊNDIO EXTINTO',
             countdown: 0,
           });
+          stopAllAudioCycles();
         }
 
         setActiveZoomIndex(zoomIdx);
@@ -851,7 +926,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         if (p < 0.20) {
           hasPlayedGasCutoffRef.current = false;
           hasPlayedAlarmAudioRef.current = false;
-          soundEffects.stopAll();
+          stopAllAudioCycles();
         }
       }
     };
@@ -911,8 +986,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     // 1. Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    scene.background = new THREE.Color(0x0a0c10);
-    scene.fog = new THREE.FogExp2(0x0a0c10, 0.035);
+    scene.background = new THREE.Color(0x1a202c);
+    // Cozinha clara sem névoa escura densa para visualização cristalina do inox e equipamentos
+    scene.fog = null;
 
     // 2. Camera com enquadramento responsivo para Mobile e Desktop (zoom 25-30% mais aberto no celular)
     const isMobile = width < 768;
@@ -939,7 +1015,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.25;
     renderer.domElement.style.touchAction = 'pan-y';
     rendererRef.current = renderer;
 
@@ -960,19 +1036,33 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       controlsRef.current = null;
     }
 
-    // 5. Lighting
-    const ambientLight = new THREE.AmbientLight(0xfff6ea, 0.75);
+    // 5. Lighting (Iluminação de Cozinha Industrial Clara com Destaque Especular para Inox)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.3);
-    dirLight.position.set(4, 6, 4);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    dirLight.position.set(3.5, 6, 4);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
     scene.add(dirLight);
 
+    // Calhas de LED industriais brilhantes de teto (iluminam bancada, coifa e central gerando brilho de espelho)
+    const ceilingTroffer1 = new THREE.DirectionalLight(0xffffff, 1.6);
+    ceilingTroffer1.position.set(-1.2, 5.0, 1.5);
+    scene.add(ceilingTroffer1);
+
+    const ceilingTroffer2 = new THREE.DirectionalLight(0xffffff, 1.6);
+    ceilingTroffer2.position.set(1.5, 5.0, 1.5);
+    scene.add(ceilingTroffer2);
+
+    // Luz frontal suave de preenchimento para ambiente limpo e claro
+    const frontFill = new THREE.DirectionalLight(0xf8fafc, 1.3);
+    frontFill.position.set(0, 3.2, 5.5);
+    scene.add(frontFill);
+
     // Spot Light under Hood
-    const hoodSpot = new THREE.SpotLight(0xffd7a0, 2.8, 6, Math.PI / 3, 0.3);
+    const hoodSpot = new THREE.SpotLight(0xfff7ed, 3.4, 7, Math.PI / 3, 0.25);
     hoodSpot.position.set(0, 2.7, 0);
     hoodSpot.target.position.set(0, 0.9, 0);
     scene.add(hoodSpot);
@@ -990,23 +1080,23 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     scene.add(strobeLight);
     centralStrobeLightRef.current = strobeLight;
 
-    // --- MATERIALS (INOX CROMADO ESPELHADO PBR ULTRARREALISTA) ---
+    // --- MATERIALS (INOX CROMADO ESPELHADO PBR ULTRARREALISTA & COZINHA CLARA) ---
     const matStainlessSteel = new THREE.MeshStandardMaterial({
-      color: 0xf5f5f7,
-      metalness: 0.96,
-      roughness: 0.12,
+      color: 0xffffff,
+      metalness: 0.98,
+      roughness: 0.08,
     });
 
-    const matDarkTile = new THREE.MeshStandardMaterial({
-      color: 0x181a1f,
-      roughness: 0.6,
-      metalness: 0.1,
+    const matWhiteTile = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.22,
+      metalness: 0.08,
     });
 
     const matFloor = new THREE.MeshStandardMaterial({
-      color: 0x0f1115,
-      roughness: 0.8,
-      metalness: 0.2,
+      color: 0x94a3b8,
+      roughness: 0.35,
+      metalness: 0.20,
     });
 
     // 6. Room Environment
@@ -1015,12 +1105,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), matDarkTile);
+    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), matWhiteTile);
     backWall.position.set(0, 4, -1.2);
     backWall.receiveShadow = true;
     scene.add(backWall);
 
-    const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), matDarkTile);
+    const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), matWhiteTile);
     leftWall.rotation.y = Math.PI / 2;
     leftWall.position.set(-4.5, 4, 0);
     scene.add(leftWall);
@@ -1106,6 +1196,14 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     panBody.castShadow = true;
     panGroup.add(panBody);
 
+    // Fundo sólido da panela para fechar e barrar qualquer luz ou chama por cima
+    const panBottom = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.182, 0.182, 0.015, 32),
+      matStainlessSteel
+    );
+    panBottom.position.set(0, 0.005, 0);
+    panGroup.add(panBottom);
+
     const panLid = new THREE.Mesh(
       new THREE.CylinderGeometry(0.205, 0.205, 0.02, 32),
       matStainlessSteel
@@ -1131,25 +1229,27 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     panHandleR.position.set(0.21, 0.12, 0);
     panGroup.add(panHandleR);
 
-    // Anel de Chamas Azuis (GN/GLP ligado sob a panela)
+    // Anel de Chamas Azuis (GN/GLP estritamente SOB a panela)
     const blueFlameGroup = new THREE.Group();
-    blueFlameGroup.position.set(0, 0.068, 0);
+    blueFlameGroup.position.set(0, 0.040, 0);
     stoveGroup.add(blueFlameGroup);
     blueFlameGroupRef.current = blueFlameGroup;
 
-    const blueConeGeo = new THREE.ConeGeometry(0.012, 0.035, 8);
-    const blueMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff, transparent: true, opacity: 0.9 });
+    // Cones pequenos apontados estritamente para cima (raio 0.085 fica 100% sob o fundo da panela de raio 0.18)
+    const blueConeGeo = new THREE.ConeGeometry(0.007, 0.018, 8);
+    const blueMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff, transparent: true, opacity: 0.95 });
+    const flameRadius = 0.085;
     for (let b = 0; b < 16; b++) {
       const angle = (b / 16) * Math.PI * 2;
       const jet = new THREE.Mesh(blueConeGeo, blueMat);
-      jet.position.set(Math.cos(angle) * 0.14, 0.016, Math.sin(angle) * 0.14);
-      jet.rotation.x = Math.sin(angle) * 0.2;
-      jet.rotation.z = -Math.cos(angle) * 0.2;
+      jet.position.set(Math.cos(angle) * flameRadius, 0.010, Math.sin(angle) * flameRadius);
+      jet.rotation.x = 0;
+      jet.rotation.z = 0;
       blueFlameGroup.add(jet);
     }
 
-    const blueFlameLight = new THREE.PointLight(0x00c8ff, 1.2, 2.0);
-    blueFlameLight.position.set(0, 0.09, 0);
+    const blueFlameLight = new THREE.PointLight(0x00c8ff, 0.75, 0.7);
+    blueFlameLight.position.set(0, 0.025, 0);
     blueFlameGroup.add(blueFlameLight);
     blueFlameLightRef.current = blueFlameLight;
 
@@ -1329,9 +1429,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     // Painel de Inox Escovado (Backsplash industrial atrás da bancada)
     const backsplashMat = new THREE.MeshStandardMaterial({
-      color: 0xb0b5bc,
-      metalness: 0.88,
-      roughness: 0.3,
+      color: 0xf1f5f9,
+      metalness: 0.98,
+      roughness: 0.09,
     });
     const backsplash = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.4), backsplashMat);
     backsplash.position.set(0, 1.6, -0.6);
@@ -1561,9 +1661,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     sapCylinderGroup.userData = { interactiveType: 'saponificante', name: 'Cilindro Saponificante Classe K (Inox Cromado)' };
 
     const matChromeCylinder = new THREE.MeshStandardMaterial({
-      color: 0xf1f5f9,
-      metalness: 0.96,
-      roughness: 0.12,
+      color: 0xffffff,
+      metalness: 0.99,
+      roughness: 0.05,
     });
 
     const sapBody = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.82, 32), matChromeCylinder);
@@ -2154,7 +2254,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 if (manualPullLeverRef.current) {
                   manualPullLeverRef.current.rotation.x = 0.65;
                 }
-                soundEffects.playAlarmBeeps(20);
+                startOfficialAlarmAudioCycle();
                 setAccidentalStep('alarm_waiting_click');
                 setSimStage('FIRE_ALARM');
                 setCountdown(60);
@@ -2322,63 +2422,55 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           {/* 2. TOP FLOATING HUD OVERLAY (STATUS, CENÁRIOS & TELEMETRIA) */}
           <div className="relative z-20 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 flex flex-col gap-2.5 pointer-events-none">
 
-            {/* BARRA SUPERIOR DE CENÁRIOS: INCÊNDIO REAL VS DISPARO ACIDENTAL + ÁUDIO */}
-            <div className="w-full flex flex-wrap items-center justify-between gap-2 bg-black/90 backdrop-blur-xl p-2 sm:p-2.5 rounded-2xl border border-[#d4af37]/50 shadow-[0_4px_30px_rgba(0,0,0,0.85)] pointer-events-auto">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                {/* Botão Incêndio Real */}
-                <button
-                  type="button"
-                  onClick={startRealFireScenario}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
-                    activeScenario === 'real_fire'
-                      ? 'bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black shadow-[0_0_20px_rgba(245,158,11,0.7)] scale-105 border border-white'
-                      : 'bg-black/60 hover:bg-white/10 text-gray-300 border border-white/15'
-                  }`}
-                  title="Simular sequência cinematográfica de 8 etapas do combate real"
-                >
-                  <Flame className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${activeScenario === 'real_fire' ? 'fill-black text-black' : 'text-amber-400'}`} />
-                  <span>🔥 Incêndio Real (8 Etapas)</span>
-                </button>
-
-                {/* Botão Disparo Acidental */}
-                <button
-                  type="button"
-                  onClick={startAccidentalDischargeScenario}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
-                    activeScenario === 'accidental_discharge'
-                      ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-[#d4af37] text-black shadow-[0_0_25px_rgba(212,175,55,0.8)] scale-105 border border-white'
-                      : 'bg-black/60 hover:bg-white/10 text-[#f3e5ab] border border-[#d4af37]/40'
-                  }`}
-                  title="Simular queda acidental da pilha de pratos na botoeira com cancelamento na Central 3D"
-                >
-                  <UtensilsCrossed className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#d4af37]" />
-                  <span>🍽️ Disparo Acidental (Comédia dos Pratos)</span>
-                </button>
+            {/* CABEÇALHO SUPERIOR CLEAN: STATUS DO SISTEMA + SELETOR DE CENÁRIOS & ÁUDIO */}
+            <div className="w-full flex items-center justify-between gap-2.5 pointer-events-auto">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-[#d4af37]/50 shadow-glow-gold text-xs font-bold text-[#f3e5ab]">
+                  <Radio className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
+                  <span className="hidden sm:inline">Central Outfire VTS 32S3 Autônoma</span>
+                  <span className="sm:hidden">Outfire VTS</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+                  <span className="text-[11px] font-mono text-gray-300">NBR 14518</span>
+                </div>
               </div>
 
-              {/* Botão de Áudio Mudo / Ligado */}
-              <button
-                type="button"
-                onClick={toggleMute}
-                className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer ${
-                  isMuted
-                    ? 'bg-red-950/60 border-red-500/50 text-red-300'
-                    : 'bg-[#d4af37]/20 border-[#d4af37] text-[#f3e5ab] shadow-[0_0_15px_rgba(212,175,55,0.3)]'
-                }`}
-                title={isMuted ? 'Ativar efeitos sonoros da simulação' : 'Silenciar áudio'}
-              >
-                {isMuted ? (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5 text-red-400" />
-                    <span className="hidden sm:inline">Mudo</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
-                    <span className="hidden sm:inline">Som Ativo</span>
-                  </>
-                )}
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Botão de Trocar Cenário */}
+                <button
+                  type="button"
+                  onClick={() => setShowEntryModal(true)}
+                  className="px-3 py-1.5 rounded-xl bg-black/80 hover:bg-[#d4af37]/20 border border-[#d4af37]/50 text-[#f3e5ab] text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer backdrop-blur-md"
+                  title="Trocar entre Incêndio Real e Disparo Acidental"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
+                  <span className="hidden sm:inline">Cenário:</span>
+                  <span className="text-white font-extrabold">{activeScenario === 'real_fire' ? '🔥 Incêndio Real' : '🍽️ Acidental'}</span>
+                </button>
+
+                {/* Botão de Áudio Mudo / Ligado */}
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer backdrop-blur-md ${
+                    isMuted
+                      ? 'bg-red-950/70 border-red-500/50 text-red-300'
+                      : 'bg-black/80 border-[#d4af37]/60 text-[#f3e5ab] shadow-[0_0_15px_rgba(212,175,55,0.3)]'
+                  }`}
+                  title={isMuted ? 'Ativar voz oficial da central e efeitos sonoros' : 'Silenciar áudio'}
+                >
+                  {isMuted ? (
+                    <>
+                      <VolumeX className="w-3.5 h-3.5 text-red-400" />
+                      <span className="hidden sm:inline">Mudo</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
+                      <span className="hidden sm:inline">Voz Ativa</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Linha de Badges de Telemetria e Status */}
@@ -2571,7 +2663,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
                   <button
                     type="button"
-                    onClick={startRealFireScenario}
+                    onClick={() => startRealFireScenario(true)}
                     className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black font-black text-xs uppercase tracking-wide shadow-glow-gold hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Flame className="w-4 h-4 fill-black" />
@@ -2635,19 +2727,44 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             </div>
           )}
 
-          {/* POP-UP AUTOMÁTICO DE ENTRADA: ESCOLHA ENTRE PLAY RÁPIDO OU MODO DESCENDO A TELA */}
+          {/* PROMPT DE INTERATIVIDADE ESTILO GAME: TOQUE NA CENTRAL 3D PARA ABORTAR */}
+          {(simStage === 'FIRE_ALARM' || accidentalStep === 'alarm_waiting_click') && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center pointer-events-auto">
+              <button
+                type="button"
+                onClick={handleAbortDisparo}
+                className="group px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-500 to-red-600 hover:from-emerald-500 hover:to-emerald-600 text-white font-black text-sm uppercase tracking-wider shadow-[0_0_40px_rgba(239,68,68,0.9)] hover:shadow-[0_0_40px_rgba(16,185,129,0.9)] border-2 border-white flex items-center gap-3 cursor-pointer transform hover:scale-105 active:scale-95 transition-all animate-bounce"
+                title="Toque na tela da central para anular o disparo em falso e economizar R$ 15.000"
+              >
+                <span className="text-xl">🛑</span>
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] text-yellow-200 font-mono tracking-widest">
+                    {activeScenario === 'accidental_discharge' ? 'QUEDA DE PRATOS DETECTADA' : 'DISPARO EM ANDAMENTO'}
+                  </span>
+                  <span className="font-extrabold text-sm sm:text-base">
+                    TOQUE NA TELA PARA ABORTAR ({countdown}s)
+                  </span>
+                </div>
+                <span className="text-xs bg-white text-red-700 px-2.5 py-1 rounded-lg font-mono font-black shadow-md">
+                  R$ 15.000
+                </span>
+              </button>
+            </div>
+          )}
+
+          {/* POP-UP PRINCIPAL DE ENTRADA: ESCOLHA ENTRE INCÊNDIO REAL (AUTOMÁTICO) E DISPARO ACIDENTAL (INTERATIVO) */}
           {showEntryModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn pointer-events-auto">
-              <div className="relative w-full max-w-xl bg-[#090b0e] border-2 border-[#d4af37]/80 rounded-3xl p-5 sm:p-7 shadow-[0_0_60px_rgba(212,175,55,0.35)] text-white overflow-hidden">
+              <div className="relative w-full max-w-2xl bg-[#090b0e] border-2 border-[#d4af37]/80 rounded-3xl p-5 sm:p-7 shadow-[0_0_70px_rgba(212,175,55,0.4)] text-white overflow-hidden">
                 {/* Brilho dourado de fundo */}
                 <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#d4af37]/15 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
 
                 {/* Botão de Fechar */}
                 <button
-                  onClick={handleSelectScrollMode}
+                  onClick={() => setShowEntryModal(false)}
                   className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-sm transition-all cursor-pointer z-10"
-                  title="Fechar e ir para o Modo Descendo a Tela"
+                  title="Fechar modal"
                   aria-label="Fechar pop-up"
                 >
                   ✕
@@ -2657,88 +2774,105 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/50 text-[#f3e5ab] text-xs font-black uppercase tracking-wider mb-3">
                     <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
-                    <span>Simulação 3D • Cozinha Industrial</span>
+                    <span>Simulação 3D Interativa • Central Outfire VTS 32S3</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                    Como você prefere ver a apresentação?
+                    Qual simulação você deseja vivenciar?
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-300 mt-1.5 max-w-md mx-auto">
-                    Escolha se prefere assistir tudo automaticamente ou controlar cada etapa descendo a tela:
+                  <p className="text-xs sm:text-sm text-gray-300 mt-1.5 max-w-lg mx-auto">
+                    Selecione um dos cenários abaixo. O sistema iniciará a apresentação com fidelidade total:
                   </p>
                 </div>
 
-                {/* Os 2 Cards de Escolha */}
+                {/* Os 2 Grandes Cards de Cenário Solicitados */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                  {/* Opção 1: Apresentação Automática (Play Rápido) */}
+                  {/* Card 1: Simular Incêndio Real (Vídeo Automatizado) */}
                   <button
                     type="button"
-                    onClick={handleSelectAutoPlay}
-                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-[#d4af37]/20 via-black/80 to-black border-2 border-[#d4af37] hover:border-[#f3e5ab] shadow-[0_0_25px_rgba(212,175,55,0.3)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
+                    onClick={() => {
+                      setShowEntryModal(false);
+                      startRealFireScenario(true);
+                    }}
+                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-red-950/40 via-black/80 to-black border-2 border-red-500/70 hover:border-[#d4af37] shadow-[0_0_25px_rgba(239,68,68,0.25)] hover:shadow-[0_0_35px_rgba(212,175,55,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-red-600 to-amber-500 text-white font-black text-[10px] uppercase tracking-wider">
+                          Vídeo Automatizado
+                        </span>
+                        <span className="text-[11px] font-bold text-amber-300">8 Etapas • ~25s</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div className="w-8 h-8 rounded-full bg-red-600/30 border border-red-500/60 flex items-center justify-center shrink-0 shadow-md">
+                          <Flame className="w-4 h-4 text-amber-400 fill-amber-400" />
+                        </div>
+                        <span className="text-sm font-black text-white group-hover:text-[#f3e5ab]">
+                          Simular Incêndio Real
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-300 leading-relaxed">
+                        Execução <strong>automatizada contínua do início ao fim</strong>: detecção térmica 145°C, fechamento do damper, corte de gás na panela, voz oficial da central e extinção total com saponificante Classe K.
+                      </p>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black font-extrabold text-xs uppercase tracking-wide group-hover:brightness-110 shadow-glow-gold">
+                      <Play className="w-3.5 h-3.5 fill-black" />
+                      <span>Iniciar Incêndio Real</span>
+                    </div>
+                  </button>
+
+                  {/* Card 2: Simular Disparo Acidental (Interativo / Comédia dos Pratos) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEntryModal(false);
+                      startAccidentalDischargeScenario();
+                    }}
+                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-amber-950/40 via-black/80 to-black border-2 border-[#d4af37]/70 hover:border-[#f3e5ab] shadow-[0_0_25px_rgba(212,175,55,0.25)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2.5">
                         <span className="px-2 py-0.5 rounded-md bg-[#d4af37] text-black font-black text-[10px] uppercase tracking-wider">
-                          Recomendado
+                          Modo Interativo
                         </span>
-                        <span className="text-[11px] font-bold text-amber-300">~13 segundos</span>
+                        <span className="text-[11px] font-bold text-emerald-400">Economia R$ 15k</span>
                       </div>
                       <div className="flex items-center gap-2.5 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-[#d4af37] flex items-center justify-center shrink-0 shadow-md">
-                          <Play className="w-4 h-4 fill-black text-black ml-0.5" />
+                        <div className="w-8 h-8 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/60 flex items-center justify-center shrink-0">
+                          <UtensilsCrossed className="w-4 h-4 text-[#d4af37]" />
                         </div>
                         <span className="text-sm font-black text-white group-hover:text-[#f3e5ab]">
-                          Apresentação Automática
+                          Simular Disparo Acidental
                         </span>
                       </div>
                       <p className="text-[11px] text-gray-300 leading-relaxed">
-                        Aperte o Play e veja a simulação acontecer <strong>sozinha de forma acelerada</strong>: fogo, alarme 145°C na central, corte de gás e extinção total.
+                        Queda cômica de pratos sobre a botoeira manual. A câmera foca na <strong>Central 3D com IHM Touch</strong>: toque na tela para anular o disparo em falso e economizar R$ 15.000 em recarga!
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#b89628] text-black font-extrabold text-xs uppercase tracking-wide group-hover:brightness-110 shadow-glow-gold">
-                      <Play className="w-3.5 h-3.5 fill-black" />
-                      <span>Aperte o Play</span>
-                    </div>
-                  </button>
-
-                  {/* Opção 2: Modo Descendo a Tela (Rolagem) */}
-                  <button
-                    type="button"
-                    onClick={handleSelectScrollMode}
-                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-black/70 hover:bg-white/5 border border-white/20 hover:border-blue-400 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <span className="px-2 py-0.5 rounded-md bg-blue-500/30 text-blue-300 border border-blue-400/40 font-bold text-[10px] uppercase tracking-wider">
-                          Manual
-                        </span>
-                        <span className="text-[11px] font-bold text-gray-400">No seu ritmo</span>
-                      </div>
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-400/50 flex items-center justify-center shrink-0">
-                          <MousePointer className="w-4 h-4 text-blue-300" />
-                        </div>
-                        <span className="text-sm font-black text-white group-hover:text-blue-200">
-                          Modo Descendo a Tela
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-gray-300 leading-relaxed">
-                        Você controla as etapas <strong>descendo a tela</strong> com o mouse ou deslizando o dedo no celular, analisando cada detalhe técnico com calma.
-                      </p>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-gray-200 font-bold text-xs uppercase tracking-wide group-hover:border group-hover:border-blue-400/60">
-                      <ChevronDown className="w-3.5 h-3.5 text-blue-300" />
-                      <span>Descendo a Tela</span>
+                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-amber-400 to-[#b89628] text-black font-extrabold text-xs uppercase tracking-wide group-hover:brightness-110 shadow-glow-gold">
+                      <Sparkles className="w-3.5 h-3.5 fill-black" />
+                      <span>Iniciar Disparo Acidental</span>
                     </div>
                   </button>
 
                 </div>
 
-                {/* Rodapé / Dica */}
-                <div className="mt-5 pt-3 border-t border-white/10 text-center text-[11px] text-gray-400">
-                  💡 Você pode alternar entre os dois modos a qualquer momento durante a simulação!
+                {/* Rodapé / Opção Manual */}
+                <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-400">
+                  <span>💡 Você pode alternar os cenários ou pausar a qualquer momento</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEntryModal(false);
+                      setIsPlaying(false);
+                      setShowScrollPromptArrows(true);
+                    }}
+                    className="text-gray-300 hover:text-white underline cursor-pointer"
+                  >
+                    Ou navegar descendo a tela
+                  </button>
                 </div>
               </div>
             </div>
@@ -2812,15 +2946,15 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <span>Descendo a Tela</span>
               </button>
 
-              {/* Botão para Reabrir Escolha dos Modos */}
+              {/* Botão para Reabrir Escolha dos Cenários */}
               <button
                 onClick={() => setShowEntryModal(true)}
-                className="py-1.5 px-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/15 text-gray-300 hover:text-white transition-all cursor-pointer flex items-center gap-1 text-xs"
-                title="Escolher entre Apresentação Automática ou Modo Descendo a Tela"
-                aria-label="Escolher Modo"
+                className="py-1.5 px-2.5 rounded-xl border border-[#d4af37]/40 bg-[#d4af37]/10 hover:bg-[#d4af37]/25 text-[#f3e5ab] hover:text-white transition-all cursor-pointer flex items-center gap-1.5 text-xs shadow-sm"
+                title="Escolher entre Simulação de Incêndio Real ou Disparo Acidental"
+                aria-label="Trocar Cenário"
               >
-                <HelpCircle className="w-3.5 h-3.5 text-[#d4af37]" />
-                <span className="text-[11px] font-bold">Escolher Modo</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
+                <span className="text-[11px] font-bold">Trocar Cenário</span>
               </button>
 
               {/* Divisor vertical */}
