@@ -7,7 +7,7 @@ import {
   RotateCcw, Sparkles, BellRing, Eye, Camera, CheckCircle2,
   ChevronDown, Radio, XCircle, User, Play, Pause, MousePointer, HelpCircle,
   Volume2, VolumeX, ShieldAlert, UtensilsCrossed, Zap, AlertTriangle,
-  Package, Wrench, Cpu, ArrowRight
+  Package, Wrench, Cpu, ArrowRight, Layers
 } from 'lucide-react';
 import {
   createNormalizedIhmScreenCanvas,
@@ -57,7 +57,7 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     label: '2',
     name: 'Início do Fogo',
     timeStart: 3.5,
-    timeEnd: 7.0,
+    timeEnd: 6.8,
     camPos: [-0.55, 1.45, 1.8],
     camLook: [-0.55, 1.05, 0],
     camPosMobile: [-0.55, 1.45, 2.2],
@@ -69,50 +69,50 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
   {
     id: 3,
     label: '3',
-    name: 'Sensor 145°C',
-    timeStart: 7.0,
-    timeEnd: 10.5,
-    camPos: [-0.45, 2.05, 1.15],
-    camLook: [-0.55, 2.15, 0],
-    camPosMobile: [-0.45, 2.05, 1.5],
-    camLookMobile: [-0.55, 2.15, 0],
-    badgeTitle: '3. Sensor Blindado Atinge 145°C',
-    badgeDesc: 'Temperatura na coifa atinge 145°C (NBR 14518). Circuito térmico fecha emitindo sinal de disparo para a Central.',
-    icon: 'sensor',
+    name: 'Sensor 145°C + Damper',
+    timeStart: 6.8,
+    timeEnd: 10.0,
+    camPos: [-0.22, 2.45, 1.40],
+    camLook: [-0.25, 2.45, 0.05],
+    camPosMobile: [-0.22, 2.45, 1.85],
+    camLookMobile: [-0.25, 2.45, 0.05],
+    badgeTitle: '3. Sensor 145°C Dispara Damper Corta-Fogo Imediatamente',
+    badgeDesc: 'Ao detectar 145°C (NBR 14518), a solenoide desliga e a lâmina do damper fecha em 90°, isolando o duto predial imediatamente!',
+    icon: 'damper',
   },
   {
     id: 4,
     label: '4',
-    name: 'Central Outfire IHM',
-    timeStart: 10.5,
-    timeEnd: 16.5,
-    camPos: [2.1, 1.8, 0.70],
-    camLook: [2.1, 1.8, 0.15],
-    camPosMobile: [2.05, 1.8, 0.95],
-    camLookMobile: [2.1, 1.8, 0.15],
-    badgeTitle: '4. Central Outfire VTS 32S3 em Alarme (IHM Touch)',
-    badgeDesc: 'Voz oficial de disparo ativada com cronômetro regressivo. Opção: Puxe o Acionador Manual para adiantar o despejo!',
-    icon: 'central',
+    name: 'Damper 100% Selado',
+    timeStart: 10.0,
+    timeEnd: 13.0,
+    camPos: [0.05, 2.85, 1.05],
+    camLook: [0, 2.85, 0],
+    camPosMobile: [0.05, 2.85, 1.45],
+    camLookMobile: [0, 2.85, 0],
+    badgeTitle: '4. Duto Predial 100% Hermético & Isolado (NBR 14518)',
+    badgeDesc: 'Visor de inspeção exibe a lâmina travada a 90° com vedação de alta temperatura, impedindo propagação de fogo e gases tóxicos.',
+    icon: 'damper',
   },
   {
     id: 5,
     label: '5',
-    name: 'Damper Corta-Fogo',
-    timeStart: 16.5,
-    timeEnd: 19.0,
-    camPos: [0.1, 2.75, 1.35],
-    camLook: [0, 2.85, 0],
-    camPosMobile: [0.1, 2.75, 1.75],
-    camLookMobile: [0, 2.85, 0],
-    badgeTitle: '5. Damper Corta-Fogo Fechado (Duto Isolado)',
-    badgeDesc: 'Solenoide liberada: lâmina móvel fecha em 90° bloqueando a passagem de fogo para a exaustão predial.',
-    icon: 'damper',
+    name: 'Central Outfire IHM',
+    timeStart: 13.0,
+    timeEnd: 18.5,
+    camPos: [2.1, 1.8, 0.70],
+    camLook: [2.1, 1.8, 0.15],
+    camPosMobile: [2.05, 1.8, 0.95],
+    camLookMobile: [2.1, 1.8, 0.15],
+    badgeTitle: '5. Central Outfire VTS 32S3 em Alarme (IHM Touch)',
+    badgeDesc: 'Voz oficial de disparo ativada com cronômetro regressivo. Opção: Puxe o Acionador Manual para adiantar o despejo!',
+    icon: 'central',
   },
   {
     id: 6,
     label: '6',
     name: 'Corte de Gás',
-    timeStart: 19.0,
+    timeStart: 18.5,
     timeEnd: 21.0,
     camPos: [0.65, 1.45, 1.55],
     camLook: [0.65, 1.05, 0],
@@ -157,8 +157,8 @@ type SimStage = 'STANDBY' | 'HEATING' | 'FIRE_ALARM' | 'SUPPRESSION' | 'EXTINGUI
 interface TelemetryData {
   temp: number;
   gasStatus: 'ABERTO' | 'CORTADO';
-  exhaustStatus: 'LIGADO' | 'INTERTRAVADO';
-  systemStatus: 'PRONTIDÃO' | 'AQUECIMENTO' | 'ALERTA DE FOGO' | 'COMBATE ATIVO' | 'INCÊNDIO EXTINTO';
+  exhaustStatus: 'LIGADO' | 'INTERTRAVADO' | 'DAMPER FECHADO (90°)';
+  systemStatus: 'PRONTIDÃO' | 'AQUECIMENTO' | 'ALERTA DE FOGO' | 'COMBATE ATIVO' | 'INCÊNDIO EXTINTO' | 'SENSOR 145°C / DAMPER' | 'DUTO ISOLADO (NBR 14518)';
   countdown: number;
 }
 
@@ -204,6 +204,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const [cinematicBadge, setCinematicBadge] = useState<{ title: string; desc: string; iconType: string } | null>(null);
   const [activeZoomIndex, setActiveZoomIndex] = useState<number>(0);
   const [showAbortedModal, setShowAbortedModal] = useState<boolean>(false);
+
+  // Pop-up Principal de Escolha de Cenários (Incêndio Real vs Disparo Falso)
+  const [showEntryModal, setShowEntryModal] = useState<boolean>(false);
+  const hasShownEntryModalRef = useRef<boolean>(false);
 
   // Audio Tracking Refs
   const hasPlayedAlarmAudioRef = useRef<boolean>(false);
@@ -264,6 +268,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const shieldedSensorGroupRef = useRef<THREE.Group | null>(null);
   const sensorGlowMeshRef = useRef<THREE.Mesh | null>(null);
   const damperFlapMeshRef = useRef<THREE.Mesh | null>(null);
+  const damperIndicatorArmRef = useRef<THREE.Group | null>(null);
+  const damperStatusLedRef = useRef<THREE.Mesh | null>(null);
+  const hasPlayedDamperSnapRef = useRef<boolean>(false);
   const electricalPanelGroupRef = useRef<THREE.Group | null>(null);
   const panelLedExhaustRef = useRef<THREE.Mesh | null>(null);
   const panelLedFryerRef = useRef<THREE.Mesh | null>(null);
@@ -383,6 +390,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setAccidentalStep('idle');
     accidentalStepRef.current = 'idle';
     setShowAbortedModal(false);
+    hasPlayedDamperSnapRef.current = false;
     setActiveCameraView('geral');
     setManualAdvanced(false);
     manualAdvancedRef.current = false;
@@ -390,6 +398,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     hasPlayedAlarmAudioRef.current = false;
     hasPlayedGasCutoffRef.current = false;
     hasPlayedSuppressionRef.current = false;
+    hasPlayedDamperSnapRef.current = false;
 
     if (dishwasherGroupRef.current) {
       dishwasherGroupRef.current.visible = false;
@@ -474,6 +483,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     hasPlayedAlarmAudioRef.current = false;
     hasPlayedGasCutoffRef.current = false;
     hasPlayedSuppressionRef.current = false;
+    hasPlayedDamperSnapRef.current = false;
 
     const isMobile = window.innerWidth < 768;
     if (isMobile) {
@@ -590,6 +600,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setSimTime(clamped);
 
     // Se o usuário pular para trás antes do alarme, reseta áudios
+    if (clamped < 6.8) {
+      hasPlayedDamperSnapRef.current = false;
+    }
     if (clamped < 10.5) {
       hasPlayedAlarmAudioRef.current = false;
       hasPlayedGasCutoffRef.current = false;
@@ -622,6 +635,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setAccidentalStep('idle');
     accidentalStepRef.current = 'idle';
     setShowAbortedModal(false);
+    hasPlayedDamperSnapRef.current = false;
 
     setSimStage('STANDBY');
     simStageRef.current = 'STANDBY';
@@ -657,8 +671,30 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     if (containerRef.current) {
       containerRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-    startRealFireScenario();
+    hasShownEntryModalRef.current = true;
+    setShowEntryModal(true);
   };
+
+  // Abre o pop-up de escolha de simulação na primeira vez que a seção 3D entra em visão
+  useEffect(() => {
+    const checkScroll = () => {
+      if (hasShownEntryModalRef.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.75 && rect.bottom >= window.innerHeight * 0.25) {
+        hasShownEntryModalRef.current = true;
+        setShowEntryModal(true);
+      }
+    };
+
+    window.addEventListener('scroll', checkScroll, { passive: true });
+    checkScroll();
+    const mountTimer = setTimeout(checkScroll, 600);
+
+    return () => {
+      window.removeEventListener('scroll', checkScroll);
+      clearTimeout(mountTimer);
+    };
+  }, []);
 
   const scrollToNextSection = () => {
     setIsPlaying(false);
@@ -1074,39 +1110,152 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     ductMesh.position.set(0, 1.0, 0);
     hoodGroup.add(ductMesh);
 
-    // Damper Corta-Fogo Motorizado Automático no Duto (NBR 14518)
-    const damperHousing = new THREE.Mesh(
-      new THREE.BoxGeometry(0.64, 0.18, 0.64),
-      new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.85, roughness: 0.25 })
-    );
-    damperHousing.position.set(0, 0.55, 0);
-    hoodGroup.add(damperHousing);
+    // Damper Corta-Fogo Motorizado Automático no Duto (NBR 14518) com Visor de Inspeção
+    const damperHousingGroup = new THREE.Group();
+    damperHousingGroup.position.set(0, 0.55, 0);
+    hoodGroup.add(damperHousingGroup);
 
-    // Lâmina Móvel Interna do Damper (fecha a 90° para isolar o duto)
-    const damperFlap = new THREE.Mesh(
+    const damperFlangeMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.85, roughness: 0.25 });
+    const topFlange = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.03, 0.64), damperFlangeMat);
+    topFlange.position.set(0, 0.09, 0);
+    damperHousingGroup.add(topFlange);
+
+    const bottomFlange = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.03, 0.64), damperFlangeMat);
+    bottomFlange.position.set(0, -0.09, 0);
+    damperHousingGroup.add(bottomFlange);
+
+    // Paredes metálicas traseira e laterais
+    const damperBackWall = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.15, 0.04), damperFlangeMat);
+    damperBackWall.position.set(0, 0, -0.30);
+    damperHousingGroup.add(damperBackWall);
+
+    const damperLeftWall = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.15, 0.60), damperFlangeMat);
+    damperLeftWall.position.set(-0.30, 0, 0);
+    damperHousingGroup.add(damperLeftWall);
+
+    const damperRightWall = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.15, 0.60), damperFlangeMat);
+    damperRightWall.position.set(0.30, 0, 0);
+    damperHousingGroup.add(damperRightWall);
+
+    // VISOR DE INSPEÇÃO TRANSPARENTE FRONTAL (Permite ver a lâmina fechando a 90 graus)
+    const inspectionGlass = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.52, 0.15),
+      new THREE.MeshStandardMaterial({
+        color: 0x7dd3fc,
+        transparent: true,
+        opacity: 0.42,
+        roughness: 0.05,
+        metalness: 0.2
+      })
+    );
+    inspectionGlass.position.set(0, 0, 0.321);
+    damperHousingGroup.add(inspectionGlass);
+
+    // Moldura do visor
+    const glassFrameTop = new THREE.Mesh(
+      new THREE.BoxGeometry(0.56, 0.02, 0.02),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 })
+    );
+    glassFrameTop.position.set(0, 0.075, 0.325);
+    damperHousingGroup.add(glassFrameTop);
+
+    const glassFrameBtm = glassFrameTop.clone();
+    glassFrameBtm.position.set(0, -0.075, 0.325);
+    damperHousingGroup.add(glassFrameBtm);
+
+    // Plaqueta Dourada NBR 14518
+    const damperPlaque = new THREE.Mesh(
+      new THREE.BoxGeometry(0.32, 0.035, 0.01),
+      new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 })
+    );
+    damperPlaque.position.set(0, 0.08, 0.33);
+    damperHousingGroup.add(damperPlaque);
+
+    // LÂMINA MÓVEL DO DAMPER (Gira no eixo X: Aberta = Vertical / Fechada = Horizontal)
+    const damperFlapGroup = new THREE.Group();
+    damperFlapGroup.position.set(0, 0, 0);
+    damperHousingGroup.add(damperFlapGroup);
+
+    // Eixo de rotação central
+    const pivotShaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.014, 0.014, 0.58, 16),
+      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95, roughness: 0.15 })
+    );
+    pivotShaft.rotation.z = Math.PI / 2;
+    damperFlapGroup.add(pivotShaft);
+
+    // Lâmina em Inox Cromado
+    const flapPlate = new THREE.Mesh(
       new THREE.BoxGeometry(0.48, 0.018, 0.48),
-      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 })
+      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.15 })
     );
-    damperFlap.position.set(0, 0.55, 0);
-    damperFlap.rotation.x = Math.PI / 2; // Aberto em standby (vertical)
-    hoodGroup.add(damperFlap);
-    damperFlapMeshRef.current = damperFlap;
+    damperFlapGroup.add(flapPlate);
 
-    const damperMotor = new THREE.Mesh(
-      new THREE.BoxGeometry(0.14, 0.14, 0.14),
-      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4 })
+    // Guarnições perimetrais de vedação de alta temperatura
+    const sealFront = new THREE.Mesh(
+      new THREE.BoxGeometry(0.48, 0.024, 0.02),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.35 })
     );
-    damperMotor.position.set(0.36, 0.55, 0);
-    hoodGroup.add(damperMotor);
+    sealFront.position.set(0, 0, 0.23);
+    damperFlapGroup.add(sealFront);
 
-    // Solenoide de liberação rápida do Damper Corta-Fogo
+    const sealBack = sealFront.clone();
+    sealBack.position.set(0, 0, -0.23);
+    damperFlapGroup.add(sealBack);
+
+    damperFlapGroup.rotation.x = Math.PI / 2; // Vertical / Aberto em standby
+    damperFlapMeshRef.current = damperFlapGroup as unknown as THREE.Mesh;
+
+    // MECANISMO EXTERNO DO DAMPER: ATUADOR, SOLENOIDE E ALAVANCA MECÂNICA DE POSIÇÃO
+    const actuatorGroup = new THREE.Group();
+    actuatorGroup.position.set(0.36, 0, 0.08);
+    damperHousingGroup.add(actuatorGroup);
+
+    const actuatorBox = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.14, 0.14),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.35, metalness: 0.3 })
+    );
+    actuatorGroup.add(actuatorBox);
+
+    // Solenoide cilíndrica de desarme
     const damperSolenoide = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.03, 0.03, 0.12, 16),
+      new THREE.CylinderGeometry(0.025, 0.025, 0.10, 16),
       new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.85, roughness: 0.25 })
     );
     damperSolenoide.rotation.z = Math.PI / 2;
-    damperSolenoide.position.set(0.36, 0.64, 0);
-    hoodGroup.add(damperSolenoide);
+    damperSolenoide.position.set(0, 0.08, 0);
+    actuatorGroup.add(damperSolenoide);
+
+    // LED de status do Damper (Verde = Pronto / Vermelho = Fechado por 145°C)
+    const damperStatusLed = new THREE.Mesh(
+      new THREE.SphereGeometry(0.016, 16, 16),
+      new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 1.0 })
+    );
+    damperStatusLed.position.set(0, 0.04, 0.075);
+    actuatorGroup.add(damperStatusLed);
+    damperStatusLedRef.current = damperStatusLed;
+
+    // Mostrador de posição mecânico
+    const dialPlate = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.038, 0.038, 0.01, 24),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5, roughness: 0.4 })
+    );
+    dialPlate.rotation.x = Math.PI / 2;
+    dialPlate.position.set(0, -0.02, 0.075);
+    actuatorGroup.add(dialPlate);
+
+    // Alavanca mecânica de desarme que gira sincronizada
+    const indicatorArmGroup = new THREE.Group();
+    indicatorArmGroup.position.set(0, -0.02, 0.082);
+    actuatorGroup.add(indicatorArmGroup);
+
+    const indicatorArm = new THREE.Mesh(
+      new THREE.BoxGeometry(0.008, 0.042, 0.006),
+      new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.6, roughness: 0.3 })
+    );
+    indicatorArm.position.set(0, 0.018, 0);
+    indicatorArmGroup.add(indicatorArm);
+    damperIndicatorArmRef.current = indicatorArmGroup;
 
     // Sensor Blindado Térmico 145°C instalado na Coifa (NBR 14518)
     const sensorGroup = new THREE.Group();
@@ -1797,12 +1946,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             systemStatus: 'PRONTIDÃO',
             countdown: 60,
           });
-        } else if (curTime < 7.0) {
+        } else if (curTime < 6.8) {
           // ETAPA 2: PRINCÍPIO DE INCÊNDIO
           zoomIdx = 1;
           setSimStage('HEATING');
           simStageRef.current = 'HEATING';
-          const prog = (curTime - 3.5) / 3.5;
+          const prog = (curTime - 3.5) / 3.3;
           const t = Math.round(180 + prog * 165);
           setTelemetry({
             temp: t,
@@ -1811,8 +1960,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             systemStatus: 'AQUECIMENTO',
             countdown: 60,
           });
-        } else if (curTime < 10.5) {
-          // ETAPA 3: SENSOR 145°C
+        } else if (curTime < 10.0) {
+          // ETAPA 3: SENSOR 145°C (Aciona o Damper Imediatamente no Duto)
           zoomIdx = 2;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
@@ -1821,22 +1970,36 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           setTelemetry({
             temp: 145,
             gasStatus: 'ABERTO',
-            exhaustStatus: 'LIGADO',
-            systemStatus: 'ALERTA DE FOGO',
+            exhaustStatus: 'DAMPER FECHADO (90°)',
+            systemStatus: 'SENSOR 145°C / DAMPER',
             countdown: 55,
           });
-        } else if (curTime < 16.5) {
-          // ETAPA 4: CENTRAL OUTFIRE IHM
+        } else if (curTime < 13.0) {
+          // ETAPA 4: DAMPER CORTA-FOGO 100% SELADO NO DUTO
           zoomIdx = 3;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
-          const cDown = Math.max(1, Math.round(15 - ((curTime - 10.5) / 6.0) * 14));
+          setCountdown(45);
+          countdownRef.current = 45;
+          setTelemetry({
+            temp: 340,
+            gasStatus: 'ABERTO',
+            exhaustStatus: 'DAMPER FECHADO (90°)',
+            systemStatus: 'DUTO ISOLADO (NBR 14518)',
+            countdown: 45,
+          });
+        } else if (curTime < 18.5) {
+          // ETAPA 5: CENTRAL OUTFIRE IHM
+          zoomIdx = 4;
+          setSimStage('FIRE_ALARM');
+          simStageRef.current = 'FIRE_ALARM';
+          const cDown = Math.max(1, Math.round(15 - ((curTime - 13.0) / 5.5) * 14));
           setCountdown(cDown);
           countdownRef.current = cDown;
           setTelemetry({
             temp: 360,
             gasStatus: 'ABERTO',
-            exhaustStatus: 'LIGADO',
+            exhaustStatus: 'INTERTRAVADO',
             systemStatus: 'ALERTA DE FOGO',
             countdown: cDown,
           });
@@ -1845,20 +2008,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             hasPlayedAlarmAudioRef.current = true;
             startOfficialAlarmAudioCycle();
           }
-        } else if (curTime < 19.0) {
-          // ETAPA 5: DAMPER CORTA-FOGO
-          zoomIdx = 4;
-          setSimStage('FIRE_ALARM');
-          simStageRef.current = 'FIRE_ALARM';
-          setCountdown(5);
-          countdownRef.current = 5;
-          setTelemetry({
-            temp: 370,
-            gasStatus: 'ABERTO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: 5,
-          });
         } else if (curTime < 21.0) {
           // ETAPA 6: CORTE DE GÁS
           zoomIdx = 5;
@@ -2065,17 +2214,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
       // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 6)
       if (blueFlameGroupRef.current) {
-        const isGasCut = (activeScenarioRef.current === 'real_fire' && curTime >= 19.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isGasCut = (activeScenarioRef.current === 'real_fire' && curTime >= 18.5) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
         blueFlameGroupRef.current.visible = !isGasCut;
         if (blueFlameLightRef.current) {
           blueFlameLightRef.current.intensity = isGasCut ? 0 : 0.75 + Math.sin(time * 30) * 0.25;
         }
       }
 
-      // 3. Sensor Blindado 145°C Glow na Coifa
+      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 6.8s)
       if (sensorGlowMeshRef.current) {
         const mat = sensorGlowMeshRef.current.material as THREE.MeshStandardMaterial;
-        const isSensorTripped = (activeScenarioRef.current === 'real_fire' && curTime >= 7.0 && curTime < 23.5) || stage === 'FIRE_ALARM';
+        const isSensorTripped = (activeScenarioRef.current === 'real_fire' && curTime >= 6.8 && curTime < 23.5) || stage === 'FIRE_ALARM';
         if (isSensorTripped) {
           mat.emissive.setHex(0xef4444);
           mat.emissiveIntensity = 1.0 + Math.sin(time * 18) * 0.8;
@@ -2085,11 +2234,46 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 4. Damper Corta-Fogo Motorizado no Duto (Fecha a 90° na Etapa 5 / 16.5s)
+      // 4. Damper Corta-Fogo Motorizado no Duto: aciona ASSIM que o sensor detecta >= 145°C (curTime >= 6.8s)
+      const isDamperClosed = (activeScenarioRef.current === 'real_fire' && curTime >= 6.8) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+
       if (damperFlapMeshRef.current) {
-        const isDamperClosed = (activeScenarioRef.current === 'real_fire' && curTime >= 16.5) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
         const targetRot = isDamperClosed ? 0 : Math.PI / 2;
-        damperFlapMeshRef.current.rotation.x = THREE.MathUtils.lerp(damperFlapMeshRef.current.rotation.x, targetRot, 0.12);
+        // Fechamento rápido por mola quando a solenoide desarma
+        damperFlapMeshRef.current.rotation.x = THREE.MathUtils.lerp(
+          damperFlapMeshRef.current.rotation.x,
+          targetRot,
+          isDamperClosed ? 0.35 : 0.15
+        );
+      }
+
+      if (damperIndicatorArmRef.current) {
+        // Alavanca mecânica externa de posição: 0 = Aberto (UP), Math.PI / 2 = Fechado (DOWN)
+        const targetArmRot = isDamperClosed ? Math.PI / 2 : 0;
+        damperIndicatorArmRef.current.rotation.z = THREE.MathUtils.lerp(
+          damperIndicatorArmRef.current.rotation.z,
+          targetArmRot,
+          0.35
+        );
+      }
+
+      if (damperStatusLedRef.current) {
+        const mat = damperStatusLedRef.current.material as THREE.MeshStandardMaterial;
+        if (isDamperClosed) {
+          mat.emissive.setHex(0xef4444);
+          mat.emissiveIntensity = 1.3 + Math.sin(time * 16) * 0.7;
+        } else {
+          mat.emissive.setHex(0x22c55e);
+          mat.emissiveIntensity = 1.0;
+        }
+      }
+
+      // Som mecânico imediato do desarme da solenoide e batida do damper aos 145°C (6.8s)
+      if (activeScenarioRef.current === 'real_fire' && curTime >= 6.8 && !hasPlayedDamperSnapRef.current) {
+        hasPlayedDamperSnapRef.current = true;
+        if (!isMutedRef.current) {
+          soundEffects.playDamperSnap();
+        }
       }
 
       // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes SÓ apagam na Etapa 7 / 21.0s)
@@ -2252,19 +2436,51 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           />
         </div>
 
-        {/* SETA DOURADA PARA DESCER E INICIAR A SIMULAÇÃO */}
-        <button
-          onClick={scrollToKitchen}
-          aria-label="Descer para a simulação da cozinha"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 group cursor-pointer focus:outline-none z-30"
-        >
-          <div className="w-12 h-12 rounded-full border border-[#d4af37]/50 bg-black/70 backdrop-blur-md flex items-center justify-center shadow-[0_0_25px_rgba(212,175,55,0.35)] group-hover:border-[#d4af37] group-hover:scale-110 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all">
-            <ChevronDown className="w-6 h-6 text-[#d4af37] animate-bounce" />
+        {/* SETA DOURADA & OPÇÕES PARA INICIAR A SIMULAÇÃO */}
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 z-30 w-full max-w-md px-4">
+          <button
+            onClick={scrollToKitchen}
+            aria-label="Descer para a simulação da cozinha"
+            className="flex flex-col items-center gap-1.5 group cursor-pointer focus:outline-none"
+          >
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[#d4af37]/50 bg-black/70 backdrop-blur-md flex items-center justify-center shadow-[0_0_25px_rgba(212,175,55,0.35)] group-hover:border-[#d4af37] group-hover:scale-110 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all">
+              <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-[#d4af37] animate-bounce" />
+            </div>
+            <span className="text-[10px] sm:text-[11px] font-bold text-[#f3e5ab] tracking-wide uppercase opacity-90 group-hover:opacity-100 flex items-center gap-1.5 bg-black/70 px-3.5 py-1 rounded-full border border-[#d4af37]/40 backdrop-blur-sm shadow-md">
+              <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span>Iniciar Simulação 3D Interativa</span>
+            </span>
+          </button>
+
+          {/* Atalhos Rápidos Diretos */}
+          <div className="flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (containerRef.current) containerRef.current.scrollIntoView({ behavior: 'smooth' });
+                setShowEntryModal(false);
+                startRealFireScenario();
+              }}
+              className="px-3 py-1 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-500/60 text-white text-[11px] font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+            >
+              <Flame className="w-3 h-3 text-red-400" />
+              <span>Incêndio Real</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (containerRef.current) containerRef.current.scrollIntoView({ behavior: 'smooth' });
+                setShowEntryModal(false);
+                startAccidentalDischargeScenario();
+              }}
+              className="px-3 py-1 rounded-lg bg-black/80 hover:bg-[#d4af37]/20 border border-[#d4af37]/60 text-[#f3e5ab] text-[11px] font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+            >
+              <UtensilsCrossed className="w-3 h-3 text-[#d4af37]" />
+              <span>Disparo Acidental</span>
+            </button>
           </div>
-          <span className="text-[11px] font-bold text-[#f3e5ab] tracking-wide uppercase opacity-85 group-hover:opacity-100 flex items-center gap-1.5 bg-black/60 px-3.5 py-1 rounded-full border border-[#d4af37]/30 backdrop-blur-sm shadow-md">
-            <span>Iniciar Simulação 3D Interativa</span>
-          </span>
-        </button>
+        </div>
       </section>
 
       {/* TELA 2: CENÁRIO DA COZINHA INDUSTRIAL & SIMULAÇÃO 3D (100dvh SUAVE COMO UM VÍDEO) */}
@@ -2297,8 +2513,19 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <span className="text-[11px] font-mono text-gray-300">NBR 14518</span>
               </div>
 
-              {/* Center / Action Buttons: OS 2 BOTÕES SOLICITADOS POR MATHEUS */}
-              <div className="flex items-center gap-2 sm:gap-3">
+              {/* Center / Action Buttons: ESCOLHA DE CENÁRIOS */}
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                {/* Botão Modal: Escolher Modo de Simulação */}
+                <button
+                  type="button"
+                  onClick={() => setShowEntryModal(true)}
+                  className="px-3 py-2 rounded-xl text-xs font-bold bg-[#d4af37]/20 hover:bg-[#d4af37]/35 border border-[#d4af37]/60 text-[#f3e5ab] flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(212,175,55,0.25)] cursor-pointer backdrop-blur-md hover:scale-105 active:scale-95"
+                  title="Abrir pop-up para escolher o cenário de simulação"
+                >
+                  <Layers className="w-3.5 h-3.5 text-[#d4af37]" />
+                  <span className="hidden md:inline">Escolher Simulação</span>
+                </button>
+
                 {/* Botão 1: Simular Incêndio Real */}
                 <button
                   type="button"
@@ -2471,6 +2698,157 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             <div className="absolute top-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-4 py-1.5 rounded-full bg-black/90 backdrop-blur-md border border-[#d4af37]/60 text-xs text-[#f3e5ab] font-bold shadow-glow-gold flex items-center gap-2 animate-pulse">
               <Eye className="w-3.5 h-3.5 text-[#d4af37]" />
               <span>{hoveredObjectName} — Clique para interagir</span>
+            </div>
+          )}
+
+          {/* POP-UP PRINCIPAL DE ESCOLHA DE CENÁRIOS (INCÊNDIO REAL VS DISPARO FALSO) */}
+          {showEntryModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-5 bg-black/85 backdrop-blur-xl animate-fadeIn pointer-events-auto">
+              <div className="relative w-full max-w-3xl bg-[#090b0e] border-2 border-[#d4af37] rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_rgba(212,175,55,0.4)] text-white overflow-hidden">
+                {/* Botão Fechar X */}
+                <button
+                  type="button"
+                  onClick={() => setShowEntryModal(false)}
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-[#d4af37] text-gray-300 hover:text-black flex items-center justify-center text-sm font-bold transition-all cursor-pointer z-20"
+                  title="Fechar e explorar livremente"
+                >
+                  ✕
+                </button>
+
+                {/* Cabeçalho do Pop-up */}
+                <div className="text-center mb-5 sm:mb-6 pr-6 sm:pr-0">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/60 text-[#f3e5ab] text-[11px] sm:text-xs font-black uppercase tracking-wider mb-2">
+                    <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <span>Simulador 3D Interativo • NBR 14518 & NFPA 96</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
+                    Como Você Deseja Iniciar a <span className="text-[#f3e5ab]">Simulação 3D?</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-300 mt-1.5 max-w-xl mx-auto leading-relaxed">
+                    Escolha um dos cenários abaixo para vivenciar a engenharia autônoma Outfire em ação:
+                  </p>
+                </div>
+
+                {/* Os 2 Grandes Cards de Cenário */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+                  {/* CARD 1: INCÊNDIO REAL */}
+                  <div className="relative p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-red-950/40 via-black/85 to-[#150a0d] border-2 border-red-500/70 hover:border-red-400 transition-all hover:scale-[1.01] shadow-[0_0_30px_rgba(239,68,68,0.25)] flex flex-col justify-between group">
+                    <div>
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-red-600/25 border border-red-500/60 flex items-center justify-center text-red-400 group-hover:scale-110 transition-transform shadow-md">
+                          <Flame className="w-5 h-5 fill-red-500 text-red-500 animate-pulse" />
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-black uppercase tracking-wider">
+                          Automático
+                        </span>
+                      </div>
+                      <h4 className="text-base sm:text-lg font-black text-white group-hover:text-red-300 transition-colors">
+                        Simular Incêndio Real
+                      </h4>
+                      <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+                        Demonstração completa e cinematográfica da proteção Classe K:
+                      </p>
+                      <ul className="text-[11px] text-gray-300 mt-2.5 space-y-1">
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-red-400 font-bold">•</span>
+                          <span>Óleo da fritadeira atinge autoignição (&gt;340°C)</span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-[#d4af37] font-bold">•</span>
+                          <span><strong className="text-white">Sensor detecta 145°C e fecha o Damper no duto</strong></span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-red-400 font-bold">•</span>
+                          <span>Central Outfire IHM emite voz oficial e sirene</span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-red-400 font-bold">•</span>
+                          <span>Corte imediato de gás e exaustão + Saponificante</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowEntryModal(false);
+                        startRealFireScenario();
+                      }}
+                      className="mt-4 sm:mt-5 w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black font-black text-xs sm:text-sm uppercase tracking-wide shadow-[0_0_25px_rgba(239,68,68,0.5)] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                    >
+                      <Flame className="w-4 h-4 fill-black text-black" />
+                      <span>Iniciar Incêndio Real →</span>
+                    </button>
+                  </div>
+
+                  {/* CARD 2: DISPARO FALSO / ACIDENTAL */}
+                  <div className="relative p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-[#d4af37]/20 via-black/85 to-[#0d140e] border-2 border-[#d4af37]/80 hover:border-[#f3e5ab] transition-all hover:scale-[1.01] shadow-[0_0_30px_rgba(212,175,55,0.25)] flex flex-col justify-between group">
+                    <div>
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-[#d4af37]/25 border border-[#d4af37]/60 flex items-center justify-center text-[#f3e5ab] group-hover:scale-110 transition-transform shadow-md">
+                          <UtensilsCrossed className="w-5 h-5 text-[#d4af37]" />
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-[#d4af37] text-black text-[10px] font-black uppercase tracking-wider">
+                          Economia R$ 15.000
+                        </span>
+                      </div>
+                      <h4 className="text-base sm:text-lg font-black text-[#f3e5ab] group-hover:text-white transition-colors">
+                        Simular Disparo Falso
+                      </h4>
+                      <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+                        Cenário cômico com gameplay interativo na tela da central:
+                      </p>
+                      <ul className="text-[11px] text-gray-300 mt-2.5 space-y-1">
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-[#d4af37] font-bold">•</span>
+                          <span>Lavador derruba pilha de pratos na botoeira</span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-amber-300 font-bold">•</span>
+                          <span>Central entra em alarme sonoro de emergência</span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-emerald-400 font-bold">•</span>
+                          <span><strong className="text-[#f3e5ab]">Você toca na tela da Central 3D para abortar</strong></span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="text-emerald-400 font-bold">•</span>
+                          <span>Zero desperdício de produto químico e R$ 0 gasto!</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowEntryModal(false);
+                        startAccidentalDischargeScenario();
+                      }}
+                      className="mt-4 sm:mt-5 w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-[#d4af37] via-amber-400 to-[#b89628] text-black font-black text-xs sm:text-sm uppercase tracking-wide shadow-[0_0_25px_rgba(212,175,55,0.5)] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                    >
+                      <Sparkles className="w-4 h-4 fill-black text-black" />
+                      <span>Iniciar Disparo Falso →</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Rodapé do Modal */}
+                <div className="mt-4 sm:mt-5 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5 text-xs text-gray-400">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEntryModal(false);
+                      handleResetScene();
+                    }}
+                    className="text-gray-400 hover:text-white underline underline-offset-4 cursor-pointer text-[11px] sm:text-xs"
+                  >
+                    Explorar Cozinha 3D em Standby (Modo Livre)
+                  </button>
+                  <span className="text-[10px] sm:text-[11px] font-mono text-[#e5c05d]">
+                    Supervisão Integral NBR 14518 / NFPA 96
+                  </span>
+                </div>
+              </div>
             </div>
           )}
 
