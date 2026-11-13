@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {
   Flame, ShieldCheck, AlertOctagon, ZapOff, Wind, Droplets,
   RotateCcw, Sparkles, BellRing, Eye, Camera, CheckCircle2,
   ChevronDown, Radio, XCircle, User, Play, Pause, MousePointer, HelpCircle,
-  Volume2, VolumeX, ShieldAlert, UtensilsCrossed, Zap, AlertTriangle
+  Volume2, VolumeX, ShieldAlert, UtensilsCrossed, Zap, AlertTriangle,
+  Package, Wrench, Cpu, ArrowRight
 } from 'lucide-react';
 import {
   createNormalizedIhmScreenCanvas,
@@ -16,12 +18,14 @@ import {
 } from '../utils/ihmScreen';
 import { soundEffects } from '../utils/soundEffects';
 import { createCylinderLabelTexture } from '../utils/cylinderLabels';
+import { useWhatsAppModal } from '../context/WhatsAppModalContext';
 
 export interface CinematicZoomPoint {
   id: number;
   label: string;
   name: string;
-  progress: number;
+  timeStart: number;
+  timeEnd: number;
   camPos: [number, number, number];
   camLook: [number, number, number];
   camPosMobile: [number, number, number];
@@ -31,109 +35,119 @@ export interface CinematicZoomPoint {
   icon: string;
 }
 
+export const TOTAL_SIM_DURATION = 27.0; // 27 segundos de simulação cinematográfica contínua
+
 export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
   {
     id: 1,
     label: '1',
     name: 'Cozinha Standby',
-    progress: 0.05,
+    timeStart: 0.0,
+    timeEnd: 3.5,
     camPos: [0, 2.2, 4.4],
     camLook: [0, 1.4, 0],
-    camPosMobile: [0.5, 2.1, 7.0],
+    camPosMobile: [0.5, 2.1, 6.8],
     camLookMobile: [0.5, 1.3, 0],
-    badgeTitle: '1. Cozinha em Standby & Supervisão',
-    badgeDesc: 'Sistema Outfire VTS 32S3 operando em prontidão e supervisão autônoma contínua (NBR 14518).',
+    badgeTitle: '1. Cozinha em Standby & Supervisão Contínua (NBR 14518)',
+    badgeDesc: 'Sistema Outfire VTS 32S3 operando em prontidão. Inox cromado reluzindo, gás ativo e supervisão contínua.',
     icon: 'shield',
   },
   {
     id: 2,
     label: '2',
     name: 'Início do Fogo',
-    progress: 0.18,
+    timeStart: 3.5,
+    timeEnd: 7.0,
     camPos: [-0.55, 1.45, 1.8],
     camLook: [-0.55, 1.05, 0],
-    camPosMobile: [-0.55, 1.45, 2.3],
+    camPosMobile: [-0.55, 1.45, 2.2],
     camLookMobile: [-0.55, 1.05, 0],
     badgeTitle: '2. Princípio de Incêndio na Fritadeira',
-    badgeDesc: 'Gordura e óleo vegetal/animal superaquecem até autoignição (>340°C). Fogo inicia.',
+    badgeDesc: 'Gordura e óleo vegetal/animal superaquecem até autoignição (>340°C). Chamas e fumaça sobem em direção à coifa.',
     icon: 'flame',
   },
   {
     id: 3,
     label: '3',
     name: 'Sensor 145°C',
-    progress: 0.32,
+    timeStart: 7.0,
+    timeEnd: 10.5,
     camPos: [-0.45, 2.05, 1.15],
     camLook: [-0.55, 2.15, 0],
-    camPosMobile: [-0.45, 2.05, 1.6],
+    camPosMobile: [-0.45, 2.05, 1.5],
     camLookMobile: [-0.55, 2.15, 0],
     badgeTitle: '3. Sensor Blindado Atinge 145°C',
-    badgeDesc: 'Temperatura na coifa atinge 145°C (NBR 14518). O sensor blindado fecha circuito de disparo imediato.',
+    badgeDesc: 'Temperatura na coifa atinge 145°C (NBR 14518). Circuito térmico fecha emitindo sinal de disparo para a Central.',
     icon: 'sensor',
   },
   {
     id: 4,
     label: '4',
-    name: 'Damper Corta-Fogo',
-    progress: 0.45,
-    camPos: [0.1, 2.75, 1.35],
-    camLook: [0, 2.85, 0],
-    camPosMobile: [0.1, 2.75, 1.8],
-    camLookMobile: [0, 2.85, 0],
-    badgeTitle: '4. Damper Corta-Fogo Fechado (Duto Isolado)',
-    badgeDesc: 'Solenoide desarmada: lâmina fecha em 90° bloqueando a passagem de fogo para a exaustão predial.',
-    icon: 'damper',
+    name: 'Central Outfire IHM',
+    timeStart: 10.5,
+    timeEnd: 16.5,
+    camPos: [2.1, 1.8, 0.70],
+    camLook: [2.1, 1.8, 0.15],
+    camPosMobile: [2.05, 1.8, 0.95],
+    camLookMobile: [2.1, 1.8, 0.15],
+    badgeTitle: '4. Central Outfire VTS 32S3 em Alarme (IHM Touch)',
+    badgeDesc: 'Voz oficial de disparo ativada com cronômetro regressivo. Opção: Puxe o Acionador Manual para adiantar o despejo!',
+    icon: 'central',
   },
   {
     id: 5,
     label: '5',
-    name: 'Corte de Gás',
-    progress: 0.58,
-    camPos: [0.65, 1.45, 1.55],
-    camLook: [0.65, 1.05, 0],
-    camPosMobile: [0.65, 1.45, 2.1],
-    camLookMobile: [0.65, 1.05, 0],
-    badgeTitle: '5. Corte Imediato de Gás GN/GLP por Válvula Solenoide',
-    badgeDesc: 'Válvula solenoide fecha instantaneamente o gás, apagando as chamas sob a panela e eliminando o combustível.',
-    icon: 'gas',
+    name: 'Damper Corta-Fogo',
+    timeStart: 16.5,
+    timeEnd: 19.0,
+    camPos: [0.1, 2.75, 1.35],
+    camLook: [0, 2.85, 0],
+    camPosMobile: [0.1, 2.75, 1.75],
+    camLookMobile: [0, 2.85, 0],
+    badgeTitle: '5. Damper Corta-Fogo Fechado (Duto Isolado)',
+    badgeDesc: 'Solenoide liberada: lâmina móvel fecha em 90° bloqueando a passagem de fogo para a exaustão predial.',
+    icon: 'damper',
   },
   {
     id: 6,
     label: '6',
-    name: 'Quadro Elétrico',
-    progress: 0.70,
-    camPos: [-2.2, 1.95, 1.4],
-    camLook: [-2.6, 1.9, -0.4],
-    camPosMobile: [-2.0, 1.95, 1.9],
-    camLookMobile: [-2.6, 1.9, -0.4],
-    badgeTitle: '6. Intertravamento Elétrico: Exaustão & Fritadeira Desenergizadas',
-    badgeDesc: 'Luzes do painel desligam: motor do exaustor e resistências das fritadeiras são cortados para evitar reignição.',
-    icon: 'electrical',
+    name: 'Corte de Gás',
+    timeStart: 19.0,
+    timeEnd: 21.0,
+    camPos: [0.65, 1.45, 1.55],
+    camLook: [0.65, 1.05, 0],
+    camPosMobile: [0.65, 1.45, 2.0],
+    camLookMobile: [0.65, 1.05, 0],
+    badgeTitle: '6. Corte Imediato de Gás GN/GLP por Válvula Solenoide',
+    badgeDesc: 'Válvula solenoide fecha instantaneamente o gás, apagando as chamas sob a panela e eliminando o combustível.',
+    icon: 'gas',
   },
   {
     id: 7,
     label: '7',
-    name: 'Central Outfire IHM',
-    progress: 0.82,
-    camPos: [2.1, 1.8, 0.72],
-    camLook: [2.1, 1.8, 0.15],
-    camPosMobile: [2.05, 1.8, 1.0],
-    camLookMobile: [2.1, 1.8, 0.15],
-    badgeTitle: '7. Central Outfire VTS 32S3 em Alarme com IHM Touch',
-    badgeDesc: 'Cronômetro regressivo ativado com áudio sincronizado: 11s bips de aviso + 5s sirene de evacuação.',
-    icon: 'central',
+    name: 'Quadro Elétrico',
+    timeStart: 21.0,
+    timeEnd: 23.5,
+    camPos: [-2.2, 1.95, 1.4],
+    camLook: [-2.6, 1.9, -0.4],
+    camPosMobile: [-2.0, 1.95, 1.8],
+    camLookMobile: [-2.6, 1.9, -0.4],
+    badgeTitle: '7. Intertravamento Elétrico: Exaustão & Fritadeira Desenergizadas',
+    badgeDesc: 'Luzes verdes do painel desligam: motor do exaustor e resistências das fritadeiras são cortados para evitar reignição.',
+    icon: 'electrical',
   },
   {
     id: 8,
     label: '8',
     name: 'Extinção Total',
-    progress: 0.95,
-    camPos: [0, 1.8, 3.0],
+    timeStart: 23.5,
+    timeEnd: 27.0,
+    camPos: [0, 1.8, 3.2],
     camLook: [-0.1, 1.25, 0],
-    camPosMobile: [0, 1.8, 3.8],
+    camPosMobile: [0, 1.8, 3.9],
     camLookMobile: [-0.1, 1.25, 0],
     badgeTitle: '8. Supressão Ativa com Saponificante Classe K & CO2',
-    badgeDesc: 'Bicos aspersores criam manta espumosa saponificada, resfriando o óleo e isolando o oxigênio. Fogo 100% extinto!',
+    badgeDesc: 'Manta espumosa cobre o óleo e isola o oxigênio. Fogo 100% extinto! Cozinha protegida conforme NBR 14518.',
     icon: 'droplets',
   },
 ];
@@ -157,19 +171,16 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Scrollytelling Scroll Progress (0 to 1)
-  const [scrollProgress, setScrollProgress] = useState<number>(0);
-  const scrollProgressRef = useRef<number>(0);
+  const { openLeadModal } = useWhatsAppModal();
 
-  // Auto-Play / Pause State & Modo Scroll
+  // Virtual Simulation Time (0 a 27 segundos)
+  const [simTime, setSimTime] = useState<number>(0);
+  const simTimeRef = useRef<number>(0);
+
+  // Auto-Play / Pause State (Vídeo Automatizado sem scroll de tela)
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const autoPlayRafRef = useRef<number | null>(null);
-  const lastTimeRef = useRef<number>(0);
-
-  // Pop-up Automático de Entrada (Aperte o Play vs Modo Descendo a Tela)
-  const [showEntryModal, setShowEntryModal] = useState<boolean>(false);
-  const hasShownEntryModalRef = useRef<boolean>(false);
-  const [showScrollPromptArrows, setShowScrollPromptArrows] = useState<boolean>(false);
+  const isPlayingRef = useRef<boolean>(false);
+  isPlayingRef.current = isPlaying;
 
   // Cenário Ativo: Incêndio Real vs Disparo Acidental
   const [activeScenario, setActiveScenario] = useState<'real_fire' | 'accidental_discharge'>('real_fire');
@@ -196,9 +207,76 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
   // Audio Tracking Refs
   const hasPlayedAlarmAudioRef = useRef<boolean>(false);
-  const hasPlayedEvacuationRef = useRef<boolean>(false);
   const hasPlayedGasCutoffRef = useRef<boolean>(false);
+  const hasPlayedSuppressionRef = useRef<boolean>(false);
 
+  // Simulation Stage
+  const [simStage, setSimStage] = useState<SimStage>('STANDBY');
+  const simStageRef = useRef<SimStage>('STANDBY');
+  simStageRef.current = simStage;
+
+  const [countdown, setCountdown] = useState<number>(60);
+  const countdownRef = useRef<number>(60);
+  countdownRef.current = countdown;
+
+  const [telemetry, setTelemetry] = useState<TelemetryData>({
+    temp: 180,
+    gasStatus: 'ABERTO',
+    exhaustStatus: 'LIGADO',
+    systemStatus: 'PRONTIDÃO',
+    countdown: 60,
+  });
+
+  const [hoveredObjectName, setHoveredObjectName] = useState<string | null>(null);
+  const [activeCameraView, setActiveCameraView] = useState<'geral' | 'central' | 'fritadeira' | 'botoeira'>('geral');
+  const [manualAdvanced, setManualAdvanced] = useState<boolean>(false);
+  const manualAdvancedRef = useRef<boolean>(false);
+
+  // Three.js References
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+
+  // Dynamic Meshes & Lights
+  const centralScreenTextureRef = useRef<THREE.CanvasTexture | null>(null);
+  const centralScreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const lcdScreenMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const standbyScreenTextureRef = useRef<THREE.Texture | null>(null);
+  const alarmScreenTextureRef = useRef<THREE.Texture | null>(null);
+  const centralStrobeLightRef = useRef<THREE.PointLight | null>(null);
+  const centralStrobeMeshRef = useRef<THREE.Mesh | null>(null);
+  const fireLightRef = useRef<THREE.PointLight | null>(null);
+  const manualPullLeverRef = useRef<THREE.Mesh | null>(null);
+  const manualStationMeshRef = useRef<THREE.Group | null>(null);
+  const centralGroupRef = useRef<THREE.Group | null>(null);
+  const fryerGroupRef = useRef<THREE.Group | null>(null);
+  const foamBlanketMeshRef = useRef<THREE.Mesh | null>(null);
+  const fireParticlesGroupRef = useRef<THREE.Group | null>(null);
+  const smokeParticlesGroupRef = useRef<THREE.Group | null>(null);
+  const foamSprayGroupRef = useRef<THREE.Group | null>(null);
+  const co2FogGroupRef = useRef<THREE.Group | null>(null);
+
+  // 3D Meshes & Elementos Dinâmicos Adicionais (Panela, Chamas Azuis, Sensor, Damper, Quadro, Lavador)
+  const stovePanGroupRef = useRef<THREE.Group | null>(null);
+  const blueFlameGroupRef = useRef<THREE.Group | null>(null);
+  const blueFlameLightRef = useRef<THREE.PointLight | null>(null);
+  const shieldedSensorGroupRef = useRef<THREE.Group | null>(null);
+  const sensorGlowMeshRef = useRef<THREE.Mesh | null>(null);
+  const damperFlapMeshRef = useRef<THREE.Mesh | null>(null);
+  const electricalPanelGroupRef = useRef<THREE.Group | null>(null);
+  const panelLedExhaustRef = useRef<THREE.Mesh | null>(null);
+  const panelLedFryerRef = useRef<THREE.Mesh | null>(null);
+  const panelLedAmberRef = useRef<THREE.Mesh | null>(null);
+  const dishwasherGroupRef = useRef<THREE.Group | null>(null);
+  const platesStackGroupRef = useRef<THREE.Group | null>(null);
+  const fallingPlateMeshRef = useRef<THREE.Mesh | null>(null);
+
+  // Camera Target Interpolation
+  const targetCamPos = useRef<THREE.Vector3>(new THREE.Vector3(0, 2.2, 4.4));
+  const targetCamLook = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.4, 0));
+
+  // --- AUDIO CONTROLLER ---
   const stopAllAudioCycles = useCallback(() => {
     if (audioCycleTimeoutRef.current) {
       clearTimeout(audioCycleTimeoutRef.current);
@@ -247,7 +325,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
               runCycle();
             }
           }, 5000);
-
         }, 11000);
       } catch (err) {
         console.warn('Erro ao inicializar áudio oficial:', err);
@@ -272,76 +349,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     });
   }, [stopAllAudioCycles, startOfficialAlarmAudioCycle]);
 
-  // Manual Trigger Override (if user clicks Acionador Manual)
-  const [manualOverride, setManualOverride] = useState<boolean>(false);
-  const manualOverrideRef = useRef<boolean>(false);
-
-  // Simulation Stage
-  const [simStage, setSimStage] = useState<SimStage>('STANDBY');
-  const simStageRef = useRef<SimStage>('STANDBY');
-  simStageRef.current = simStage;
-
-  const [countdown, setCountdown] = useState<number>(10);
-  const countdownRef = useRef<number>(10);
-  countdownRef.current = countdown;
-
-  const [telemetry, setTelemetry] = useState<TelemetryData>({
-    temp: 180,
-    gasStatus: 'ABERTO',
-    exhaustStatus: 'LIGADO',
-    systemStatus: 'PRONTIDÃO',
-    countdown: 10,
-  });
-
-  const [hoveredObjectName, setHoveredObjectName] = useState<string | null>(null);
-  const [activeCameraView, setActiveCameraView] = useState<'geral' | 'central' | 'fritadeira' | 'botoeira'>('geral');
-
-  // Three.js References
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
-
-  // Dynamic Meshes & Lights
-  const centralScreenTextureRef = useRef<THREE.CanvasTexture | null>(null);
-  const centralScreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const lcdScreenMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
-  const standbyScreenTextureRef = useRef<THREE.Texture | null>(null);
-  const alarmScreenTextureRef = useRef<THREE.Texture | null>(null);
-  const centralStrobeLightRef = useRef<THREE.PointLight | null>(null);
-  const centralStrobeMeshRef = useRef<THREE.Mesh | null>(null);
-  const fireLightRef = useRef<THREE.PointLight | null>(null);
-  const manualPullLeverRef = useRef<THREE.Mesh | null>(null);
-  const manualStationMeshRef = useRef<THREE.Group | null>(null);
-  const centralGroupRef = useRef<THREE.Group | null>(null);
-  const fryerGroupRef = useRef<THREE.Group | null>(null);
-  const foamBlanketMeshRef = useRef<THREE.Mesh | null>(null);
-  const fireParticlesGroupRef = useRef<THREE.Group | null>(null);
-  const smokeParticlesGroupRef = useRef<THREE.Group | null>(null);
-  const foamSprayGroupRef = useRef<THREE.Group | null>(null);
-  const co2FogGroupRef = useRef<THREE.Group | null>(null);
-
-  // 3D Meshes & Elementos Dinâmicos Adicionais (Panela, Chamas Azuis, Sensor, Damper, Quadro, Lavador)
-  const stovePanGroupRef = useRef<THREE.Group | null>(null);
-  const blueFlameGroupRef = useRef<THREE.Group | null>(null);
-  const blueFlameLightRef = useRef<THREE.PointLight | null>(null);
-  const shieldedSensorGroupRef = useRef<THREE.Group | null>(null);
-  const sensorGlowMeshRef = useRef<THREE.Mesh | null>(null);
-  const damperFlapMeshRef = useRef<THREE.Mesh | null>(null);
-  const electricalPanelGroupRef = useRef<THREE.Group | null>(null);
-  const panelLedExhaustRef = useRef<THREE.Mesh | null>(null);
-  const panelLedFryerRef = useRef<THREE.Mesh | null>(null);
-  const panelLedAmberRef = useRef<THREE.Mesh | null>(null);
-  const dishwasherGroupRef = useRef<THREE.Group | null>(null);
-  const platesStackGroupRef = useRef<THREE.Group | null>(null);
-  const fallingPlateMeshRef = useRef<THREE.Mesh | null>(null);
-
-  // Camera Target Interpolation
-  const targetCamPos = useRef<THREE.Vector3>(new THREE.Vector3(0, 2.2, 4.4));
-  const targetCamLook = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.4, 0));
-
   // --- DRAW CENTRAL LCD DIGITAL TOUCHSCREEN CANVAS TEXTURE ---
-  // Renderiza dinamicamente as telas da IHM (Alarme com cronômetro em tempo real, Supressão e Extinto)
   const updateLcdScreenTexture = useCallback(() => {
     const canvas = centralScreenCanvasRef.current;
     if (!canvas) return;
@@ -362,47 +370,170 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     }
   }, []);
 
-  // Estado para controle de contagem regressiva manual disparada pela botoeira
-  const [isManualCountdown, setIsManualCountdown] = useState<boolean>(false);
+  // Update canvas texture on stage change
+  useEffect(() => {
+    updateLcdScreenTexture();
+  }, [simStage, countdown, updateLcdScreenTexture]);
 
-  // --- MANUAL TRIGGER ACTION (BOTOEIRA) ---
-  // Regra crítica do cliente: ao puxar o acionador manual, inicia a contagem regressiva
-  // e NÃO despeja o saponificante antes de zerar a contagem!
-  const handleManualTrigger = useCallback(() => {
-    setIsPlaying(false);
-    if (simStage === 'SUPPRESSION' || simStage === 'EXTINGUISHED') return;
+  // --- INICIAR CENÁRIO 1: INCÊNDIO REAL (VÍDEO AUTOMATIZADO 60 FPS SEM SCROLL) ---
+  const startRealFireScenario = useCallback(() => {
+    stopAllAudioCycles();
+    setActiveScenario('real_fire');
+    activeScenarioRef.current = 'real_fire';
+    setAccidentalStep('idle');
+    accidentalStepRef.current = 'idle';
+    setShowAbortedModal(false);
+    setActiveCameraView('geral');
+    setManualAdvanced(false);
+    manualAdvancedRef.current = false;
+
+    hasPlayedAlarmAudioRef.current = false;
+    hasPlayedGasCutoffRef.current = false;
+    hasPlayedSuppressionRef.current = false;
+
+    if (dishwasherGroupRef.current) {
+      dishwasherGroupRef.current.visible = false;
+    }
+    if (manualPullLeverRef.current) {
+      manualPullLeverRef.current.rotation.x = 0;
+    }
+    if (foamBlanketMeshRef.current) {
+      foamBlanketMeshRef.current.scale.set(0.001, 0.001, 0.001);
+      foamBlanketMeshRef.current.visible = false;
+    }
+
+    simTimeRef.current = 0.0;
+    setSimTime(0.0);
+    setActiveZoomIndex(0);
+    setSimStage('STANDBY');
+    simStageRef.current = 'STANDBY';
+    setCountdown(60);
+    countdownRef.current = 60;
+    setTelemetry({
+      temp: 180,
+      gasStatus: 'ABERTO',
+      exhaustStatus: 'LIGADO',
+      systemStatus: 'PRONTIDÃO',
+      countdown: 60,
+    });
+
+    if (lcdScreenMatRef.current && standbyScreenTextureRef.current) {
+      lcdScreenMatRef.current.map = standbyScreenTextureRef.current;
+      lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
+      lcdScreenMatRef.current.needsUpdate = true;
+    }
+
+    setIsPlaying(true);
+    isPlayingRef.current = true;
+  }, [stopAllAudioCycles]);
+
+  // --- INTERAÇÃO: PUXAR ACIONADOR MANUAL PARA ADIANTAR O DESPEJO (INCÊNDIO REAL) ---
+  const handleManualAdvanceDischarge = useCallback(() => {
+    if (simStageRef.current === 'SUPPRESSION' || simStageRef.current === 'EXTINGUISHED') return;
 
     if (manualPullLeverRef.current) {
       manualPullLeverRef.current.rotation.x = 0.65;
     }
+    soundEffects.playClackImpact();
+    setManualAdvanced(true);
+    manualAdvancedRef.current = true;
 
-    manualOverrideRef.current = true;
-    setManualOverride(true);
-    setSimStage('FIRE_ALARM');
-    setCountdown(60);
-    setIsManualCountdown(true);
-
+    // Salta a simulação direto para a fase de extinção imediata (23.5s)
+    simTimeRef.current = 23.5;
+    setSimTime(23.5);
+    setCountdown(0);
+    countdownRef.current = 0;
+    setSimStage('SUPPRESSION');
+    simStageRef.current = 'SUPPRESSION';
     setTelemetry({
-      temp: 290,
+      temp: 140,
       gasStatus: 'CORTADO',
       exhaustStatus: 'INTERTRAVADO',
-      systemStatus: 'ALERTA DE FOGO',
+      systemStatus: 'COMBATE ATIVO',
+      countdown: 0,
+    });
+    setCinematicBadge({
+      title: '⚡ Disparo Manual Antecipado (Acionador)',
+      desc: 'Botoeira acionada manualmente: contagem ignorada e saponificante Classe K despejado imediatamente!',
+      iconType: 'droplets',
+    });
+  }, []);
+
+  // --- INICIAR CENÁRIO 2: DISPARO ACIDENTAL (COMÉDIA DOS PRATOS & ABORTAR NA CENTRAL) ---
+  const startAccidentalDischargeScenario = useCallback(() => {
+    stopAllAudioCycles();
+    setActiveScenario('accidental_discharge');
+    activeScenarioRef.current = 'accidental_discharge';
+    setAccidentalStep('walking');
+    accidentalStepRef.current = 'walking';
+    setShowAbortedModal(false);
+    setActiveCameraView('geral');
+    setManualAdvanced(false);
+    manualAdvancedRef.current = false;
+
+    hasPlayedAlarmAudioRef.current = false;
+    hasPlayedGasCutoffRef.current = false;
+    hasPlayedSuppressionRef.current = false;
+
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      targetCamPos.current.set(1.4, 1.6, 2.8);
+      targetCamLook.current.set(1.5, 1.35, 0.1);
+    } else {
+      targetCamPos.current.set(1.4, 1.6, 2.3);
+      targetCamLook.current.set(1.5, 1.35, 0.1);
+    }
+
+    if (dishwasherGroupRef.current) {
+      dishwasherGroupRef.current.visible = true;
+      dishwasherGroupRef.current.position.set(2.8, 0, 0.3);
+      dishwasherGroupRef.current.rotation.y = -Math.PI / 2;
+    }
+    if (platesStackGroupRef.current) {
+      platesStackGroupRef.current.rotation.set(0, 0, 0);
+    }
+    if (fallingPlateMeshRef.current) {
+      fallingPlateMeshRef.current.position.set(0, 11 * 0.026 + 0.02, 0);
+      fallingPlateMeshRef.current.rotation.set(0, 0, 0);
+    }
+    if (manualPullLeverRef.current) {
+      manualPullLeverRef.current.rotation.x = 0;
+    }
+    if (foamBlanketMeshRef.current) {
+      foamBlanketMeshRef.current.scale.set(0.001, 0.001, 0.001);
+      foamBlanketMeshRef.current.visible = false;
+    }
+
+    setSimStage('STANDBY');
+    simStageRef.current = 'STANDBY';
+    setCountdown(60);
+    countdownRef.current = 60;
+    setTelemetry({
+      temp: 180,
+      gasStatus: 'ABERTO',
+      exhaustStatus: 'LIGADO',
+      systemStatus: 'PRONTIDÃO',
       countdown: 60,
     });
-  }, [simStage]);
 
-  // --- ABORTAR DISPARO (ANULAR DISPARO EM FALSO CONFORME REQUISITO) ---
+    if (lcdScreenMatRef.current && standbyScreenTextureRef.current) {
+      lcdScreenMatRef.current.map = standbyScreenTextureRef.current;
+      lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
+      lcdScreenMatRef.current.needsUpdate = true;
+    }
+
+    setIsPlaying(true);
+    isPlayingRef.current = true;
+  }, [stopAllAudioCycles]);
+
+  // --- ABORTAR DISPARO (ANULAR DISPARO EM FALSO E POUPAR R$ 15.000) ---
   const handleAbortDisparo = useCallback(() => {
-    setIsPlaying(false);
     stopAllAudioCycles();
     soundEffects.playSuccessChime();
 
-    manualOverrideRef.current = false;
-    setManualOverride(false);
-    setIsManualCountdown(false);
-
     if (activeScenarioRef.current === 'accidental_discharge') {
       setAccidentalStep('aborted');
+      accidentalStepRef.current = 'aborted';
       setShowAbortedModal(true);
     } else {
       setShowAbortedModal(true);
@@ -427,7 +558,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     }
 
     setSimStage('STANDBY');
+    simStageRef.current = 'STANDBY';
     setCountdown(60);
+    countdownRef.current = 60;
     setTelemetry({
       temp: 180,
       gasStatus: 'ABERTO',
@@ -435,315 +568,65 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       systemStatus: 'PRONTIDÃO',
       countdown: 60,
     });
+    setIsPlaying(false);
+    isPlayingRef.current = false;
   }, [stopAllAudioCycles]);
 
-  // --- CENÁRIO 1: INICIAR SIMULAÇÃO DE INCÊNDIO REAL (8 ZOOMS CINEMATOGRÁFICOS) ---
-  const startRealFireScenario = useCallback((autoPlay: boolean = true) => {
-    setIsPlaying(false);
-    stopAllAudioCycles();
-    setActiveScenario('real_fire');
-    setAccidentalStep('idle');
-    setShowAbortedModal(false);
-    setActiveCameraView('geral');
-
-    if (dishwasherGroupRef.current) {
-      dishwasherGroupRef.current.visible = false;
-    }
-    if (manualPullLeverRef.current) {
-      manualPullLeverRef.current.rotation.x = 0;
-    }
-
-    hasPlayedGasCutoffRef.current = false;
-    hasPlayedAlarmAudioRef.current = false;
-    hasPlayedEvacuationRef.current = false;
-
-    // Rola de volta para o topo da simulação
-    if (containerRef.current) {
-      const containerTop = containerRef.current.offsetTop;
-      window.scrollTo({ top: containerTop + 20, behavior: 'smooth' });
-    }
-    setScrollProgress(0.02);
-    scrollProgressRef.current = 0.02;
-    setActiveZoomIndex(0);
-    setSimStage('STANDBY');
-    setCountdown(60);
-    setTelemetry({
-      temp: 180,
-      gasStatus: 'ABERTO',
-      exhaustStatus: 'LIGADO',
-      systemStatus: 'PRONTIDÃO',
-      countdown: 60,
-    });
-
-    if (lcdScreenMatRef.current && standbyScreenTextureRef.current) {
-      lcdScreenMatRef.current.map = standbyScreenTextureRef.current;
-      lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
-      lcdScreenMatRef.current.needsUpdate = true;
-    }
-
-    if (autoPlay) {
-      setIsPlaying(true);
-      setShowScrollPromptArrows(false);
-    }
-  }, [stopAllAudioCycles]);
-
-  // --- CENÁRIO 2: INICIAR SIMULAÇÃO DE DISPARO ACIDENTAL (COMÉDIA DOS PRATOS) ---
-  const startAccidentalDischargeScenario = useCallback(() => {
-    setIsPlaying(false);
-    stopAllAudioCycles();
-    setActiveScenario('accidental_discharge');
-    setAccidentalStep('walking');
-    setShowAbortedModal(false);
-    setActiveCameraView('geral');
-
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) {
-      targetCamPos.current.set(1.4, 1.6, 2.8);
-      targetCamLook.current.set(1.5, 1.35, 0.1);
-    } else {
-      targetCamPos.current.set(1.4, 1.6, 2.3);
-      targetCamLook.current.set(1.5, 1.35, 0.1);
-    }
-
-    if (dishwasherGroupRef.current) {
-      dishwasherGroupRef.current.visible = true;
-      dishwasherGroupRef.current.position.set(2.8, 0, 0.3);
-      dishwasherGroupRef.current.rotation.y = -Math.PI / 2;
-    }
-    if (platesStackGroupRef.current) {
-      platesStackGroupRef.current.rotation.set(0, 0, 0);
-    }
-    if (fallingPlateMeshRef.current) {
-      fallingPlateMeshRef.current.position.set(0, 12 * 0.028 + 0.02, 0);
-      fallingPlateMeshRef.current.rotation.set(0, 0, 0);
-    }
-    if (manualPullLeverRef.current) {
-      manualPullLeverRef.current.rotation.x = 0;
-    }
-
-    if (lcdScreenMatRef.current && standbyScreenTextureRef.current) {
-      lcdScreenMatRef.current.map = standbyScreenTextureRef.current;
-      lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
-      lcdScreenMatRef.current.needsUpdate = true;
-    }
-  }, [stopAllAudioCycles]);
-
-  // Helpers de rolagem suave da tela
-  const scrollToKitchen = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-    }
-    hasShownEntryModalRef.current = true;
-    setTimeout(() => {
-      setShowEntryModal(true);
-    }, 450);
-  };
-
-  const handleScrollDownStep = () => {
-    if (!containerRef.current) return;
-    const currentScroll = window.scrollY;
-    const step = window.innerHeight * 0.85;
-    window.scrollTo({ top: currentScroll + step, behavior: 'smooth' });
-  };
-
-  const scrollToProgress = (progressRatio: number) => {
-    if (!containerRef.current) return;
-    const containerTop = containerRef.current.offsetTop;
-    const scrollDist = containerRef.current.offsetHeight - window.innerHeight;
-    const targetY = containerTop + (scrollDist * progressRatio);
-    window.scrollTo({ top: targetY, behavior: 'smooth' });
-  };
-
-  const scrollToNextSection = () => {
-    setIsPlaying(false);
-    if (!containerRef.current) return;
-    const containerBottom = containerRef.current.offsetTop + containerRef.current.offsetHeight;
-    window.scrollTo({ top: containerBottom + 10, behavior: 'smooth' });
-  };
-
-  // --- SELEÇÃO NO POP-UP DE ENTRADA & CONTROLES ---
-  // 1. Apresentação Automática Rápida (Aperte o Play ~13s)
-  const handleSelectAutoPlay = useCallback(() => {
-    setShowEntryModal(false);
-    setShowScrollPromptArrows(false);
-    if (scrollProgressRef.current >= 0.94 || scrollProgressRef.current < 0.02) {
-      if (containerRef.current) {
-        const containerTop = containerRef.current.offsetTop;
-        window.scrollTo({ top: containerTop + 20, behavior: 'auto' });
-        scrollProgressRef.current = 0.02;
-        setScrollProgress(0.02);
-      }
-    }
-    setIsPlaying(true);
-  }, []);
-
-  // 2. Modo Descendo a Tela (Rolagem Manual)
-  const handleSelectScrollMode = useCallback(() => {
-    setShowEntryModal(false);
-    setIsPlaying(false);
-    setShowScrollPromptArrows(true);
-  }, []);
-
-  // --- CONTROLES DE AUTO-PLAY / PAUSE & MODO MANUAL SCROLL ---
+  // --- REPRODUÇÃO & TIMELINE CONTROLLER ---
   const togglePlayPause = useCallback(() => {
     setIsPlaying((prev) => {
       const next = !prev;
-      if (next) {
-        setShowScrollPromptArrows(false);
-        // Se a simulação já estava no final (> 0.94), reinicia do início da cozinha instantaneamente
-        if (scrollProgressRef.current >= 0.94) {
-          if (containerRef.current) {
-            const containerTop = containerRef.current.offsetTop;
-            window.scrollTo({ top: containerTop + 20, behavior: 'auto' });
-            scrollProgressRef.current = 0.02;
-            setScrollProgress(0.02);
-          }
-        } else if (scrollProgressRef.current < 0.02 && containerRef.current) {
-          // Se o usuário estiver acima da seção 3D, rola até o início da cozinha
-          const containerTop = containerRef.current.offsetTop;
-          if (window.scrollY < containerTop - 50) {
-            window.scrollTo({ top: containerTop + 20, behavior: 'auto' });
-          }
-        }
-      } else {
-        setShowScrollPromptArrows(true);
+      isPlayingRef.current = next;
+      if (next && simTimeRef.current >= TOTAL_SIM_DURATION - 0.2) {
+        startRealFireScenario();
       }
       return next;
     });
-  }, []);
+  }, [startRealFireScenario]);
 
-  const handleSetManualMode = useCallback(() => {
-    setIsPlaying(false);
-    setShowScrollPromptArrows(true);
-  }, []);
+  const jumpToTime = useCallback((timeSec: number) => {
+    const clamped = Math.max(0, Math.min(TOTAL_SIM_DURATION, timeSec));
+    simTimeRef.current = clamped;
+    setSimTime(clamped);
 
-  // Loop contínuo e suave com requestAnimationFrame para o Auto-Play acelerado e dinâmico
-  useEffect(() => {
-    if (!isPlaying) {
-      if (autoPlayRafRef.current) {
-        cancelAnimationFrame(autoPlayRafRef.current);
-        autoPlayRafRef.current = null;
-      }
-      return;
+    // Se o usuário pular para trás antes do alarme, reseta áudios
+    if (clamped < 10.5) {
+      hasPlayedAlarmAudioRef.current = false;
+      hasPlayedGasCutoffRef.current = false;
+      hasPlayedSuppressionRef.current = false;
+      stopAllAudioCycles();
     }
+  }, [stopAllAudioCycles]);
 
-    lastTimeRef.current = performance.now();
+  const jumpToStage = useCallback((stageIndex: number) => {
+    const target = CINEMATIC_ZOOM_STOPS[stageIndex];
+    if (!target) return;
+    if (activeScenarioRef.current !== 'real_fire') {
+      setActiveScenario('real_fire');
+      activeScenarioRef.current = 'real_fire';
+      if (dishwasherGroupRef.current) dishwasherGroupRef.current.visible = false;
+    }
+    jumpToTime(target.timeStart);
+  }, [jumpToTime]);
 
-    const loop = (currentTime: number) => {
-      const dt = Math.min((currentTime - lastTimeRef.current) / 1000, 0.1);
-      lastTimeRef.current = currentTime;
-
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const scrollDist = containerRef.current.offsetHeight - window.innerHeight;
-
-        if (scrollDist > 0) {
-          const scrolled = -rect.top;
-          const p = scrolled / scrollDist;
-
-          // Ao atingir o final da simulação (Fase 4 extinta), pausa automaticamente
-          if (p >= 0.985) {
-            setIsPlaying(false);
-            if (autoPlayRafRef.current) {
-              cancelAnimationFrame(autoPlayRafRef.current);
-              autoPlayRafRef.current = null;
-            }
-            return;
-          }
-
-          // Duração cinematográfica completa solicitada pelo cliente: ~25.0 segundos para percorrer as 8 etapas com locução e extinção
-          const totalDuration = 25.0;
-          const pixelsPerSec = scrollDist / totalDuration;
-          const step = pixelsPerSec * dt;
-
-          window.scrollBy({ top: step, behavior: 'auto' });
-        }
-      }
-
-      autoPlayRafRef.current = requestAnimationFrame(loop);
-    };
-
-    autoPlayRafRef.current = requestAnimationFrame(loop);
-
-    return () => {
-      if (autoPlayRafRef.current) {
-        cancelAnimationFrame(autoPlayRafRef.current);
-        autoPlayRafRef.current = null;
-      }
-    };
-  }, [isPlaying]);
-
-  // Interrupção inteligente por rolagem manual (mouse wheel ou touchmove na tela)
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const handleUserInterrupt = () => {
-      setIsPlaying(false);
-      setShowScrollPromptArrows(true);
-    };
-
-    window.addEventListener('wheel', handleUserInterrupt, { passive: true });
-    window.addEventListener('touchmove', handleUserInterrupt, { passive: true });
-
-    return () => {
-      window.removeEventListener('wheel', handleUserInterrupt);
-      window.removeEventListener('touchmove', handleUserInterrupt);
-    };
-  }, [isPlaying]);
-
-
-
-  // Efeito do cronômetro da tela de alarme: decrementa segundo a segundo (60s, 59s, 58s... 0s)
-  // e faz o cronômetro funcionar em tempo real na tela vermelha da central 3D
-  useEffect(() => {
-    if (simStage !== 'FIRE_ALARM') return;
-
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsManualCountdown(false);
-          // Zerou a contagem regressiva -> Agora sim despeja o saponificante!
-          setSimStage('SUPPRESSION');
-          setTelemetry((t) => ({
-            ...t,
-            temp: 140,
-            systemStatus: 'COMBATE ATIVO',
-            countdown: 0,
-          }));
-          setTimeout(() => {
-            setSimStage('EXTINGUISHED');
-            setTelemetry((t) => ({
-              ...t,
-              temp: 38,
-              systemStatus: 'INCÊNDIO EXTINTO',
-              countdown: 0,
-            }));
-          }, 3500);
-          return 0;
-        }
-        const nextVal = prev - 1;
-        setTelemetry((t) => ({
-          ...t,
-          countdown: nextVal,
-        }));
-        return nextVal;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [simStage]);
-
-  // --- RESET SCENE ACTION ---
   const handleResetScene = useCallback(() => {
+    stopAllAudioCycles();
+    simTimeRef.current = 0.0;
+    setSimTime(0.0);
     setIsPlaying(false);
-    manualOverrideRef.current = false;
-    setManualOverride(false);
-    setIsManualCountdown(false);
+    isPlayingRef.current = false;
+    setManualAdvanced(false);
+    manualAdvancedRef.current = false;
+    setActiveScenario('real_fire');
+    activeScenarioRef.current = 'real_fire';
+    setAccidentalStep('idle');
+    accidentalStepRef.current = 'idle';
+    setShowAbortedModal(false);
+
     setSimStage('STANDBY');
+    simStageRef.current = 'STANDBY';
     setCountdown(60);
+    countdownRef.current = 60;
     setTelemetry({
       temp: 180,
       gasStatus: 'ABERTO',
@@ -751,6 +634,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       systemStatus: 'PRONTIDÃO',
       countdown: 60,
     });
+
     if (manualPullLeverRef.current) {
       manualPullLeverRef.current.rotation.x = 0;
     }
@@ -758,192 +642,79 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       foamBlanketMeshRef.current.scale.set(0.001, 0.001, 0.001);
       foamBlanketMeshRef.current.visible = false;
     }
-  }, []);
+    if (dishwasherGroupRef.current) {
+      dishwasherGroupRef.current.visible = false;
+    }
+    if (lcdScreenMatRef.current && standbyScreenTextureRef.current) {
+      lcdScreenMatRef.current.map = standbyScreenTextureRef.current;
+      lcdScreenMatRef.current.emissiveMap = standbyScreenTextureRef.current;
+      lcdScreenMatRef.current.needsUpdate = true;
+    }
+  }, [stopAllAudioCycles]);
 
-  // Update canvas texture on stage change
-  useEffect(() => {
-    updateLcdScreenTexture();
-  }, [simStage, countdown, updateLcdScreenTexture]);
+  // Helpers de navegação na página
+  const scrollToKitchen = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+    startRealFireScenario();
+  };
 
-  // --- SCROLLYTELLING LISTENER (PINNED ROLAGEM CONTÍNUA COM FASES) ---
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const scrollDist = containerRef.current.offsetHeight - window.innerHeight;
-      if (scrollDist <= 0) return;
+  const scrollToNextSection = () => {
+    setIsPlaying(false);
+    isPlayingRef.current = false;
+    if (!containerRef.current) return;
+    const containerBottom = containerRef.current.offsetTop + containerRef.current.offsetHeight;
+    window.scrollTo({ top: containerBottom + 10, behavior: 'smooth' });
+  };
 
-      const scrolled = -rect.top;
-      const p = Math.min(1, Math.max(0, scrolled / scrollDist));
-      scrollProgressRef.current = p;
-      setScrollProgress(p);
+  // Handlers para os 4 Botões Dourados de Ação Comercial
+  const handleOpenKitOnly = () => {
+    openLeadModal({
+      origem: 'hub_kit_terceiros',
+      title: 'Comprar Kit de Fábrica (Instalação Própria / Terceiros)',
+      subtitle: 'Orçamento do Kit Completo Outfire com envio para qualquer cidade do Brasil.',
+      defaultMessage: 'Olá! Tenho interesse em adquirir o Kit de Instalação Outfire direto de fábrica para montagem própria/com terceiros na minha cozinha.',
+      detalhes: 'Interesse no fornecimento de equipamentos do Kit de Fábrica (Central VTS 32S3 Touch, Cilindro Saponificante Classe K, Cilindro CO2, bicos, tubos e sensores).'
+    });
+  };
 
-      // Dispara o pop-up de boas-vindas na primeira vez que a seção 3D entrar em visão
-      if (!hasShownEntryModalRef.current && rect.top <= window.innerHeight * 0.65 && rect.bottom >= window.innerHeight * 0.3) {
-        hasShownEntryModalRef.current = true;
-        setShowEntryModal(true);
-      }
+  const handleOpenTurnkey = () => {
+    openLeadModal({
+      origem: 'hub_kit_instalacao_outfire',
+      title: 'Kit Completo + Instalação Especializada Outfire',
+      subtitle: 'Montagem noturna turnkey com emissão de ART no CREA e Laudo de Estanqueidade para os Bombeiros.',
+      defaultMessage: 'Olá! Gostaria de um orçamento da Solução Completa Outfire (Kit de Fábrica + Montagem Noturna Especializada com ART e Laudo para Bombeiros/AVCB).',
+      detalhes: 'Interesse na Solução Turnkey Noturna (23h às 05h sem parar a cozinha): equipamentos + tubulação inox + montagem + ART CREA + laudo Bombeiros.'
+    });
+  };
 
-      // Ao avançar na simulação (p >= 0.15), oculta as setas indicadoras de scroll
-      if (p >= 0.15) {
-        setShowScrollPromptArrows(false);
-      }
-      // Se voltar ao início em modo manual, reativa as setas para continuar orientando
-      if (p <= 0.05 && !isPlaying) {
-        setShowScrollPromptArrows(true);
-      }
+  const handleOpenMaintenance = () => {
+    openLeadModal({
+      origem: 'hub_instalacao_manutencao',
+      title: 'Instalação, Manutenção & Adequação AVCB',
+      subtitle: 'Vistorias preventivas, corretivas, recargas de saponificante/CO2 e regularização para sistemas Outfire, Ansul, Kidde e multimarcas.',
+      defaultMessage: 'Olá! Preciso de manutenção preventiva/corretiva, recarga ou adequação de Bombeiros para a coifa do meu restaurante.',
+      detalhes: 'Solicitação de vistoria técnica, manutenção ou recarga de agente saponificante/CO2 para adequação AVCB.'
+    });
+  };
 
-      // Se a contagem regressiva manual da botoeira estiver em andamento, não sobrescrever por rolagem
-      if (manualOverrideRef.current && isManualCountdown) return;
+  const handleOpenCentralDetails = () => {
+    const el = document.getElementById('central-vts') || document.getElementById('system-presentation');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      scrollToNextSection();
+    }
+  };
 
-      // Se o usuário rolou de volta para o topo da simulação, reseta o override manual
-      if (manualOverrideRef.current && p <= 0.05) {
-        manualOverrideRef.current = false;
-        setManualOverride(false);
-        setIsManualCountdown(false);
-      }
-
-      // Mapeamento dos 8 Zooms Cinematográficos no Incêndio Real
-      if (activeScenarioRef.current === 'real_fire') {
-        let zoomIdx = 0;
-        if (p < 0.125) {
-          zoomIdx = 0;
-          setSimStage('STANDBY');
-          setTelemetry({
-            temp: 180,
-            gasStatus: 'ABERTO',
-            exhaustStatus: 'LIGADO',
-            systemStatus: 'PRONTIDÃO',
-            countdown: 60,
-          });
-        } else if (p < 0.250) {
-          zoomIdx = 1;
-          setSimStage('HEATING'); // ETAPA 2: Início do fogo
-          const t = Math.round(180 + ((p - 0.125) / 0.125) * 160);
-          setTelemetry({
-            temp: t,
-            gasStatus: 'ABERTO',
-            exhaustStatus: 'LIGADO',
-            systemStatus: 'AQUECIMENTO',
-            countdown: 60,
-          });
-        } else if (p < 0.375) {
-          zoomIdx = 2;
-          setSimStage('FIRE_ALARM'); // ETAPA 3: Sensor 145°C
-          setCountdown(55);
-          setTelemetry({
-            temp: 145,
-            gasStatus: 'ABERTO',
-            exhaustStatus: 'LIGADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: 55,
-          });
-        } else if (p < 0.500) {
-          zoomIdx = 3;
-          setSimStage('FIRE_ALARM'); // ETAPA 4: Damper fecha no duto
-          setCountdown(45);
-          setTelemetry({
-            temp: 340,
-            gasStatus: 'ABERTO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: 45,
-          });
-        } else if (p < 0.625) {
-          zoomIdx = 4;
-          setSimStage('FIRE_ALARM'); // ETAPA 5: Corte de gás GN/GLP
-          setCountdown(35);
-          setTelemetry({
-            temp: 360,
-            gasStatus: 'CORTADO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: 35,
-          });
-          if (!hasPlayedGasCutoffRef.current && !isMuted) {
-            hasPlayedGasCutoffRef.current = true;
-            soundEffects.playGasCutoff();
-          }
-        } else if (p < 0.750) {
-          zoomIdx = 5;
-          setSimStage('FIRE_ALARM'); // ETAPA 6: Quadro elétrico intertravado
-          setCountdown(20);
-          setTelemetry({
-            temp: 375,
-            gasStatus: 'CORTADO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: 20,
-          });
-        } else if (p < 0.875) {
-          zoomIdx = 6;
-          setSimStage('FIRE_ALARM'); // ETAPA 7: Central IHM em alarme
-          const cDown = Math.max(1, Math.round(16 - ((p - 0.750) / 0.125) * 15));
-          setCountdown(cDown);
-          setTelemetry({
-            temp: 380,
-            gasStatus: 'CORTADO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: cDown,
-          });
-          if (!hasPlayedAlarmAudioRef.current && !isMuted) {
-            hasPlayedAlarmAudioRef.current = true;
-            startOfficialAlarmAudioCycle();
-          }
-        } else {
-          zoomIdx = 7;
-          setSimStage('EXTINGUISHED'); // ETAPA 8: Extinção com saponificante e CO2
-          setCountdown(0);
-          setTelemetry({
-            temp: 38,
-            gasStatus: 'CORTADO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'INCÊNDIO EXTINTO',
-            countdown: 0,
-          });
-          stopAllAudioCycles();
-        }
-
-        setActiveZoomIndex(zoomIdx);
-        const stop = CINEMATIC_ZOOM_STOPS[zoomIdx];
-        setCinematicBadge({
-          title: stop.badgeTitle,
-          desc: stop.badgeDesc,
-          iconType: stop.icon,
-        });
-
-        // Interpola a câmera suavemente conforme a etapa cinematográfica
-        if (activeCameraView === 'geral') {
-          const isMobile = window.innerWidth < 768;
-          const pos = isMobile ? stop.camPosMobile : stop.camPos;
-          const look = isMobile ? stop.camLookMobile : stop.camLook;
-          targetCamPos.current.set(pos[0], pos[1], pos[2]);
-          targetCamLook.current.set(look[0], look[1], look[2]);
-        }
-
-        // Reseta flags de áudio quando voltar pro início da rolagem
-        if (p < 0.20) {
-          hasPlayedGasCutoffRef.current = false;
-          hasPlayedAlarmAudioRef.current = false;
-          stopAllAudioCycles();
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isManualCountdown]);
-
-  // Camera Quick Jump
+  // Câmeras Rápidas
   const setCameraView = (view: 'geral' | 'central' | 'fritadeira' | 'botoeira') => {
     setActiveCameraView(view);
     const isMobile = window.innerWidth < 768;
     if (view === 'geral') {
       if (isMobile) {
-        // Zoom reduzido em 25%-30% no celular: enquadra coifa, central, cilindros e botoeira
-        targetCamPos.current.set(0.5, 2.1, 7.0);
+        targetCamPos.current.set(0.5, 2.1, 6.8);
         targetCamLook.current.set(0.5, 1.3, 0);
       } else {
         targetCamPos.current.set(0, 2.2, 4.4);
@@ -976,6 +747,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     }
   };
 
+  // Formatador de tempo (ex: "00:14")
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
   // --- THREE.JS INITIALIZATION & SCENE SETUP ---
   useEffect(() => {
     if (!canvasRef.current || !mountRef.current) return;
@@ -986,16 +764,16 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     // 1. Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    scene.background = new THREE.Color(0x1a202c);
-    // Cozinha clara sem névoa escura densa para visualização cristalina do inox e equipamentos
+    // Fundo limpo azul-escuro industrial de estúdio
+    scene.background = new THREE.Color(0x131720);
     scene.fog = null;
 
-    // 2. Camera com enquadramento responsivo para Mobile e Desktop (zoom 25-30% mais aberto no celular)
+    // 2. Camera responsiva (aberta para enquadrar a cozinha com grandiosidade)
     const isMobile = width < 768;
-    const camera = new THREE.PerspectiveCamera(isMobile ? 68 : 45, width / height, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(isMobile ? 66 : 45, width / height, 0.1, 100);
     if (isMobile) {
-      camera.position.set(0.5, 2.1, 7.0);
-      targetCamPos.current.set(0.5, 2.1, 7.0);
+      camera.position.set(0.5, 2.1, 6.8);
+      targetCamPos.current.set(0.5, 2.1, 6.8);
       targetCamLook.current.set(0.5, 1.3, 0);
     } else {
       camera.position.set(0, 2.2, 4.4);
@@ -1004,7 +782,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     }
     cameraRef.current = camera;
 
-    // 3. Renderer
+    // 3. Renderer com suporte a PBR HDR Environment
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       antialias: true,
@@ -1015,54 +793,59 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.35;
     renderer.domElement.style.touchAction = 'pan-y';
     rendererRef.current = renderer;
 
-    // 4. OrbitControls (Ativado SOMENTE em Desktop; no Mobile fica desativado para garantir scroll nativo suave)
+    // 4. ROOM ENVIRONMENT INTEGRATION (ELIMINA 100% O INOX PRETO!)
+    // Gera reflexões PBR ricas de ambiente interno iluminado para que metalness: 0.9 reflita luz real
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+    const roomEnv = new RoomEnvironment();
+    scene.environment = pmremGenerator.fromScene(roomEnv, 0.04).texture;
+
+    // 5. OrbitControls (Ativado apenas em desktop)
     let controls: OrbitControls | null = null;
     if (!isMobile) {
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.enableZoom = false; // NEVER trap page wheel scroll
+      controls.enableZoom = false; // Não captura scroll da página
       controls.enablePan = false;
       controls.maxPolarAngle = Math.PI / 2 + 0.05;
       controls.target.set(0, 1.4, 0);
       controlsRef.current = controls;
     } else {
-      // Em celulares: SEM OrbitControls no canvas.
-      // O navegador mantém 100% o controle nativo da rolagem vertical suave ao passar o dedo sobre a tela.
       controlsRef.current = null;
     }
 
-    // 5. Lighting (Iluminação de Cozinha Industrial Clara com Destaque Especular para Inox)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    // 6. Lighting (Cozinha Industrial Clara e Brilhante)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.4);
     dirLight.position.set(3.5, 6, 4);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
     scene.add(dirLight);
 
-    // Calhas de LED industriais brilhantes de teto (iluminam bancada, coifa e central gerando brilho de espelho)
-    const ceilingTroffer1 = new THREE.DirectionalLight(0xffffff, 1.6);
+    // Calhas de LED industriais brilhantes de teto (iluminam bancada, coifa e central gerando brilho cromado)
+    const ceilingTroffer1 = new THREE.DirectionalLight(0xffffff, 2.0);
     ceilingTroffer1.position.set(-1.2, 5.0, 1.5);
     scene.add(ceilingTroffer1);
 
-    const ceilingTroffer2 = new THREE.DirectionalLight(0xffffff, 1.6);
+    const ceilingTroffer2 = new THREE.DirectionalLight(0xffffff, 2.0);
     ceilingTroffer2.position.set(1.5, 5.0, 1.5);
     scene.add(ceilingTroffer2);
 
     // Luz frontal suave de preenchimento para ambiente limpo e claro
-    const frontFill = new THREE.DirectionalLight(0xf8fafc, 1.3);
+    const frontFill = new THREE.DirectionalLight(0xf8fafc, 1.5);
     frontFill.position.set(0, 3.2, 5.5);
     scene.add(frontFill);
 
     // Spot Light under Hood
-    const hoodSpot = new THREE.SpotLight(0xfff7ed, 3.4, 7, Math.PI / 3, 0.25);
+    const hoodSpot = new THREE.SpotLight(0xfff7ed, 4.0, 7, Math.PI / 3, 0.25);
     hoodSpot.position.set(0, 2.7, 0);
     hoodSpot.target.position.set(0, 0.9, 0);
     scene.add(hoodSpot);
@@ -1080,26 +863,26 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     scene.add(strobeLight);
     centralStrobeLightRef.current = strobeLight;
 
-    // --- MATERIALS (INOX CROMADO ESPELHADO PBR ULTRARREALISTA & COZINHA CLARA) ---
+    // --- MATERIALS (INOX CROMADO ESPELHADO PBR & ACABAMENTOS INDUSTRIAIS) ---
     const matStainlessSteel = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      metalness: 0.98,
-      roughness: 0.08,
+      color: 0xf1f5f9,
+      metalness: 0.88,
+      roughness: 0.12,
     });
 
     const matWhiteTile = new THREE.MeshStandardMaterial({
       color: 0xf8fafc,
-      roughness: 0.22,
-      metalness: 0.08,
+      roughness: 0.18,
+      metalness: 0.05,
     });
 
     const matFloor = new THREE.MeshStandardMaterial({
       color: 0x94a3b8,
       roughness: 0.35,
-      metalness: 0.20,
+      metalness: 0.18,
     });
 
-    // 6. Room Environment
+    // 7. Room Environment Geometries (Chão e Paredes Claras)
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), matFloor);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
@@ -1115,7 +898,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     leftWall.position.set(-4.5, 4, 0);
     scene.add(leftWall);
 
-    // 7. Kitchen Cooking Counter & Appliances (Inox Cromado)
+    // 8. Kitchen Cooking Counter & Appliances (Inox Cromado)
     const counterGroup = new THREE.Group();
     scene.add(counterGroup);
 
@@ -1133,6 +916,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     fryerGroup.position.set(-0.55, 0.9, 0);
     counterGroup.add(fryerGroup);
     fryerGroupRef.current = fryerGroup;
+    fryerGroup.userData = { interactiveType: 'fritadeira', name: 'Fritadeira Industrial (Óleo a 180°C)' };
 
     const fryerRim = new THREE.Mesh(
       new THREE.BoxGeometry(0.85, 0.12, 0.75),
@@ -1173,37 +957,70 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     griddlePlate.position.set(0, 0.03, 0);
     stoveGroup.add(griddlePlate);
 
-    // Trempe de ferro fundido do queimador de gás
+    // Base do queimador circular de gás
+    const burnerBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.12, 0.13, 0.016, 24),
+      new THREE.MeshStandardMaterial({ color: 0x1e242d, roughness: 0.8, metalness: 0.25 })
+    );
+    burnerBase.position.set(0, 0.068, 0);
+    stoveGroup.add(burnerBase);
+
+    // Trempe de ferro fundido (grelha circular para apoiar a panela)
     const burnerGrate = new THREE.Mesh(
       new THREE.TorusGeometry(0.18, 0.014, 8, 24),
-      new THREE.MeshStandardMaterial({ color: 0x1f242d, roughness: 0.8, metalness: 0.2 })
+      new THREE.MeshStandardMaterial({ color: 0x181c24, roughness: 0.85, metalness: 0.2 })
     );
     burnerGrate.rotation.x = Math.PI / 2;
-    burnerGrate.position.set(0, 0.065, 0);
+    burnerGrate.position.set(0, 0.082, 0);
     stoveGroup.add(burnerGrate);
 
-    // Panela em Inox Cromado Real Espelhado
+    // ANEL DE CHAMAS AZUIS: ESTRITAMENTE SOB A PANELA!
+    // As chamas saem do queimador em y = 0.076 e sobem até y = 0.090, ficando exatamente embaixo do fundo da panela
+    const blueFlameGroup = new THREE.Group();
+    blueFlameGroup.position.set(0, 0.076, 0);
+    stoveGroup.add(blueFlameGroup);
+    blueFlameGroupRef.current = blueFlameGroup;
+
+    const blueConeGeo = new THREE.ConeGeometry(0.006, 0.015, 8);
+    const blueMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff });
+    const flameRadius = 0.075; // Raio menor que a panela (raio 0.18) para ficar 100% debaixo do fundo
+    for (let b = 0; b < 16; b++) {
+      const angle = (b / 16) * Math.PI * 2;
+      const jet = new THREE.Mesh(blueConeGeo, blueMat);
+      jet.position.set(Math.cos(angle) * flameRadius, 0.0075, Math.sin(angle) * flameRadius);
+      blueFlameGroup.add(jet);
+    }
+
+    const blueFlameLight = new THREE.PointLight(0x00c8ff, 0.65, 0.35);
+    blueFlameLight.position.set(0, 0.082, 0);
+    blueFlameGroup.add(blueFlameLight);
+    blueFlameLightRef.current = blueFlameLight;
+
+    // PANELA EM INOX CROMADO: REPOUSA FIRMEMENTE SOBRE A TREMPE (Y = 0.095+)
+    // Toda a geometria da panela fica ESTRITAMENTE ACIMA das chamas azuis!
     const panGroup = new THREE.Group();
-    panGroup.position.set(0, 0.08, 0);
+    panGroup.position.set(0, 0.095, 0);
     stoveGroup.add(panGroup);
     stovePanGroupRef.current = panGroup;
 
+    // Fundo sólido espesso da panela (isola e impede que qualquer luz/chama vaze por cima)
+    const panBottomDisc = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.015, 32),
+      matStainlessSteel
+    );
+    panBottomDisc.position.set(0, 0.0075, 0);
+    panGroup.add(panBottomDisc);
+
+    // Corpo da panela
     const panBody = new THREE.Mesh(
       new THREE.CylinderGeometry(0.20, 0.18, 0.16, 32),
       matStainlessSteel
     );
-    panBody.position.set(0, 0.08, 0);
+    panBody.position.set(0, 0.085, 0);
     panBody.castShadow = true;
     panGroup.add(panBody);
 
-    // Fundo sólido da panela para fechar e barrar qualquer luz ou chama por cima
-    const panBottom = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.182, 0.182, 0.015, 32),
-      matStainlessSteel
-    );
-    panBottom.position.set(0, 0.005, 0);
-    panGroup.add(panBottom);
-
+    // Tampa da panela
     const panLid = new THREE.Mesh(
       new THREE.CylinderGeometry(0.205, 0.205, 0.02, 32),
       matStainlessSteel
@@ -1211,6 +1028,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     panLid.position.set(0, 0.17, 0);
     panGroup.add(panLid);
 
+    // Pegador preto antitérmico
     const panKnob = new THREE.Mesh(
       new THREE.SphereGeometry(0.022, 16, 16),
       new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.4 })
@@ -1218,6 +1036,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     panKnob.position.set(0, 0.19, 0);
     panGroup.add(panKnob);
 
+    // Alças laterais da panela
     const panHandleGeo = new THREE.TorusGeometry(0.035, 0.007, 8, 16, Math.PI);
     const panHandleL = new THREE.Mesh(panHandleGeo, matStainlessSteel);
     panHandleL.rotation.y = Math.PI / 2;
@@ -1229,31 +1048,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     panHandleR.position.set(0.21, 0.12, 0);
     panGroup.add(panHandleR);
 
-    // Anel de Chamas Azuis (GN/GLP estritamente SOB a panela)
-    const blueFlameGroup = new THREE.Group();
-    blueFlameGroup.position.set(0, 0.040, 0);
-    stoveGroup.add(blueFlameGroup);
-    blueFlameGroupRef.current = blueFlameGroup;
-
-    // Cones pequenos apontados estritamente para cima (raio 0.085 fica 100% sob o fundo da panela de raio 0.18)
-    const blueConeGeo = new THREE.ConeGeometry(0.007, 0.018, 8);
-    const blueMat = new THREE.MeshBasicMaterial({ color: 0x00d2ff, transparent: true, opacity: 0.95 });
-    const flameRadius = 0.085;
-    for (let b = 0; b < 16; b++) {
-      const angle = (b / 16) * Math.PI * 2;
-      const jet = new THREE.Mesh(blueConeGeo, blueMat);
-      jet.position.set(Math.cos(angle) * flameRadius, 0.010, Math.sin(angle) * flameRadius);
-      jet.rotation.x = 0;
-      jet.rotation.z = 0;
-      blueFlameGroup.add(jet);
-    }
-
-    const blueFlameLight = new THREE.PointLight(0x00c8ff, 0.75, 0.7);
-    blueFlameLight.position.set(0, 0.025, 0);
-    blueFlameGroup.add(blueFlameLight);
-    blueFlameLightRef.current = blueFlameLight;
-
-    // 8. Industrial Exhaust Hood (Coifa com Duto e Pleno NBR 14518 em Inox Cromado)
+    // 9. Industrial Exhaust Hood (Coifa com Duto NBR 14518 em Inox Cromado)
     const hoodGroup = new THREE.Group();
     hoodGroup.position.set(0, 2.3, 0);
     scene.add(hoodGroup);
@@ -1293,7 +1088,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 })
     );
     damperFlap.position.set(0, 0.55, 0);
-    damperFlap.rotation.x = Math.PI / 2; // Aberto em standby (vertical / fluxo livre)
+    damperFlap.rotation.x = Math.PI / 2; // Aberto em standby (vertical)
     hoodGroup.add(damperFlap);
     damperFlapMeshRef.current = damperFlap;
 
@@ -1355,7 +1150,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     sensorGuard.position.set(0, -0.13, 0);
     sensorGroup.add(sensorGuard);
 
-    // Quadro Elétrico Industrial de Intertravamento na Parede
+    // 10. Quadro Elétrico Industrial de Intertravamento na Parede
     const elecPanel = new THREE.Group();
     elecPanel.position.set(-2.6, 2.0, -0.58);
     scene.add(elecPanel);
@@ -1427,23 +1222,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     elecPanel.add(ledAmber);
     panelLedAmberRef.current = ledAmber;
 
-    // Painel de Inox Escovado (Backsplash industrial atrás da bancada)
+    // Backsplash de Inox Escovado atrás da bancada
     const backsplashMat = new THREE.MeshStandardMaterial({
-      color: 0xf1f5f9,
-      metalness: 0.98,
-      roughness: 0.09,
+      color: 0xf8fafc,
+      metalness: 0.88,
+      roughness: 0.15,
     });
     const backsplash = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.4), backsplashMat);
     backsplash.position.set(0, 1.6, -0.6);
     scene.add(backsplash);
 
-    // Barra de utensílios em inox
-    const utensilBar = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 2.4, 16), matStainlessSteel);
-    utensilBar.rotation.z = Math.PI / 2;
-    utensilBar.position.set(0, 1.95, -0.58);
-    scene.add(utensilBar);
-
-    // Saponificant Piping & Specialized Nozzles
+    // Tubulação de saponificante e bicos
     const pipeMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.8, roughness: 0.3 });
     const nozzleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.2 });
 
@@ -1466,7 +1255,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       hoodGroup.add(noz);
     });
 
-    // 9. CENTRAL OUTFIRE 3D COM ARTE OFICIAL (PDF TAMPA CENTRAL MODERNA)
+    // 11. CENTRAL OUTFIRE 3D COM ARTE OFICIAL
     const centralGroup = new THREE.Group();
     centralGroup.position.set(2.1, 1.8, 0.15);
     centralGroup.rotation.y = -0.28;
@@ -1474,18 +1263,15 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     centralGroupRef.current = centralGroup;
     centralGroup.userData = { interactiveType: 'central', name: 'Central Outfire VTS' };
 
-    // Load authentic front face from PDF conversion
     const textureLoader = new THREE.TextureLoader();
     const frontCoverTexture = textureLoader.load('/assets/tampa-central-moderna.png');
     frontCoverTexture.colorSpace = THREE.SRGBColorSpace;
 
-    // Standby Screen normalizada: 3 luzes verdes em cima e 4 botões azuis embaixo
     const standbyCanvas = createNormalizedIhmScreenCanvas();
     const standbyScreenTexture = new THREE.CanvasTexture(standbyCanvas);
     standbyScreenTexture.colorSpace = THREE.SRGBColorSpace;
     standbyScreenTextureRef.current = standbyScreenTexture;
 
-    // Dynamic Alarm Screen Canvas Texture (1024x768 com cronômetro ativo em tempo real)
     const alarmCanvas = document.createElement('canvas');
     alarmCanvas.width = 1024;
     alarmCanvas.height = 768;
@@ -1524,28 +1310,26 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     centralCabinet.castShadow = true;
     centralGroup.add(centralCabinet);
 
-    // Front Touchscreen IHM Display (2.8" QVGA centralizado no centro da tampa)
+    // Front Touchscreen IHM Display
     const lcdMat = new THREE.MeshStandardMaterial({
       map: standbyScreenTexture,
       roughness: 0.15,
       metalness: 0.05,
       emissive: 0xffffff,
       emissiveMap: standbyScreenTexture,
-      emissiveIntensity: 0.95, // Backlight brilhante para ser 100% visível na cena
+      emissiveIntensity: 0.95,
       depthTest: true,
       depthWrite: true,
     });
     lcdScreenMatRef.current = lcdMat;
 
-    // Tela de 2.8" exatamente no centro da tampa (X = 0, Y = 0)
-    // Dimensões proporcionais ideais para visualização no 3D: 0.20 de largura x 0.15 de altura
     const lcdScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.20, 0.15), lcdMat);
     lcdScreen.position.set(0, 0.0, 0.116);
     lcdScreen.renderOrder = 10;
     lcdScreen.userData = { interactiveType: 'central' };
     centralGroup.add(lcdScreen);
 
-    // Moldura metálica (Bezel vazado) posicionada ao redor da tela (zero colisão)
+    // Moldura da tela
     const screenBezelMat = new THREE.MeshStandardMaterial({
       color: 0x181a20,
       metalness: 0.9,
@@ -1563,36 +1347,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     lcdFrameGroup.add(lTop, lBottom, lLeft, lRight);
     centralGroup.add(lcdFrameGroup);
 
-    // 4 Parafusos de fixação nos cantos
-    const screwMat = new THREE.MeshStandardMaterial({ color: 0xb0b3b8, metalness: 0.95, roughness: 0.2 });
-    const screwGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.005, 8);
-    [
-      [-0.098, 0.072],
-      [0.098, 0.072],
-      [-0.098, -0.072],
-      [0.098, -0.072]
-    ].forEach(([sx, sy]) => {
-      const screw = new THREE.Mesh(screwGeo, screwMat);
-      screw.rotation.x = Math.PI / 2;
-      screw.position.set(sx, sy, 0.1155);
-      centralGroup.add(screw);
-    });
-
-    // Luz dedicada focada na Central para realçar a tampa e a tela IHM
-    const centralSpot = new THREE.SpotLight(0xfff6ea, 2.2, 5, Math.PI / 3, 0.3);
+    // Luz focada na central
+    const centralSpot = new THREE.SpotLight(0xfff6ea, 2.8, 5, Math.PI / 3, 0.3);
     centralSpot.position.set(2.4, 2.4, 1.6);
     centralSpot.target = centralGroup;
     scene.add(centralSpot);
 
-    // Top Electrical Conduit to Ceiling
-    const conduit = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.016, 0.016, 1.6, 16),
-      matStainlessSteel
-    );
-    conduit.position.set(0, 1.05, 0);
-    centralGroup.add(conduit);
-
-    // Top Red Strobe Siren Beacon
+    // Strobe Siren Beacon
     const sirenBase = new THREE.Mesh(
       new THREE.CylinderGeometry(0.045, 0.045, 0.03, 16),
       new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.8 })
@@ -1611,21 +1372,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     centralGroup.add(sirenCap);
     centralStrobeMeshRef.current = sirenCap;
 
-    // Bottom Battery Shelf & Dual Pionero 12V Batteries
-    const batShelf = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.02, 0.20), matCabinetSteel);
-    batShelf.position.set(0, -0.32, 0);
-    centralGroup.add(batShelf);
-
-    const batMat = new THREE.MeshStandardMaterial({ color: 0x090a0c, roughness: 0.5 });
-    const bat1 = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.15, 0.14), batMat);
-    bat1.position.set(-0.16, -0.23, 0);
-    centralGroup.add(bat1);
-
-    const bat2 = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.15, 0.14), batMat);
-    bat2.position.set(0.16, -0.23, 0);
-    centralGroup.add(bat2);
-
-    // 10. ACIONADOR MANUAL (BOTOEIRA 3D INTERATIVA)
+    // 12. ACIONADOR MANUAL (BOTOEIRA 3D INTERATIVA)
     const manualGroup = new THREE.Group();
     manualGroup.position.set(1.45, 1.4, 0.08);
     scene.add(manualGroup);
@@ -1654,16 +1401,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     manualGroup.add(lever);
     manualPullLeverRef.current = lever;
 
-    // 11. CILINDRO DE SAPONIFICANTE CROMADO (INOX) AO LADO DA COIFA
+    // 13. CILINDRO DE SAPONIFICANTE CROMADO (INOX RELUZENTE)
     const sapCylinderGroup = new THREE.Group();
     sapCylinderGroup.position.set(-1.85, 1.1, -0.3);
     scene.add(sapCylinderGroup);
     sapCylinderGroup.userData = { interactiveType: 'saponificante', name: 'Cilindro Saponificante Classe K (Inox Cromado)' };
 
+    // Material Inox Cromado Real: graças ao RoomEnvironment, reflete brilho prateado vivo!
     const matChromeCylinder = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      metalness: 0.99,
-      roughness: 0.05,
+      metalness: 0.92,
+      roughness: 0.08,
     });
 
     const sapBody = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.82, 32), matChromeCylinder);
@@ -1678,12 +1426,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     sapCapBottom.position.set(0, -0.41, 0);
     sapCylinderGroup.add(sapCapBottom);
 
-    const sapBracketMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 });
-    const sapBrk1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.06), sapBracketMat);
+    const sapBrk1 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.06), new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 }));
     sapBrk1.position.set(0, 0.22, -0.09);
     sapCylinderGroup.add(sapBrk1);
 
-    const sapBrk2 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.06), sapBracketMat);
+    const sapBrk2 = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.04, 0.06), new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 }));
     sapBrk2.position.set(0, -0.22, -0.09);
     sapCylinderGroup.add(sapBrk2);
 
@@ -1700,10 +1447,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     sapValve.position.set(0, 0.52, 0);
     sapCylinderGroup.add(sapValve);
 
-    const sapStripe = new THREE.Mesh(new THREE.CylinderGeometry(0.132, 0.132, 0.12, 32), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.2 }));
-    sapStripe.position.set(0, 0.05, 0);
-    sapCylinderGroup.add(sapStripe);
-
     // Selo Oficial Outfire no Cilindro de Saponificante Classe K
     const sapLabelTexture = createCylinderLabelTexture('saponificante');
     const sapLabelMat = new THREE.MeshStandardMaterial({
@@ -1718,7 +1461,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     sapLabelMesh.position.set(0, -0.06, 0);
     sapCylinderGroup.add(sapLabelMesh);
 
-    // 12. CILINDRO DE CO2 VERMELHO NO FINAL DO DUTO
+    // Luz focada no cilindro de saponificante para realçar o brilho do inox
+    const cylinderSpot = new THREE.SpotLight(0xffffff, 2.5, 5, Math.PI / 3, 0.3);
+    cylinderSpot.position.set(-2.2, 2.4, 1.2);
+    cylinderSpot.target = sapCylinderGroup;
+    scene.add(cylinderSpot);
+
+    // 14. CILINDRO DE CO2 VERMELHO NO FINAL DO DUTO
     const co2CylinderGroup = new THREE.Group();
     co2CylinderGroup.position.set(0.85, 2.7, -0.35);
     scene.add(co2CylinderGroup);
@@ -1751,7 +1500,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     co2Pipe.position.set(-0.42, 0.66, 0.35);
     co2CylinderGroup.add(co2Pipe);
 
-    // Selo Oficial Outfire no Cilindro de CO2 Alta Pressão
     const co2LabelTexture = createCylinderLabelTexture('co2');
     const co2LabelMat = new THREE.MeshStandardMaterial({
       map: co2LabelTexture,
@@ -1765,7 +1513,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     co2LabelMesh.position.set(0, -0.02, 0);
     co2CylinderGroup.add(co2LabelMesh);
 
-    // 13. PERSONAGEM CÔMICO: LAVADOR DE PRATOS 3D COM PILHA GIGANTE (DISPARO ACIDENTAL)
+    // 15. PERSONAGEM CÔMICO: LAVADOR DE PRATOS 3D COM PILHA GIGANTE (DISPARO ACIDENTAL)
     const dwGroup = new THREE.Group();
     dwGroup.position.set(2.8, 0, 0.3);
     dwGroup.visible = false;
@@ -1775,7 +1523,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     const matChefCoat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5 });
     const matDarkPants = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
     const matSkin = new THREE.MeshStandardMaterial({ color: 0xe0ac69, roughness: 0.7 });
-    const matApron = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 });
 
     const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.65, 12), matDarkPants);
     legL.position.set(-0.09, 0.325, 0);
@@ -1789,10 +1536,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     torso.position.set(0, 0.925, 0);
     dwGroup.add(torso);
 
-    const apron = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.5), matApron);
-    apron.position.set(0, 0.82, 0.16);
-    dwGroup.add(apron);
-
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), matSkin);
     head.position.set(0, 1.32, 0);
     dwGroup.add(head);
@@ -1801,29 +1544,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     chefHat.position.set(0, 1.45, 0);
     dwGroup.add(chefHat);
 
-    const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.36, 8), matChefCoat);
-    armL.rotation.x = -Math.PI / 3;
-    armL.rotation.z = -Math.PI / 12;
-    armL.position.set(-0.19, 0.98, 0.15);
-    dwGroup.add(armL);
-
-    const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.36, 8), matChefCoat);
-    armR.rotation.x = -Math.PI / 3;
-    armR.rotation.z = Math.PI / 12;
-    armR.position.set(0.19, 0.98, 0.15);
-    dwGroup.add(armR);
-
     // Pilha Gigante de 12 Pratos de Cerâmica Branca
     const platesGroup = new THREE.Group();
     platesGroup.position.set(0, 0.98, 0.32);
     dwGroup.add(platesGroup);
     platesStackGroupRef.current = platesGroup;
 
-    const plateMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.15,
-      metalness: 0.1,
-    });
+    const plateMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15, metalness: 0.1 });
     const plateGeo = new THREE.CylinderGeometry(0.15, 0.12, 0.022, 20);
 
     for (let i = 0; i < 11; i++) {
@@ -1837,13 +1564,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       platesGroup.add(pl);
     }
 
-    // O prato do topo que cai em direção à alavanca da botoeira
     const fallingPlate = new THREE.Mesh(plateGeo, plateMat);
     fallingPlate.position.set(0, 11 * 0.026 + 0.02, 0);
     platesGroup.add(fallingPlate);
     fallingPlateMeshRef.current = fallingPlate;
 
-    // 14. SAPONIFICANT FOAM BLANKET MESH
+    // 16. SAPONIFICANT FOAM BLANKET MESH
     const foamBlanket = new THREE.Mesh(
       new THREE.BoxGeometry(0.74, 0.08, 0.64),
       new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.9, metalness: 0.05 })
@@ -1854,8 +1580,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     scene.add(foamBlanket);
     foamBlanketMeshRef.current = foamBlanket;
 
-    // 15. PARTICLE SYSTEMS
-    // Fire
+    // 17. PARTICLE SYSTEMS
+    // Fire Particles
     const fireGroup = new THREE.Group();
     scene.add(fireGroup);
     fireParticlesGroupRef.current = fireGroup;
@@ -1883,7 +1609,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       fireMeshes.push(p);
     }
 
-    // Smoke
+    // Smoke Particles
     const smokeGroup = new THREE.Group();
     scene.add(smokeGroup);
     smokeParticlesGroupRef.current = smokeGroup;
@@ -1944,7 +1670,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       co2Meshes.push(c);
     }
 
-    // 16. RAYCASTER FOR 3D CLICK & HOVER
+    // 18. RAYCASTER FOR 3D CLICK & HOVER
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -1985,9 +1711,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           root = root.parent;
         }
         if (root?.userData?.interactiveType === 'botoeira') {
-          handleManualTrigger();
+          // Botoeira: se em incêndio real, adianta o despejo!
+          if (activeScenarioRef.current === 'real_fire') {
+            handleManualAdvanceDischarge();
+          }
         } else if (root?.userData?.interactiveType === 'central') {
-          // REGRA DE OURO: Clique direto na tela da Central 3D cancela o disparo!
+          // Central Outfire 3D: toque na tela anula disparo em falso!
           if (activeScenarioRef.current === 'accidental_discharge' && accidentalStepRef.current === 'alarm_waiting_click') {
             handleAbortDisparo();
           } else if (simStageRef.current === 'FIRE_ALARM') {
@@ -2004,20 +1733,20 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     renderer.domElement.addEventListener('mousemove', onPointerMove);
     renderer.domElement.addEventListener('click', onPointerDown);
 
-    // 14. RESIZE
+    // 19. RESIZE
     const handleResize = () => {
       if (!mountRef.current || !rendererRef.current || !cameraRef.current) return;
       const w = mountRef.current.clientWidth;
       const h = mountRef.current.clientHeight;
       const mobile = w < 768;
       cameraRef.current.aspect = w / h;
-      cameraRef.current.fov = mobile ? 68 : 45;
+      cameraRef.current.fov = mobile ? 66 : 45;
       cameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);
 
-    // 15. RENDER LOOP
+    // 20. RENDER LOOP (60 FPS SUAVE COMO VÍDEO NATIVO)
     let animId: number;
     const clock = new THREE.Clock();
 
@@ -2026,29 +1755,202 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       const delta = clock.getDelta();
       const time = clock.getElapsedTime();
 
+      // --- AVANÇO AUTOMATIZADO DO TEMPO DA SIMULAÇÃO ---
+      if (isPlayingRef.current && activeScenarioRef.current === 'real_fire') {
+        const nextTime = Math.min(TOTAL_SIM_DURATION, simTimeRef.current + delta);
+        simTimeRef.current = nextTime;
+        setSimTime(nextTime);
+
+        if (nextTime >= TOTAL_SIM_DURATION) {
+          setIsPlaying(false);
+          isPlayingRef.current = false;
+        }
+      }
+
+      const curTime = simTimeRef.current;
+
       // Smooth camera interpolation
-      camera.position.lerp(targetCamPos.current, 0.05);
+      camera.position.lerp(targetCamPos.current, 0.06);
       if (controlsRef.current) {
-        controlsRef.current.target.lerp(targetCamLook.current, 0.05);
+        controlsRef.current.target.lerp(targetCamLook.current, 0.06);
         controlsRef.current.update();
       } else {
         camera.lookAt(targetCamLook.current);
       }
 
-      const stage = simStageRef.current;
-      const p = scrollProgressRef.current;
+      // --- CENÁRIO 1: INCÊNDIO REAL (8 ETAPAS CINEMATOGRÁFICAS) ---
+      if (activeScenarioRef.current === 'real_fire') {
+        let zoomIdx = 0;
+        const isMobile = window.innerWidth < 768;
 
-      // --- ANIMATION EFFECTS BASED ON STAGE / SCROLL ---
+        if (curTime < 3.5) {
+          // ETAPA 1: STANDBY
+          zoomIdx = 0;
+          setSimStage('STANDBY');
+          simStageRef.current = 'STANDBY';
+          setCountdown(60);
+          countdownRef.current = 60;
+          setTelemetry({
+            temp: 180,
+            gasStatus: 'ABERTO',
+            exhaustStatus: 'LIGADO',
+            systemStatus: 'PRONTIDÃO',
+            countdown: 60,
+          });
+        } else if (curTime < 7.0) {
+          // ETAPA 2: PRINCÍPIO DE INCÊNDIO
+          zoomIdx = 1;
+          setSimStage('HEATING');
+          simStageRef.current = 'HEATING';
+          const prog = (curTime - 3.5) / 3.5;
+          const t = Math.round(180 + prog * 165);
+          setTelemetry({
+            temp: t,
+            gasStatus: 'ABERTO',
+            exhaustStatus: 'LIGADO',
+            systemStatus: 'AQUECIMENTO',
+            countdown: 60,
+          });
+        } else if (curTime < 10.5) {
+          // ETAPA 3: SENSOR 145°C
+          zoomIdx = 2;
+          setSimStage('FIRE_ALARM');
+          simStageRef.current = 'FIRE_ALARM';
+          setCountdown(55);
+          countdownRef.current = 55;
+          setTelemetry({
+            temp: 145,
+            gasStatus: 'ABERTO',
+            exhaustStatus: 'LIGADO',
+            systemStatus: 'ALERTA DE FOGO',
+            countdown: 55,
+          });
+        } else if (curTime < 16.5) {
+          // ETAPA 4: CENTRAL OUTFIRE IHM
+          zoomIdx = 3;
+          setSimStage('FIRE_ALARM');
+          simStageRef.current = 'FIRE_ALARM';
+          const cDown = Math.max(1, Math.round(15 - ((curTime - 10.5) / 6.0) * 14));
+          setCountdown(cDown);
+          countdownRef.current = cDown;
+          setTelemetry({
+            temp: 360,
+            gasStatus: 'ABERTO',
+            exhaustStatus: 'LIGADO',
+            systemStatus: 'ALERTA DE FOGO',
+            countdown: cDown,
+          });
+
+          if (!hasPlayedAlarmAudioRef.current && !isMutedRef.current) {
+            hasPlayedAlarmAudioRef.current = true;
+            startOfficialAlarmAudioCycle();
+          }
+        } else if (curTime < 19.0) {
+          // ETAPA 5: DAMPER CORTA-FOGO
+          zoomIdx = 4;
+          setSimStage('FIRE_ALARM');
+          simStageRef.current = 'FIRE_ALARM';
+          setCountdown(5);
+          countdownRef.current = 5;
+          setTelemetry({
+            temp: 370,
+            gasStatus: 'ABERTO',
+            exhaustStatus: 'INTERTRAVADO',
+            systemStatus: 'ALERTA DE FOGO',
+            countdown: 5,
+          });
+        } else if (curTime < 21.0) {
+          // ETAPA 6: CORTE DE GÁS
+          zoomIdx = 5;
+          setSimStage('FIRE_ALARM');
+          simStageRef.current = 'FIRE_ALARM';
+          setCountdown(2);
+          countdownRef.current = 2;
+          setTelemetry({
+            temp: 375,
+            gasStatus: 'CORTADO',
+            exhaustStatus: 'INTERTRAVADO',
+            systemStatus: 'ALERTA DE FOGO',
+            countdown: 2,
+          });
+
+          if (!hasPlayedGasCutoffRef.current && !isMutedRef.current) {
+            hasPlayedGasCutoffRef.current = true;
+            soundEffects.playGasCutoff();
+          }
+        } else if (curTime < 23.5) {
+          // ETAPA 7: QUADRO ELÉTRICO INTERTRAVADO (Luzes verdes apagam AGORA)
+          zoomIdx = 6;
+          setSimStage('FIRE_ALARM');
+          simStageRef.current = 'FIRE_ALARM';
+          setCountdown(1);
+          countdownRef.current = 1;
+          setTelemetry({
+            temp: 380,
+            gasStatus: 'CORTADO',
+            exhaustStatus: 'INTERTRAVADO',
+            systemStatus: 'ALERTA DE FOGO',
+            countdown: 1,
+          });
+        } else {
+          // ETAPA 8: EXTINÇÃO TOTAL COM SAPONIFICANTE E CO2
+          zoomIdx = 7;
+          if (curTime < 24.8) {
+            setSimStage('SUPPRESSION');
+            simStageRef.current = 'SUPPRESSION';
+          } else {
+            setSimStage('EXTINGUISHED');
+            simStageRef.current = 'EXTINGUISHED';
+          }
+
+          setCountdown(0);
+          countdownRef.current = 0;
+          setTelemetry({
+            temp: 38,
+            gasStatus: 'CORTADO',
+            exhaustStatus: 'INTERTRAVADO',
+            systemStatus: 'INCÊNDIO EXTINTO',
+            countdown: 0,
+          });
+
+          if (!hasPlayedSuppressionRef.current && !isMutedRef.current) {
+            hasPlayedSuppressionRef.current = true;
+            soundEffects.playSuppressionHiss(3.5);
+          }
+          stopAllAudioCycles();
+        }
+
+        setActiveZoomIndex(zoomIdx);
+        const stop = CINEMATIC_ZOOM_STOPS[zoomIdx];
+        setCinematicBadge({
+          title: stop.badgeTitle,
+          desc: stop.badgeDesc,
+          iconType: stop.icon,
+        });
+
+        // Interpola a câmera conforme a etapa cinematográfica
+        if (activeCameraView === 'geral') {
+          const pos = isMobile ? stop.camPosMobile : stop.camPos;
+          const look = isMobile ? stop.camLookMobile : stop.camLook;
+          targetCamPos.current.set(pos[0], pos[1], pos[2]);
+          targetCamLook.current.set(look[0], look[1], look[2]);
+        }
+      }
+
+      // --- VISUAL ELEMENTS ANIMATION ---
+      const stage = simStageRef.current;
+
+      // 1. Chamas e Fumaça da Fritadeira
       if (stage === 'HEATING' || stage === 'FIRE_ALARM') {
         fireGroup.visible = true;
         smokeGroup.visible = true;
         foamSprayGroupRef.current!.visible = false;
         co2FogGroupRef.current!.visible = false;
 
-        const intensityFactor = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (p - 0.18) / 0.24);
+        const intensity = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (curTime - 3.5) / 3.5);
 
         if (fireLightRef.current) {
-          fireLightRef.current.intensity = (2.5 + Math.sin(time * 20) * 1.5) * intensityFactor;
+          fireLightRef.current.intensity = (2.5 + Math.sin(time * 20) * 1.5) * intensity;
           fireLightRef.current.color.setHex(Math.random() > 0.3 ? 0xff4500 : 0xffaa00);
         }
 
@@ -2057,7 +1959,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           mesh.position.y += mesh.userData.speedY * delta;
           mesh.position.x += Math.sin(time * 10 + idx) * 0.006;
           const prog = (mesh.position.y - mesh.userData.baseY) / 1.0;
-          mesh.scale.setScalar(Math.max(0.01, (1 - prog) * mesh.userData.scale * intensityFactor));
+          mesh.scale.setScalar(Math.max(0.01, (1 - prog) * mesh.userData.scale * intensity));
           (mesh.material as THREE.MeshBasicMaterial).opacity = 1 - prog;
 
           if (mesh.position.y > mesh.userData.baseY + 0.9) {
@@ -2070,7 +1972,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         smokeMeshes.forEach((sm) => {
           sm.visible = true;
           sm.position.y += sm.userData.speedY * delta;
-          sm.scale.setScalar(intensityFactor);
+          sm.scale.setScalar(intensity);
           if (sm.position.y > sm.userData.maxH) {
             sm.position.y = 1.3;
             sm.position.x = -0.55 + (Math.random() - 0.5) * 0.4;
@@ -2087,7 +1989,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
               : new THREE.Color(0x000000);
           }
         }
-
       } else if (stage === 'SUPPRESSION') {
         fireGroup.visible = true;
         foamSprayGroupRef.current!.visible = true;
@@ -2125,7 +2026,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           c.position.x += Math.cos(time * 2 + idx) * 0.004;
         });
 
-        // Fast Strobe
         const strobe = Math.sin(time * 30) > 0;
         if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
           centralStrobeLightRef.current.intensity = strobe ? 4.0 : 0.2;
@@ -2133,7 +2033,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             ? new THREE.Color(0xff0000)
             : new THREE.Color(0x330000);
         }
-
       } else if (stage === 'EXTINGUISHED') {
         fireGroup.visible = false;
         smokeGroup.visible = false;
@@ -2150,7 +2049,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           centralStrobeLightRef.current.intensity = 0;
           (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0x000000);
         }
-
       } else {
         // STANDBY
         fireGroup.visible = false;
@@ -2165,20 +2063,19 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // --- ANIMAÇÃO DOS ELEMENTOS ADICIONAIS ---
-      // 1. Chamas Azuis e Gás no Fogão Industrial
+      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 6)
       if (blueFlameGroupRef.current) {
-        const isGasCut = (activeScenarioRef.current === 'real_fire' && p >= 0.50) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isGasCut = (activeScenarioRef.current === 'real_fire' && curTime >= 19.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
         blueFlameGroupRef.current.visible = !isGasCut;
         if (blueFlameLightRef.current) {
-          blueFlameLightRef.current.intensity = isGasCut ? 0 : 0.9 + Math.sin(time * 30) * 0.3;
+          blueFlameLightRef.current.intensity = isGasCut ? 0 : 0.75 + Math.sin(time * 30) * 0.25;
         }
       }
 
-      // 2. Sensor Blindado 145°C Glow na Coifa
+      // 3. Sensor Blindado 145°C Glow na Coifa
       if (sensorGlowMeshRef.current) {
         const mat = sensorGlowMeshRef.current.material as THREE.MeshStandardMaterial;
-        const isSensorTripped = (activeScenarioRef.current === 'real_fire' && p >= 0.25 && p < 0.88) || stage === 'FIRE_ALARM';
+        const isSensorTripped = (activeScenarioRef.current === 'real_fire' && curTime >= 7.0 && curTime < 23.5) || stage === 'FIRE_ALARM';
         if (isSensorTripped) {
           mat.emissive.setHex(0xef4444);
           mat.emissiveIntensity = 1.0 + Math.sin(time * 18) * 0.8;
@@ -2188,16 +2085,16 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 3. Damper Corta-Fogo Motorizado no Duto (Gira lâmina 90° para fechar o duto)
+      // 4. Damper Corta-Fogo Motorizado no Duto (Fecha a 90° na Etapa 5 / 16.5s)
       if (damperFlapMeshRef.current) {
-        const isDamperClosed = (activeScenarioRef.current === 'real_fire' && p >= 0.375) || stage === 'FIRE_ALARM' || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isDamperClosed = (activeScenarioRef.current === 'real_fire' && curTime >= 16.5) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
         const targetRot = isDamperClosed ? 0 : Math.PI / 2;
         damperFlapMeshRef.current.rotation.x = THREE.MathUtils.lerp(damperFlapMeshRef.current.rotation.x, targetRot, 0.12);
       }
 
-      // 4. Quadro Elétrico Industrial de Intertravamento
+      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes SÓ apagam na Etapa 7 / 21.0s)
       if (panelLedExhaustRef.current && panelLedFryerRef.current && panelLedAmberRef.current) {
-        const isInterlocked = (activeScenarioRef.current === 'real_fire' && p >= 0.625) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isInterlocked = (activeScenarioRef.current === 'real_fire' && curTime >= 21.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
         const matExhaust = panelLedExhaustRef.current.material as THREE.MeshStandardMaterial;
         const matFryer = panelLedFryerRef.current.material as THREE.MeshStandardMaterial;
         const matAmber = panelLedAmberRef.current.material as THREE.MeshStandardMaterial;
@@ -2219,7 +2116,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 5. Cenário Cômico de Disparo Acidental (Lavador de Pratos)
+      // 6. Cenário Cômico de Disparo Acidental (Lavador de Pratos)
       if (activeScenarioRef.current === 'accidental_discharge') {
         const step = accidentalStepRef.current;
         const dw = dishwasherGroupRef.current;
@@ -2238,6 +2135,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
             if (dw.position.x <= 1.82) {
               setAccidentalStep('falling');
+              accidentalStepRef.current = 'falling';
             }
           } else if (step === 'falling') {
             if (plates) {
@@ -2256,8 +2154,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 }
                 startOfficialAlarmAudioCycle();
                 setAccidentalStep('alarm_waiting_click');
+                accidentalStepRef.current = 'alarm_waiting_click';
                 setSimStage('FIRE_ALARM');
+                simStageRef.current = 'FIRE_ALARM';
                 setCountdown(60);
+                countdownRef.current = 60;
 
                 targetCamPos.current.set(2.1, 1.8, 0.65);
                 targetCamLook.current.set(2.1, 1.8, 0.15);
@@ -2270,7 +2171,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // Alternância dinâmica da tela TFT da Central IHM
+      // 7. Alternância da tela LCD da Central IHM
       if (lcdScreenMatRef.current) {
         if (stage === 'FIRE_ALARM' || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED') {
           if (centralScreenTextureRef.current && lcdScreenMatRef.current.map !== centralScreenTextureRef.current) {
@@ -2302,18 +2203,19 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       if (controlsRef.current) {
         controlsRef.current.dispose();
       }
+      pmremGenerator.dispose();
       renderer.dispose();
     };
-  }, [handleManualTrigger, updateLcdScreenTexture]);
+  }, [handleAbortDisparo, handleManualAdvanceDischarge, startOfficialAlarmAudioCycle, updateLcdScreenTexture]);
 
   return (
     <>
-      {/* TELA 1 DE ABERTURA (PRIMEIRO CONTATO): FUNDO PRETO, LOGO DOURADO E ACESSO RÁPIDO AOS PORTAIS */}
+      {/* TELA 1 DE ABERTURA (SPLASH HERO): FUNDO PRETO, LOGO DOURADO E ACESSO RÁPIDO AOS PORTAIS */}
       <section
         id="splash-hero"
         className="relative w-full h-[100dvh] bg-[#05070a] flex flex-col items-center justify-center select-none overflow-hidden z-20"
       >
-        {/* Top Header Bar: Visível imediatamente no carregamento da página / refresh */}
+        {/* Top Header Bar */}
         <div className="absolute top-0 left-0 w-full z-30 p-4 sm:p-6 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-b from-[#05070a]/95 via-[#05070a]/60 to-transparent">
           <div className="flex items-center gap-2.5">
             <span className="flex h-2.5 w-2.5 relative">
@@ -2326,7 +2228,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Botão Área do Cliente */}
             <button
               type="button"
               onClick={() => onOpenPortal?.('client')}
@@ -2339,7 +2240,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           </div>
         </div>
 
-        {/* Brilho radial dourado sutil no centro escuro */}
+        {/* Brilho radial dourado no centro */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#d4af37]/15 via-[#0a0c10]/60 to-[#05070a] pointer-events-none" />
 
         {/* LOGO OUTFIRE DOURADO CENTRALIZADO */}
@@ -2351,7 +2252,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           />
         </div>
 
-        {/* SETA DOURADA PARA BAIXO SINALIZANDO O USUÁRIO PARA DESCER A TELA */}
+        {/* SETA DOURADA PARA DESCER E INICIAR A SIMULAÇÃO */}
         <button
           onClick={scrollToKitchen}
           aria-label="Descer para a simulação da cozinha"
@@ -2360,94 +2261,77 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           <div className="w-12 h-12 rounded-full border border-[#d4af37]/50 bg-black/70 backdrop-blur-md flex items-center justify-center shadow-[0_0_25px_rgba(212,175,55,0.35)] group-hover:border-[#d4af37] group-hover:scale-110 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all">
             <ChevronDown className="w-6 h-6 text-[#d4af37] animate-bounce" />
           </div>
-          <span className="text-[11px] font-bold text-[#f3e5ab] tracking-wide uppercase opacity-85 group-hover:opacity-100 flex items-center gap-1.5 bg-black/60 px-3 py-1 rounded-full border border-[#d4af37]/30 backdrop-blur-sm shadow-md">
+          <span className="text-[11px] font-bold text-[#f3e5ab] tracking-wide uppercase opacity-85 group-hover:opacity-100 flex items-center gap-1.5 bg-black/60 px-3.5 py-1 rounded-full border border-[#d4af37]/30 backdrop-blur-sm shadow-md">
             <span>Iniciar Simulação 3D Interativa</span>
           </span>
         </button>
       </section>
 
-      {/* TELA 2: CENÁRIO DA COZINHA INDUSTRIAL & SIMULAÇÃO 3D POR FASES */}
+      {/* TELA 2: CENÁRIO DA COZINHA INDUSTRIAL & SIMULAÇÃO 3D (100dvh SUAVE COMO UM VÍDEO) */}
       <section
         id="hero-3d"
         ref={containerRef}
-        className="relative w-full h-[450vh] bg-[#07080a] overflow-x-clip"
+        className="relative w-full h-[100dvh] min-h-[700px] bg-[#07080a] overflow-hidden"
         style={{ touchAction: 'pan-y' }}
       >
-        {/* STICKY 3D VIEWPORT PINNED TO SCREEN (100dvh) */}
         <div
           ref={mountRef}
-          onClick={(e) => {
-            // Em dispositivos móveis, um toque leve sem arrasto (tap) aciona a botoeira ou foca a câmera
-            if (window.innerWidth < 768 && cameraRef.current && mountRef.current) {
-              const rect = mountRef.current.getBoundingClientRect();
-              const m = new THREE.Vector2(
-                ((e.clientX - rect.left) / rect.width) * 2 - 1,
-                -((e.clientY - rect.top) / rect.height) * 2 + 1
-              );
-              const rc = new THREE.Raycaster();
-              rc.setFromCamera(m, cameraRef.current);
-              const targets = [manualStationMeshRef.current, centralGroupRef.current, fryerGroupRef.current].filter(Boolean) as THREE.Object3D[];
-              const hits = rc.intersectObjects(targets, true);
-              if (hits.length > 0) {
-                let root: THREE.Object3D | null = hits[0].object;
-                while (root && !root.userData?.interactiveType && root.parent) {
-                  root = root.parent;
-                }
-                if (root?.userData?.interactiveType === 'botoeira') {
-                  handleManualTrigger();
-                } else if (root?.userData?.interactiveType === 'central') {
-                  if (activeScenarioRef.current === 'accidental_discharge' && accidentalStepRef.current === 'alarm_waiting_click') {
-                    handleAbortDisparo();
-                  } else if (simStageRef.current === 'FIRE_ALARM') {
-                    handleAbortDisparo();
-                  } else {
-                    setCameraView('central');
-                  }
-                } else if (root?.userData?.interactiveType === 'fritadeira') {
-                  setCameraView('fritadeira');
-                }
-              }
-            }
-          }}
-          className="sticky top-0 w-full h-[100dvh] overflow-x-clip flex flex-col justify-between select-none"
-          style={{ touchAction: 'pan-y' }}
+          className="relative w-full h-full flex flex-col justify-between select-none"
         >
-          {/* 1. THREE.JS 3D WEBGL CANVAS (pointer-events-none no mobile para permitir rolagem nativa 100% desobstruída em toda a tela) */}
+          {/* 1. THREE.JS 3D WEBGL CANVAS */}
           <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full block z-0 outline-none pointer-events-none md:pointer-events-auto"
-            style={{ touchAction: 'pan-y' }}
+            className="absolute inset-0 w-full h-full block z-0 outline-none"
           />
 
-          {/* 2. TOP FLOATING HUD OVERLAY (STATUS, CENÁRIOS & TELEMETRIA) */}
-          <div className="relative z-20 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 flex flex-col gap-2.5 pointer-events-none">
-
-            {/* CABEÇALHO SUPERIOR CLEAN: STATUS DO SISTEMA + SELETOR DE CENÁRIOS & ÁUDIO */}
-            <div className="w-full flex items-center justify-between gap-2.5 pointer-events-auto">
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-[#d4af37]/50 shadow-glow-gold text-xs font-bold text-[#f3e5ab]">
-                  <Radio className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
-                  <span className="hidden sm:inline">Central Outfire VTS 32S3 Autônoma</span>
-                  <span className="sm:hidden">Outfire VTS</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
-                  <span className="text-[11px] font-mono text-gray-300">NBR 14518</span>
-                </div>
+          {/* 2. TOP FLOATING HUD: OS 2 GRANDES BOTÕES QUE SUBSTITUEM O POPUP ANTIGO */}
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 flex flex-col gap-2 pointer-events-none">
+            <div className="w-full flex flex-wrap items-center justify-between gap-2.5 pointer-events-auto">
+              
+              {/* Left: Badge NBR 14518 */}
+              <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-[#d4af37]/50 shadow-glow-gold text-xs font-bold text-[#f3e5ab]">
+                <Radio className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
+                <span className="hidden sm:inline">Central Outfire VTS 32S3 Autônoma</span>
+                <span className="sm:hidden">Outfire VTS</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
+                <span className="text-[11px] font-mono text-gray-300">NBR 14518</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Botão de Trocar Cenário */}
+              {/* Center / Action Buttons: OS 2 BOTÕES SOLICITADOS POR MATHEUS */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Botão 1: Simular Incêndio Real */}
                 <button
                   type="button"
-                  onClick={() => setShowEntryModal(true)}
-                  className="px-3 py-1.5 rounded-xl bg-black/80 hover:bg-[#d4af37]/20 border border-[#d4af37]/50 text-[#f3e5ab] text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer backdrop-blur-md"
-                  title="Trocar entre Incêndio Real e Disparo Acidental"
+                  onClick={startRealFireScenario}
+                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wide flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md shadow-md ${
+                    activeScenario === 'real_fire' && isPlaying
+                      ? 'bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black shadow-[0_0_20px_rgba(239,68,68,0.7)] scale-105 border-2 border-white'
+                      : 'bg-black/85 hover:bg-red-950/80 text-white border border-red-500/60 hover:border-red-400'
+                  }`}
+                  title="Executar simulação de incêndio real automatizada como um vídeo do começo ao fim"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
-                  <span className="hidden sm:inline">Cenário:</span>
-                  <span className="text-white font-extrabold">{activeScenario === 'real_fire' ? '🔥 Incêndio Real' : '🍽️ Acidental'}</span>
+                  <Flame className={`w-4 h-4 ${activeScenario === 'real_fire' && isPlaying ? 'fill-black text-black' : 'text-red-400'}`} />
+                  <span>Simular Incêndio Real</span>
                 </button>
 
-                {/* Botão de Áudio Mudo / Ligado */}
+                {/* Botão 2: Simular Disparo Acidental */}
+                <button
+                  type="button"
+                  onClick={startAccidentalDischargeScenario}
+                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wide flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md shadow-md ${
+                    activeScenario === 'accidental_discharge'
+                      ? 'bg-gradient-to-r from-[#d4af37] via-amber-400 to-[#b89628] text-black shadow-[0_0_20px_rgba(212,175,55,0.7)] scale-105 border-2 border-white'
+                      : 'bg-black/85 hover:bg-amber-950/80 text-[#f3e5ab] border border-[#d4af37]/60 hover:border-[#f3e5ab]'
+                  }`}
+                  title="Simular queda de pratos na botoeira e abortar na tela da central para economizar R$ 15.000"
+                >
+                  <UtensilsCrossed className="w-4 h-4 text-[#d4af37]" />
+                  <span>Simular Disparo Acidental</span>
+                </button>
+              </div>
+
+              {/* Right: Áudio Mudo / Voz Ativa */}
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={toggleMute}
@@ -2471,93 +2355,79 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                   )}
                 </button>
               </div>
+
             </div>
 
-            {/* Linha de Badges de Telemetria e Status */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pointer-events-none">
+            {/* Linha de Telemetria Resumida */}
+            <div className="flex items-center justify-between gap-2 pointer-events-none">
+              <div className="flex items-center gap-2 pointer-events-auto">
+                <span className={`px-2.5 py-1 rounded-lg text-xs font-black tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md border ${
+                  simStage === 'STANDBY'
+                    ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300'
+                    : simStage === 'HEATING'
+                      ? 'bg-amber-950/80 border-amber-500/50 text-amber-300'
+                      : simStage === 'FIRE_ALARM'
+                        ? 'bg-red-950/90 border-red-500 text-red-200 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.5)]'
+                        : simStage === 'SUPPRESSION'
+                          ? 'bg-cyan-950/90 border-cyan-500 text-cyan-200 shadow-[0_0_20px_rgba(6,182,212,0.5)]'
+                          : 'bg-emerald-900/90 border-emerald-400 text-emerald-200'
+                }`}>
+                  {simStage === 'STANDBY' && <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />}
+                  {simStage === 'HEATING' && <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />}
+                  {simStage === 'FIRE_ALARM' && <Flame className="w-3.5 h-3.5 text-red-400 animate-bounce" />}
+                  {simStage === 'SUPPRESSION' && <Droplets className="w-3.5 h-3.5 text-cyan-300 animate-spin" />}
+                  {simStage === 'EXTINGUISHED' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
+                  {telemetry.systemStatus}
+                </span>
 
-              {/* Left: System Badge & Real-time State */}
-              <div className="flex flex-col gap-1.5 pointer-events-auto">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-[#d4af37]/40 shadow-glow-gold text-xs font-bold text-[#f3e5ab]">
-                  <Radio className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
-                  <span>Central Outfire VTS 32S3 Autônoma</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
-                  <span className="text-[11px] font-mono text-gray-300">NBR 14518</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-lg text-xs font-black tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md border ${simStage === 'STANDBY'
-                      ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300'
-                      : simStage === 'HEATING'
-                        ? 'bg-amber-950/80 border-amber-500/50 text-amber-300'
-                        : simStage === 'FIRE_ALARM'
-                          ? 'bg-red-950/90 border-red-500 text-red-200 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.5)]'
-                          : simStage === 'SUPPRESSION'
-                            ? 'bg-cyan-950/90 border-cyan-500 text-cyan-200 shadow-[0_0_20px_rgba(6,182,212,0.5)]'
-                            : 'bg-emerald-900/90 border-emerald-400 text-emerald-200'
-                    }`}>
-                    {simStage === 'STANDBY' && <ShieldCheck className="w-4 h-4 text-emerald-400" />}
-                    {simStage === 'HEATING' && <Flame className="w-4 h-4 text-amber-400 animate-pulse" />}
-                    {simStage === 'FIRE_ALARM' && <Flame className="w-4 h-4 text-red-400 animate-bounce" />}
-                    {simStage === 'SUPPRESSION' && <Droplets className="w-4 h-4 text-cyan-300 animate-spin" />}
-                    {simStage === 'EXTINGUISHED' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                    {telemetry.systemStatus}
+                {simStage === 'FIRE_ALARM' && (
+                  <span className="px-2 py-1 rounded-lg bg-red-600 text-white font-mono font-black text-xs animate-pulse">
+                    DISPARO EM {countdown}s
                   </span>
-
-                  {simStage === 'FIRE_ALARM' && (
-                    <span className="px-2.5 py-1 rounded-lg bg-red-600 text-white font-mono font-black text-xs animate-pulse">
-                      DISPARO EM {countdown}s
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
 
-              {/* Right: Real-time Telemetry Chips (Gas, Exhaust, Temp) */}
-              <div className="flex items-center gap-2 pointer-events-auto bg-black/80 backdrop-blur-md p-2 rounded-2xl border border-white/10 shadow-2xl">
-                <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
-                  <Flame className={`w-3.5 h-3.5 ${telemetry.temp > 200 ? 'text-red-400 animate-pulse' : 'text-amber-400'}`} />
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-gray-400 font-mono">TEMP. ÓLEO</span>
-                    <span className="text-xs font-bold text-white font-mono">{telemetry.temp}°C</span>
-                  </div>
-                </div>
-
-                <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
-                  <ZapOff className={`w-3.5 h-3.5 ${telemetry.gasStatus === 'CORTADO' ? 'text-red-400' : 'text-emerald-400'}`} />
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-gray-400 font-mono">VÁLVULA GÁS</span>
-                    <span className={`text-xs font-bold font-mono ${telemetry.gasStatus === 'CORTADO' ? 'text-red-400' : 'text-emerald-400'}`}>
-                      {telemetry.gasStatus}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/5 flex items-center gap-2">
-                  <Wind className={`w-3.5 h-3.5 ${telemetry.exhaustStatus === 'INTERTRAVADO' ? 'text-red-400' : 'text-emerald-400'}`} />
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-gray-400 font-mono">EXAUSTÃO</span>
-                    <span className={`text-xs font-bold font-mono ${telemetry.exhaustStatus === 'INTERTRAVADO' ? 'text-red-400' : 'text-emerald-400'}`}>
-                      {telemetry.exhaustStatus}
-                    </span>
-                  </div>
-                </div>
+              {/* Chips de Telemetria */}
+              <div className="hidden sm:flex items-center gap-2 pointer-events-auto bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/10 text-[11px] font-mono">
+                <span className="text-gray-400">ÓLEO: <strong className="text-white">{telemetry.temp}°C</strong></span>
+                <span className="text-white/20">•</span>
+                <span className="text-gray-400">GÁS: <strong className={telemetry.gasStatus === 'CORTADO' ? 'text-red-400' : 'text-emerald-400'}>{telemetry.gasStatus}</strong></span>
+                <span className="text-white/20">•</span>
+                <span className="text-gray-400">EXAUSTÃO: <strong className={telemetry.exhaustStatus === 'INTERTRAVADO' ? 'text-red-400' : 'text-emerald-400'}>{telemetry.exhaustStatus}</strong></span>
               </div>
-
             </div>
           </div>
 
-          {/* BANNER PULSANTE: CLIQUE DIRETAMENTE NA TELA DA CENTRAL 3D PARA ABORTAR O DISPARO ACIDENTAL */}
+          {/* BOTÃO DE GAMEPLAY (INCÊNDIO REAL): ADIANTAR O DESPEJO NO ACIONADOR MANUAL */}
+          {activeScenario === 'real_fire' && (simStage === 'FIRE_ALARM' || simStage === 'HEATING') && !manualAdvanced && (
+            <div className="absolute top-28 sm:top-32 left-1/2 -translate-x-1/2 z-30 pointer-events-auto flex flex-col items-center gap-1.5 animate-fadeIn">
+              <button
+                type="button"
+                onClick={handleManualAdvanceDischarge}
+                className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 hover:brightness-110 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_30px_rgba(239,68,68,0.8)] border border-white flex items-center gap-2.5 cursor-pointer transform hover:scale-105 active:scale-95 transition-all animate-pulse"
+                title="Pressione a botoeira manual para descarregar o saponificante de imediato"
+              >
+                <AlertOctagon className="w-4 h-4 fill-white text-red-600 animate-spin" />
+                <span>⚡ Pressionar Acionador Manual (Adiantar Disparo)</span>
+              </button>
+              <span className="text-[10px] text-amber-200 bg-black/80 px-3 py-0.5 rounded-full border border-amber-500/40">
+                Você também pode clicar diretamente na botoeira vermelha 3D!
+              </span>
+            </div>
+          )}
+
+          {/* PROMPT DE GAMEPLAY (DISPARO ACIDENTAL): TOQUE NA TELA DA CENTRAL 3D PARA ABORTAR */}
           {activeScenario === 'accidental_discharge' && accidentalStep === 'alarm_waiting_click' && (
-            <div className="absolute top-40 sm:top-44 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-xl p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-red-950/95 via-black/95 to-black border-2 border-red-500 text-white shadow-[0_0_60px_rgba(239,68,68,0.9)] flex flex-col items-center gap-2.5 text-center pointer-events-auto animate-bounce">
+            <div className="absolute top-28 sm:top-32 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-lg p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-red-950/95 via-black/95 to-black border-2 border-red-500 text-white shadow-[0_0_60px_rgba(239,68,68,0.9)] flex flex-col items-center gap-2 text-center pointer-events-auto animate-bounce">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-black uppercase tracking-wider shadow-md">
                 <AlertOctagon className="w-4 h-4 animate-spin" />
-                <span>Disparo Acidental Detectado!</span>
+                <span>Disparo Acidental por Pratos Detectado!</span>
               </div>
               <h4 className="text-sm sm:text-base font-black text-amber-300 tracking-tight leading-snug">
-                👉 CLIQUE DIRETAMENTE NA TELA DA CENTRAL 3D PARA ABORTAR!
+                👉 CLIQUE NA TELA DA CENTRAL 3D PARA ABORTAR!
               </h4>
-              <p className="text-[11px] sm:text-xs text-gray-200 max-w-md">
-                A pilha de pratos atingiu a botoeira manual! Toque agora na tela da Central Outfire no cenário 3D para cancelar o disparo e economizar R$ 15.000!
+              <p className="text-[11px] text-gray-200">
+                A pilha de pratos atingiu a botoeira! Toque na tela da Central Outfire no cenário 3D para cancelar o disparo e poupar R$ 15.000 em recarga!
               </p>
               <button
                 type="button"
@@ -2565,7 +2435,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 className="mt-1 w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-green-400 to-emerald-600 hover:brightness-110 text-black font-black text-xs sm:text-sm uppercase tracking-wide shadow-[0_0_25px_rgba(16,185,129,0.8)] transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4 fill-black text-white" />
-                <span>Ou Toque Aqui para Abortar na Central</span>
+                <span>Toque Aqui ou na Tela 3D para Abortar</span>
               </button>
             </div>
           )}
@@ -2596,15 +2466,18 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             </div>
           )}
 
+          {/* 3. HOVER OBJECT TOOLTIP (3D RAYCASTING) */}
+          {hoveredObjectName && (
+            <div className="absolute top-24 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-4 py-1.5 rounded-full bg-black/90 backdrop-blur-md border border-[#d4af37]/60 text-xs text-[#f3e5ab] font-bold shadow-glow-gold flex items-center gap-2 animate-pulse">
+              <Eye className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span>{hoveredObjectName} — Clique para interagir</span>
+            </div>
+          )}
+
           {/* MODAL COMEMORATIVO DE SUCESSO: R$ 15.000 ECONOMIZADOS AO ABORTAR DISPARO ACIDENTAL */}
           {showAbortedModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn pointer-events-auto">
               <div className="relative w-full max-w-2xl bg-[#090b0e] border-2 border-emerald-500 rounded-3xl p-5 sm:p-7 shadow-[0_0_70px_rgba(16,185,129,0.5)] text-white overflow-hidden">
-                {/* Brilhos de fundo */}
-                <div className="absolute -top-24 -left-24 w-60 h-60 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-[#d4af37]/15 rounded-full blur-3xl pointer-events-none" />
-
-                {/* Botão Fechar */}
                 <button
                   type="button"
                   onClick={() => setShowAbortedModal(false)}
@@ -2613,7 +2486,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                   ✕
                 </button>
 
-                {/* Ícone e Título de Sucesso */}
                 <div className="text-center mb-5">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/60 text-emerald-300 text-xs font-black uppercase tracking-wider mb-2.5">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -2628,9 +2500,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                   </p>
                 </div>
 
-                {/* Comparativo Visual: Concorrência Mecânica vs Outfire Digital */}
+                {/* Comparativo Visual */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
-                  {/* Concorrência */}
                   <div className="p-3.5 sm:p-4 rounded-2xl bg-red-950/30 border border-red-500/30 flex flex-col gap-2">
                     <span className="text-xs font-black uppercase text-red-400 flex items-center gap-1.5">
                       <XCircle className="w-4 h-4 text-red-400 shrink-0" />
@@ -2644,7 +2515,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                     </p>
                   </div>
 
-                  {/* Outfire VTS */}
                   <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/50 flex flex-col gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
                     <span className="text-xs font-black uppercase text-emerald-300 flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -2654,7 +2524,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                       • <strong>Tempo de segurança</strong> com contagem regressiva visível.<br />
                       • Cancelamento imediato com <strong>um toque na tela touch</strong>.<br />
                       • <strong>Zero desperdício de saponificante ou CO2</strong> (R$ 0,00 gasto).<br />
-                      • Cozinha continua operando normalmente, sem contaminação e sem paralisação!
+                      • Cozinha continua operando normalmente, sem paralisação!
                     </p>
                   </div>
                 </div>
@@ -2663,7 +2533,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
                   <button
                     type="button"
-                    onClick={() => startRealFireScenario(true)}
+                    onClick={() => {
+                      setShowAbortedModal(false);
+                      startRealFireScenario();
+                    }}
                     className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black font-black text-xs uppercase tracking-wide shadow-glow-gold hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Flame className="w-4 h-4 fill-black" />
@@ -2696,502 +2569,193 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             </div>
           )}
 
-          {/* 3. HOVER OBJECT TOOLTIP (3D RAYCASTING) */}
-          {hoveredObjectName && (
-            <div className="absolute top-28 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-4 py-1.5 rounded-full bg-black/90 backdrop-blur-md border border-[#d4af37]/60 text-xs text-[#f3e5ab] font-bold shadow-glow-gold flex items-center gap-2 animate-pulse">
-              <Eye className="w-3.5 h-3.5 text-[#d4af37]" />
-              <span>{hoveredObjectName} — Clique para interagir</span>
-            </div>
-          )}
-
-          {/* BANNER DE CONTAGEM REGRESSIVA MANUAL QUANDO ACIONADOR FOI PUXADO */}
-          {isManualCountdown && (
-            <div className="absolute top-44 left-1/2 -translate-x-1/2 z-20 pointer-events-auto px-5 py-3 rounded-2xl bg-red-950/95 backdrop-blur-md border border-red-500 text-white shadow-[0_0_40px_rgba(239,68,68,0.7)] flex flex-col items-center gap-2 text-center max-w-md animate-pulse">
-              <div className="flex items-center gap-2 text-red-300 font-bold text-xs uppercase tracking-wider">
-                <AlertOctagon className="w-4 h-4 text-red-400" />
-                <span>Acionador Manual Disparado • Contagem de Segurança</span>
-              </div>
-              <div className="font-mono text-2xl font-black text-[#67e8f9]">
-                Supressão em {countdown}s
-              </div>
-              <p className="text-[11px] text-gray-200">
-                O saponificante <strong>NÃO</strong> é descarregado de imediato. Aguarda zerar a contagem para evacuação da cozinha ou cancelamento.
-              </p>
-              <button
-                onClick={handleAbortDisparo}
-                className="mt-1 px-4 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 border border-white/30"
-              >
-                <XCircle className="w-3.5 h-3.5 text-white" />
-                <span>Toque aqui para Abortar Disparo</span>
-              </button>
-            </div>
-          )}
-
-          {/* PROMPT DE INTERATIVIDADE ESTILO GAME: TOQUE NA CENTRAL 3D PARA ABORTAR */}
-          {(simStage === 'FIRE_ALARM' || accidentalStep === 'alarm_waiting_click') && (
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 flex flex-col items-center pointer-events-auto">
-              <button
-                type="button"
-                onClick={handleAbortDisparo}
-                className="group px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-500 to-red-600 hover:from-emerald-500 hover:to-emerald-600 text-white font-black text-sm uppercase tracking-wider shadow-[0_0_40px_rgba(239,68,68,0.9)] hover:shadow-[0_0_40px_rgba(16,185,129,0.9)] border-2 border-white flex items-center gap-3 cursor-pointer transform hover:scale-105 active:scale-95 transition-all animate-bounce"
-                title="Toque na tela da central para anular o disparo em falso e economizar R$ 15.000"
-              >
-                <span className="text-xl">🛑</span>
-                <div className="flex flex-col text-left">
-                  <span className="text-[10px] text-yellow-200 font-mono tracking-widest">
-                    {activeScenario === 'accidental_discharge' ? 'QUEDA DE PRATOS DETECTADA' : 'DISPARO EM ANDAMENTO'}
-                  </span>
-                  <span className="font-extrabold text-sm sm:text-base">
-                    TOQUE NA TELA PARA ABORTAR ({countdown}s)
-                  </span>
-                </div>
-                <span className="text-xs bg-white text-red-700 px-2.5 py-1 rounded-lg font-mono font-black shadow-md">
-                  R$ 15.000
-                </span>
-              </button>
-            </div>
-          )}
-
-          {/* POP-UP PRINCIPAL DE ENTRADA: ESCOLHA ENTRE INCÊNDIO REAL (AUTOMÁTICO) E DISPARO ACIDENTAL (INTERATIVO) */}
-          {showEntryModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn pointer-events-auto">
-              <div className="relative w-full max-w-2xl bg-[#090b0e] border-2 border-[#d4af37]/80 rounded-3xl p-5 sm:p-7 shadow-[0_0_70px_rgba(212,175,55,0.4)] text-white overflow-hidden">
-                {/* Brilho dourado de fundo */}
-                <div className="absolute -top-24 -left-24 w-60 h-60 bg-[#d4af37]/15 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -right-24 w-60 h-60 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />
-
-                {/* Botão de Fechar */}
+          {/* 4. VIDEO PLAYER CONTROL BAR & 4 BOTÕES DOURADOS DE CONVERSÃO */}
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-3 sm:pb-4 flex flex-col items-center gap-2 pointer-events-none">
+            
+            {/* Barra de Controle de Vídeo (Play/Pause, Linha do Tempo e 8 Etapas) */}
+            <div className="w-full flex flex-col gap-2 bg-black/90 backdrop-blur-md px-3.5 sm:px-5 py-2.5 rounded-2xl border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] pointer-events-auto">
+              
+              {/* Linha Superior: Play/Pause, Scrubber da Linha do Tempo e Câmeras Rápidas */}
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                {/* Play/Pause */}
                 <button
-                  onClick={() => setShowEntryModal(false)}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-sm transition-all cursor-pointer z-10"
-                  title="Fechar modal"
-                  aria-label="Fechar pop-up"
+                  type="button"
+                  onClick={togglePlayPause}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-black transition-all cursor-pointer shrink-0 ${
+                    isPlaying
+                      ? 'bg-amber-400 text-black shadow-[0_0_15px_rgba(245,158,11,0.8)] scale-105'
+                      : 'bg-white/10 hover:bg-[#d4af37] text-white hover:text-black border border-white/20'
+                  }`}
+                  title={isPlaying ? 'Pausar simulação' : 'Reproduzir simulação'}
                 >
-                  ✕
+                  {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
                 </button>
 
-                {/* Cabeçalho */}
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/50 text-[#f3e5ab] text-xs font-black uppercase tracking-wider mb-3">
-                    <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
-                    <span>Simulação 3D Interativa • Central Outfire VTS 32S3</span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                    Qual simulação você deseja vivenciar?
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-300 mt-1.5 max-w-lg mx-auto">
-                    Selecione um dos cenários abaixo. O sistema iniciará a apresentação com fidelidade total:
-                  </p>
-                </div>
-
-                {/* Os 2 Grandes Cards de Cenário Solicitados */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                  {/* Card 1: Simular Incêndio Real (Vídeo Automatizado) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowEntryModal(false);
-                      startRealFireScenario(true);
-                    }}
-                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-red-950/40 via-black/80 to-black border-2 border-red-500/70 hover:border-[#d4af37] shadow-[0_0_25px_rgba(239,68,68,0.25)] hover:shadow-[0_0_35px_rgba(212,175,55,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-red-600 to-amber-500 text-white font-black text-[10px] uppercase tracking-wider">
-                          Vídeo Automatizado
-                        </span>
-                        <span className="text-[11px] font-bold text-amber-300">8 Etapas • ~25s</span>
-                      </div>
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-red-600/30 border border-red-500/60 flex items-center justify-center shrink-0 shadow-md">
-                          <Flame className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        </div>
-                        <span className="text-sm font-black text-white group-hover:text-[#f3e5ab]">
-                          Simular Incêndio Real
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-gray-300 leading-relaxed">
-                        Execução <strong>automatizada contínua do início ao fim</strong>: detecção térmica 145°C, fechamento do damper, corte de gás na panela, voz oficial da central e extinção total com saponificante Classe K.
-                      </p>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black font-extrabold text-xs uppercase tracking-wide group-hover:brightness-110 shadow-glow-gold">
-                      <Play className="w-3.5 h-3.5 fill-black" />
-                      <span>Iniciar Incêndio Real</span>
-                    </div>
-                  </button>
-
-                  {/* Card 2: Simular Disparo Acidental (Interativo / Comédia dos Pratos) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowEntryModal(false);
-                      startAccidentalDischargeScenario();
-                    }}
-                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-amber-950/40 via-black/80 to-black border-2 border-[#d4af37]/70 hover:border-[#f3e5ab] shadow-[0_0_25px_rgba(212,175,55,0.25)] hover:shadow-[0_0_35px_rgba(212,175,55,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left cursor-pointer"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2.5">
-                        <span className="px-2 py-0.5 rounded-md bg-[#d4af37] text-black font-black text-[10px] uppercase tracking-wider">
-                          Modo Interativo
-                        </span>
-                        <span className="text-[11px] font-bold text-emerald-400">Economia R$ 15k</span>
-                      </div>
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div className="w-8 h-8 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/60 flex items-center justify-center shrink-0">
-                          <UtensilsCrossed className="w-4 h-4 text-[#d4af37]" />
-                        </div>
-                        <span className="text-sm font-black text-white group-hover:text-[#f3e5ab]">
-                          Simular Disparo Acidental
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-gray-300 leading-relaxed">
-                        Queda cômica de pratos sobre a botoeira manual. A câmera foca na <strong>Central 3D com IHM Touch</strong>: toque na tela para anular o disparo em falso e economizar R$ 15.000 em recarga!
-                      </p>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-white/10 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-amber-400 to-[#b89628] text-black font-extrabold text-xs uppercase tracking-wide group-hover:brightness-110 shadow-glow-gold">
-                      <Sparkles className="w-3.5 h-3.5 fill-black" />
-                      <span>Iniciar Disparo Acidental</span>
-                    </div>
-                  </button>
-
-                </div>
-
-                {/* Rodapé / Opção Manual */}
-                <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-400">
-                  <span>💡 Você pode alternar os cenários ou pausar a qualquer momento</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowEntryModal(false);
-                      setIsPlaying(false);
-                      setShowScrollPromptArrows(true);
-                    }}
-                    className="text-gray-300 hover:text-white underline cursor-pointer"
-                  >
-                    Ou navegar descendo a tela
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* INDICADOR COM SETAS ANIMADAS PARA BAIXO (MODO DESCENDO A TELA) */}
-          {!isPlaying && (simStage === 'STANDBY' || showScrollPromptArrows) && (
-            <div
-              onClick={handleScrollDownStep}
-              className="absolute bottom-24 sm:bottom-28 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 cursor-pointer group pointer-events-auto select-none"
-              title="Role para baixo com o mouse ou deslize o dedo para ver a simulação"
-            >
-              {/* Badge Chamativo */}
-              <div className="px-4 py-2 rounded-2xl bg-black/90 backdrop-blur-md border border-[#d4af37] shadow-[0_0_30px_rgba(212,175,55,0.5)] flex items-center gap-2.5 text-xs font-bold text-[#f3e5ab] group-hover:scale-105 transition-all">
-                <MousePointer className="w-4 h-4 text-[#d4af37] animate-pulse" />
-                <span className="font-extrabold uppercase tracking-wide text-white">
-                  Role a tela para baixo
-                </span>
-                <span className="text-[#d4af37] font-black text-sm">👇</span>
-              </div>
-
-              {/* Setas Douradas Triplas em Cascata Animadas */}
-              <div className="flex flex-col items-center -space-y-2 mt-1">
-                <ChevronDown className="w-7 h-7 text-[#d4af37] animate-bounce" />
-                <ChevronDown className="w-6 h-6 text-[#f3e5ab] animate-bounce [animation-delay:150ms]" />
-                <ChevronDown className="w-5 h-5 text-white/80 animate-bounce [animation-delay:300ms]" />
-              </div>
-            </div>
-          )}
-
-          {/* 4. BARRA INFERIOR COM CONTROLES DE REPRODUÇÃO (PLAY/PAUSE & SCROLL), SETA DOURADA E FASES */}
-          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-5 flex flex-col items-center gap-3 pointer-events-none">
-
-            {/* BARRA CENTRAL DE COMANDOS (PLAY/PAUSE, MODO DESCENDO A TELA, ESCOLHER MODO E FASES) */}
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 bg-black/90 backdrop-blur-md px-3.5 sm:px-5 py-2 rounded-2xl border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] max-w-full pointer-events-auto">
-
-              {/* Botão Play / Pause Auto-Scroll */}
-              <button
-                onClick={togglePlayPause}
-                aria-label={isPlaying ? 'Pausar apresentação automática' : 'Aperte o Play para apresentação automática'}
-                className={`py-1.5 px-3.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all duration-300 shadow-md cursor-pointer ${isPlaying
-                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-[#d4af37] text-black shadow-[0_0_20px_rgba(245,158,11,0.8)] scale-105 animate-pulse'
-                    : 'bg-[#181a20] hover:bg-[#22252c] text-[#f3e5ab] border border-[#d4af37]/50 hover:border-[#d4af37]'
-                  }`}
-                title={isPlaying ? 'Pausar simulação automática' : 'Iniciar apresentação automática acelerada (~13s)'}
-              >
-                {isPlaying ? (
-                  <>
-                    <Pause className="w-3.5 h-3.5 fill-black" />
-                    <span>Pausar</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3.5 h-3.5 fill-[#d4af37]" />
-                    <span>Aperte o Play</span>
-                  </>
-                )}
-              </button>
-
-              {/* Botão / Indicador de Modo Descendo a Tela */}
-              <button
-                onClick={handleSetManualMode}
-                className={`py-1.5 px-2.5 sm:px-3 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border ${!isPlaying
-                    ? 'bg-blue-950/40 text-blue-200 border-blue-400/50 shadow-sm'
-                    : 'bg-black/50 hover:bg-white/10 text-gray-400 border-white/10'
-                  }`}
-                title="Modo Descendo a Tela: Role a tela livremente com o mouse ou deslize o dedo"
-              >
-                <MousePointer className="w-3 h-3 text-blue-400" />
-                <span className="hidden sm:inline">Modo</span>
-                <span>Descendo a Tela</span>
-              </button>
-
-              {/* Botão para Reabrir Escolha dos Cenários */}
-              <button
-                onClick={() => setShowEntryModal(true)}
-                className="py-1.5 px-2.5 rounded-xl border border-[#d4af37]/40 bg-[#d4af37]/10 hover:bg-[#d4af37]/25 text-[#f3e5ab] hover:text-white transition-all cursor-pointer flex items-center gap-1.5 text-xs shadow-sm"
-                title="Escolher entre Simulação de Incêndio Real ou Disparo Acidental"
-                aria-label="Trocar Cenário"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
-                <span className="text-[11px] font-bold">Trocar Cenário</span>
-              </button>
-
-              {/* Divisor vertical */}
-              <div className="w-[1px] h-5 bg-white/20 hidden sm:block" />
-
-              {/* Seta Dourada Interativa com Bounce / Pulse */}
-              <button
-                onClick={handleScrollDownStep}
-                aria-label="Avançar simulação para baixo"
-                className="w-8 h-8 rounded-full bg-gradient-to-b from-[#d4af37]/25 to-black/80 border border-[#d4af37]/60 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(212,175,55,0.4)] cursor-pointer shrink-0"
-                title="Avançar um passo na simulação"
-              >
-                <ChevronDown className={`w-4 h-4 text-[#d4af37] ${simStage !== 'STANDBY' ? 'animate-bounce' : 'animate-pulse'}`} />
-              </button>
-
-              {/* Indicador Dinâmico de Fase ao Lado da Seta */}
-              <div className="flex items-center gap-2 truncate max-w-[260px] sm:max-w-md">
-                {simStage === 'STANDBY' && (
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <span className="text-xs sm:text-sm font-bold text-gray-200">
-                      Cozinha em Standby • <span className="text-[#d4af37]">{isPlaying ? 'Reproduzindo...' : 'Aperte o Play ou Desça a tela'}</span>
-                    </span>
-                  </div>
-                )}
-
-                {simStage === 'HEATING' && (
-                  <div className="flex items-center gap-2 animate-pulse">
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/60 text-amber-300 font-black text-xs shrink-0">
-                      FASE 1
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-amber-200 truncate">
-                      Princípio de Incêndio (Óleo a {telemetry.temp}°C)
-                    </span>
-                  </div>
-                )}
-
-                {simStage === 'FIRE_ALARM' && (
-                  <div className="flex items-center gap-2 animate-pulse">
-                    <span className="px-2 py-0.5 rounded-md bg-red-600/30 border border-red-500 text-red-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
-                      FASE 2
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-red-200 truncate">
-                      Alarme Térmico 145°C Disparado • Contagem: {countdown}s
-                    </span>
-                  </div>
-                )}
-
-                {simStage === 'SUPPRESSION' && (
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md bg-cyan-600/30 border border-cyan-400 text-cyan-200 font-black text-xs shrink-0 shadow-[0_0_15px_rgba(34,211,238,0.5)]">
-                      FASE 3
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-cyan-200 truncate">
-                      Supressão Ativa: Saponificante Classe K + CO2 no duto
-                    </span>
-                  </div>
-                )}
-
-                {simStage === 'EXTINGUISHED' && (
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-600/30 border border-emerald-400 text-emerald-200 font-black text-xs shrink-0">
-                      FASE 4
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-emerald-200 truncate">
-                      Cozinha Preservada • NBR 14518 Cumprida
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* CONTROLES DE INTERAÇÃO (BOTOEIRA, RESTAURAR, CÂMERAS) */}
-            <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs">
-
-              {/* Botões de Ação de Emergência */}
-              <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
-                {/* Botão Acionador Manual (Botoeira) */}
-                <button
-                  onClick={handleManualTrigger}
-                  disabled={simStage === 'SUPPRESSION' || simStage === 'EXTINGUISHED' || isManualCountdown}
-                  className={`py-2 px-4 rounded-xl font-black text-xs flex items-center gap-2 transition-all duration-300 border ${simStage === 'FIRE_ALARM'
-                      ? 'bg-gradient-to-r from-red-600 via-rose-500 to-red-700 text-white border-white animate-pulse shadow-[0_0_25px_rgba(225,29,72,0.8)] scale-105'
-                      : 'bg-[#181212]/90 hover:bg-red-950/80 text-red-300 border-red-500/40 shadow-lg'
-                    }`}
+                {/* Scrubber da Linha do Tempo */}
+                <div
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+                    jumpToTime(ratio * TOTAL_SIM_DURATION);
+                  }}
+                  className="relative flex-1 h-3 rounded-full bg-white/15 cursor-pointer overflow-hidden group hover:h-3.5 transition-all"
+                  title="Clique para avançar ou voltar na simulação"
                 >
-                  <AlertOctagon className="w-3.5 h-3.5 text-red-400" />
-                  <span>🚨 Disparar Acionador Manual</span>
-                </button>
+                  <div
+                    className="h-full bg-gradient-to-r from-red-500 via-amber-400 to-[#d4af37] shadow-[0_0_10px_rgba(212,175,55,0.8)] transition-all duration-75"
+                    style={{ width: `${(simTime / TOTAL_SIM_DURATION) * 100}%` }}
+                  />
+                </div>
 
-                {/* Botão Abortar Disparo em Falso */}
-                {(isManualCountdown || simStage === 'FIRE_ALARM') && (
-                  <button
-                    onClick={handleAbortDisparo}
-                    className="py-2 px-3.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-bold text-xs flex items-center gap-1.5 border border-amber-500/40 transition-all active:scale-95"
-                  >
-                    <XCircle className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Abortar Disparo</span>
-                  </button>
-                )}
+                {/* Mostrador de Tempo */}
+                <div className="font-mono text-xs font-bold text-[#f3e5ab] shrink-0">
+                  {formatTime(simTime)} / {formatTime(TOTAL_SIM_DURATION)}
+                </div>
 
                 {/* Reset Button */}
-                {(simStage === 'EXTINGUISHED' || simStage === 'FIRE_ALARM' || simStage === 'SUPPRESSION') && (
-                  <button
-                    onClick={handleResetScene}
-                    className="py-2 px-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-1.5 border border-white/15 transition-all duration-200 active:scale-95"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>Restaurar</span>
-                  </button>
-                )}
-
-                {/* Botao Direto de Conversao na Fase 4 */}
-                {simStage === 'EXTINGUISHED' && (
-                  <button
-                    onClick={scrollToNextSection}
-                    className="py-2 px-3.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#b89628] hover:from-[#f3e5ab] hover:to-[#d4af37] text-black font-extrabold text-xs flex items-center gap-1.5 shadow-glow-gold hover:scale-105 active:scale-95 transition-all animate-pulse"
-                    title="Avançar para a escolha de Kits e Instalação"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 fill-black" />
-                    <span>Escolher Minha Solução</span>
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleResetScene}
+                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-xs transition-all cursor-pointer shrink-0"
+                  title="Reiniciar simulação do início"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              {/* Câmeras Rápidas */}
-              <div className="flex items-center gap-1 bg-black/75 backdrop-blur-md p-1 rounded-xl border border-white/10 text-xs pointer-events-auto">
-                <span className="text-[10px] text-gray-400 px-1.5 font-mono flex items-center gap-1">
-                  <Camera className="w-3 h-3 text-[#d4af37]" /> Câmera:
-                </span>
-                <button
-                  onClick={() => setCameraView('geral')}
-                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${activeCameraView === 'geral' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-                    }`}
-                >
-                  Geral
-                </button>
-                <button
-                  onClick={() => setCameraView('central')}
-                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${activeCameraView === 'central' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-                    }`}
-                >
-                  Central
-                </button>
-                <button
-                  onClick={() => setCameraView('fritadeira')}
-                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${activeCameraView === 'fritadeira' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-                    }`}
-                >
-                  Fritadeira
-                </button>
-                <button
-                  onClick={() => setCameraView('botoeira')}
-                  className={`px-2 py-0.5 rounded-lg font-bold transition-all ${activeCameraView === 'botoeira' ? 'bg-[#d4af37] text-black shadow-glow-gold' : 'text-gray-300 hover:text-white'
-                    }`}
-                >
-                  Botoeira
-                </button>
+              {/* Linha Inferior: 8 Marcadores de Etapas Cinematográficas */}
+              <div className="flex items-center justify-between gap-1 overflow-x-auto py-1 scrollbar-none">
+                {CINEMATIC_ZOOM_STOPS.map((stop, idx) => {
+                  const isActive = activeScenario === 'real_fire' && activeZoomIndex === idx;
+                  return (
+                    <button
+                      key={stop.id}
+                      type="button"
+                      onClick={() => jumpToStage(idx)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isActive
+                          ? 'bg-[#d4af37] text-black font-extrabold shadow-[0_0_12px_rgba(212,175,55,0.8)] scale-105'
+                          : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                      }`}
+                      title={stop.badgeTitle}
+                    >
+                      <span className="font-mono">{stop.label}.</span>
+                      <span className="hidden md:inline">{stop.name}</span>
+                    </button>
+                  );
+                })}
               </div>
 
             </div>
 
-          </div>
+            {/* OS 4 BOTÕES DOURADOS ELEGANTES DE CONVERSÃO COMERCIAL SOLICITADOS POR MATHEUS */}
+            {simStage === 'EXTINGUISHED' && (
+              <div className="w-full max-w-5xl mx-auto mt-1 pt-2 border-t border-[#d4af37]/30 flex flex-col items-center gap-2.5 animate-fadeIn pointer-events-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/40 text-[#f3e5ab] text-xs font-black uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
+                  <span>Escolha a Melhor Solução para Seu Restaurante</span>
+                </div>
 
-          {/* 5. BARRA DE ROLAGEM LATERAL DOURADA & NAVEGADOR DE FASES (SLIM & ELEGANT) */}
-          <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1.5 pointer-events-auto">
-            {/* Mini Botão Play/Pause Lateral */}
-            <button
-              onClick={togglePlayPause}
-              title={isPlaying ? "Pausar apresentação automática" : "Auto-Play apresentação contínua"}
-              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isPlaying
-                  ? 'bg-amber-400 text-black shadow-[0_0_12px_rgba(251,191,36,0.9)] scale-110'
-                  : 'bg-black/85 hover:bg-[#d4af37] text-[#d4af37] hover:text-black border border-[#d4af37]/50'
-                }`}
-            >
-              {isPlaying ? <Pause className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current ml-0.5" />}
-            </button>
-
-            {/* Trilho da Barra Dourada */}
-            <div
-              onClick={(e) => {
-                setIsPlaying(false);
-                const rect = e.currentTarget.getBoundingClientRect();
-                const clickY = e.clientY - rect.top;
-                const ratio = Math.max(0, Math.min(1, clickY / rect.height));
-                scrollToProgress(ratio);
-              }}
-              title="Clique para rolar na simulação"
-              className="relative w-2 sm:w-2.5 h-32 sm:h-48 rounded-full bg-black/75 backdrop-blur-md border border-[#d4af37]/40 shadow-[0_0_15px_rgba(212,175,55,0.25)] cursor-pointer p-0.5 flex flex-col justify-start overflow-hidden group hover:border-[#d4af37] transition-all"
-            >
-              {/* Preenchimento em gradiente dourado proporcional ao scrollProgress */}
-              <div
-                className="w-full rounded-full bg-gradient-to-b from-[#ffffff] via-[#d4af37] to-[#9a741e] shadow-[0_0_10px_rgba(212,175,55,0.8)] transition-[height] duration-150"
-                style={{ height: `${Math.max(10, scrollProgress * 100)}%` }}
-              />
-            </div>
-
-            {/* Marcadores / Botões de Salto Direto para as 8 Etapas Cinematográficas */}
-            <div className="flex flex-col items-center gap-1">
-              {CINEMATIC_ZOOM_STOPS.map((item, idx) => {
-                const isActive = activeScenario === 'real_fire' && activeZoomIndex === idx;
-                return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 w-full">
+                  {/* Botão 1: Kit para Terceiros */}
                   <button
-                    key={item.id}
-                    onClick={() => {
-                      setIsPlaying(false);
-                      if (activeScenario !== 'real_fire') {
-                        startRealFireScenario();
-                      }
-                      scrollToProgress(item.progress);
-                    }}
-                    title={item.badgeTitle}
-                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black transition-all ${
-                      isActive
-                        ? 'bg-[#d4af37] text-black shadow-[0_0_12px_rgba(212,175,55,0.9)] scale-110 border border-white'
-                        : 'bg-black/80 hover:bg-black text-gray-400 hover:text-white border border-[#d4af37]/30 hover:border-[#d4af37]'
-                    }`}
+                    type="button"
+                    onClick={handleOpenKitOnly}
+                    className="p-3 rounded-2xl bg-gradient-to-b from-black/85 to-[#12161f] border border-[#d4af37]/50 hover:border-[#d4af37] text-left hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] flex flex-col justify-between group cursor-pointer"
                   >
-                    {item.label}
+                    <div>
+                      <div className="w-8 h-8 rounded-xl bg-[#d4af37]/15 border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] mb-2 group-hover:scale-110 transition-transform">
+                        <Package className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-black text-white group-hover:text-[#f3e5ab] block">
+                        Kit de Equipamentos
+                      </span>
+                      <span className="text-[11px] text-gray-300 mt-0.5 block leading-tight">
+                        Para montagem com terceiros, instaladores e revendas. Envio nacional.
+                      </span>
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-[#d4af37] group-hover:translate-x-1 transition-transform">
+                      <span>Solicitar Cotação</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </div>
                   </button>
-                );
-              })}
-            </div>
 
-            {/* Atalho para sair da simulação / avançar para a próxima seção */}
-            <button
-              onClick={() => {
-                setIsPlaying(false);
-                scrollToNextSection();
-              }}
-              title="Avançar para a Central Outfire"
-              className="mt-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black/80 hover:bg-black border border-[#d4af37]/50 text-[#d4af37] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-glow-gold"
-              aria-label="Avançar para a próxima seção"
-            >
-              <ChevronDown className="w-3.5 h-3.5 animate-bounce" />
-            </button>
+                  {/* Botão 2: Kit Completo + Instalação Outfire */}
+                  <button
+                    type="button"
+                    onClick={handleOpenTurnkey}
+                    className="p-3 rounded-2xl bg-gradient-to-b from-[#d4af37]/25 via-black/90 to-[#12161f] border-2 border-[#d4af37] hover:border-[#f3e5ab] text-left hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_25px_rgba(212,175,55,0.35)] hover:shadow-[0_0_35px_rgba(212,175,55,0.55)] flex flex-col justify-between group cursor-pointer relative overflow-hidden"
+                  >
+                    <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-[#d4af37] text-black text-[9px] font-black uppercase tracking-wider">
+                      Mais Pedido
+                    </span>
+                    <div>
+                      <div className="w-8 h-8 rounded-xl bg-[#d4af37]/30 border border-[#d4af37]/60 flex items-center justify-center text-[#f3e5ab] mb-2 group-hover:scale-110 transition-transform">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-black text-[#f3e5ab] group-hover:text-white block">
+                        Kit + Instalação Outfire
+                      </span>
+                      <span className="text-[11px] text-gray-200 mt-0.5 block leading-tight">
+                        Turnkey Noturna (sem parar a cozinha) + ART CREA e Laudo Bombeiros.
+                      </span>
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-1 text-[11px] font-extrabold text-[#f3e5ab] group-hover:translate-x-1 transition-transform">
+                      <span>Orçamento Chave na Mão</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </button>
+
+                  {/* Botão 3: Instalação & Manutenção */}
+                  <button
+                    type="button"
+                    onClick={handleOpenMaintenance}
+                    className="p-3 rounded-2xl bg-gradient-to-b from-black/85 to-[#12161f] border border-[#d4af37]/50 hover:border-[#d4af37] text-left hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] flex flex-col justify-between group cursor-pointer"
+                  >
+                    <div>
+                      <div className="w-8 h-8 rounded-xl bg-[#d4af37]/15 border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] mb-2 group-hover:scale-110 transition-transform">
+                        <Wrench className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-black text-white group-hover:text-[#f3e5ab] block">
+                        Instalação & Manutenção
+                      </span>
+                      <span className="text-[11px] text-gray-300 mt-0.5 block leading-tight">
+                        Vistorias preventivas, recarga de saponificante/CO2 e adequação AVCB.
+                      </span>
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-[#d4af37] group-hover:translate-x-1 transition-transform">
+                      <span>Agendar Vistoria</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </button>
+
+                  {/* Botão 4: Conhecer a Central VTS 32S3 */}
+                  <button
+                    type="button"
+                    onClick={handleOpenCentralDetails}
+                    className="p-3 rounded-2xl bg-gradient-to-b from-black/85 to-[#12161f] border border-[#d4af37]/50 hover:border-[#d4af37] text-left hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] flex flex-col justify-between group cursor-pointer"
+                  >
+                    <div>
+                      <div className="w-8 h-8 rounded-xl bg-[#d4af37]/15 border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] mb-2 group-hover:scale-110 transition-transform">
+                        <Cpu className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs font-black text-white group-hover:text-[#f3e5ab] block">
+                        Central Outfire VTS 32S3
+                      </span>
+                      <span className="text-[11px] text-gray-300 mt-0.5 block leading-tight">
+                        IHM touch digital, supervisão autônoma e conformidade integral NBR 14518.
+                      </span>
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-1 text-[11px] font-bold text-[#d4af37] group-hover:translate-x-1 transition-transform">
+                      <span>Ver Especificações</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
 
         </div>
