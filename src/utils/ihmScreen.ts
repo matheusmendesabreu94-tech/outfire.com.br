@@ -285,3 +285,48 @@ export function drawExtinguishedScreenToCanvas(canvas: HTMLCanvasElement): void 
   ctx.font = 'bold 32px "Courier New", Courier, monospace';
   ctx.fillText('COZINHA E VIDAS PRESERVADAS', 512, 570);
 }
+
+/**
+ * Renderiza a tela de DISPARO ABORTADO (Alarme cancelado na Central 3D com sucesso)
+ */
+export function drawAbortedScreenToCanvas(canvas: HTMLCanvasElement): void {
+  if (canvas.width !== 1024 || canvas.height !== 768) {
+    canvas.width = 1024;
+    canvas.height = 768;
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // Fundo Verde Esmeralda de Proteção e Sucesso
+  ctx.fillStyle = '#062d22';
+  ctx.fillRect(0, 0, 1024, 768);
+
+  ctx.fillStyle = '#10b981';
+  ctx.font = '900 56px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('✓ DISPARO ABORTADO', 512, 130);
+
+  ctx.fillStyle = '#6ee7b7';
+  ctx.font = 'bold 36px "Courier New", Courier, monospace';
+  ctx.fillText('CILINDRO PRESERVADO • 100% SEGURO', 512, 230);
+
+  // Card central dourado
+  ctx.fillStyle = '#134e4a';
+  ctx.fillRect(100, 320, 824, 150);
+  ctx.strokeStyle = '#d4af37';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(100, 320, 824, 150);
+
+  ctx.fillStyle = '#fef08a';
+  ctx.font = '900 46px "Courier New", Courier, monospace';
+  ctx.fillText('ECONOMIA DE R$ 15.000,00', 512, 375);
+
+  ctx.fillStyle = '#a7f3d0';
+  ctx.font = 'bold 30px sans-serif';
+  ctx.fillText('ZERO CONTAMINAÇÃO & ZERO PARADA', 512, 430);
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 32px "Courier New", Courier, monospace';
+  ctx.fillText('CENTRAL OUTFIRE VTS 32S3 REARMADA', 512, 590);
+}
