@@ -35,7 +35,7 @@ export interface CinematicZoomPoint {
   icon: string;
 }
 
-export const TOTAL_SIM_DURATION = 27.0; // 27 segundos de simulação cinematográfica contínua
+export const TOTAL_SIM_DURATION = 44.0; // 44 segundos de simulação cinematográfica contínua
 
 export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
   {
@@ -43,7 +43,7 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     label: '1',
     name: 'Cozinha Standby',
     timeStart: 0.0,
-    timeEnd: 3.5,
+    timeEnd: 4.5,
     camPos: [0, 2.2, 4.4],
     camLook: [0, 1.4, 0],
     camPosMobile: [0.5, 2.1, 6.8],
@@ -56,8 +56,8 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     id: 2,
     label: '2',
     name: 'Início do Fogo',
-    timeStart: 3.5,
-    timeEnd: 6.8,
+    timeStart: 4.5,
+    timeEnd: 9.5,
     camPos: [-0.55, 1.45, 1.8],
     camLook: [-0.55, 1.05, 0],
     camPosMobile: [-0.55, 1.45, 2.2],
@@ -70,36 +70,36 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     id: 3,
     label: '3',
     name: 'Sensor 145°C + Damper',
-    timeStart: 6.8,
-    timeEnd: 10.0,
-    camPos: [-0.22, 2.45, 1.40],
-    camLook: [-0.25, 2.45, 0.05],
-    camPosMobile: [-0.22, 2.45, 1.85],
-    camLookMobile: [-0.25, 2.45, 0.05],
-    badgeTitle: '3. Sensor 145°C Dispara Damper Corta-Fogo Imediatamente',
-    badgeDesc: 'Ao detectar 145°C (NBR 14518), a solenoide desliga e a lâmina do damper fecha em 90°, isolando o duto predial imediatamente!',
+    timeStart: 9.5,
+    timeEnd: 14.5,
+    camPos: [-0.45, 2.10, 0.70],
+    camLook: [-0.55, 2.05, 0.08],
+    camPosMobile: [-0.45, 2.10, 0.95],
+    camLookMobile: [-0.55, 2.05, 0.08],
+    badgeTitle: '3. Sensor Blindado 145°C Detecta Calor Crítico (NBR 14518)',
+    badgeDesc: 'Ao atingir 145°C na coifa, o sensor térmico blindado emite sinal eletrônico instantâneo para disparo do damper e central!',
     icon: 'damper',
   },
   {
     id: 4,
     label: '4',
     name: 'Damper 100% Selado',
-    timeStart: 10.0,
-    timeEnd: 13.0,
+    timeStart: 14.5,
+    timeEnd: 19.0,
     camPos: [0.05, 2.85, 1.05],
     camLook: [0, 2.85, 0],
     camPosMobile: [0.05, 2.85, 1.45],
     camLookMobile: [0, 2.85, 0],
     badgeTitle: '4. Duto Predial 100% Hermético & Isolado (NBR 14518)',
-    badgeDesc: 'Visor de inspeção exibe a lâmina travada a 90° com vedação de alta temperatura, impedindo propagação de fogo e gases tóxicos.',
+    badgeDesc: 'Solenoide desarma e a lâmina do damper fecha em 90° com vedação de alta temperatura, impedindo propagação de fogo ao prédio.',
     icon: 'damper',
   },
   {
     id: 5,
     label: '5',
     name: 'Central Outfire IHM',
-    timeStart: 13.0,
-    timeEnd: 18.5,
+    timeStart: 19.0,
+    timeEnd: 27.0,
     camPos: [2.1, 1.8, 0.70],
     camLook: [2.1, 1.8, 0.15],
     camPosMobile: [2.05, 1.8, 0.95],
@@ -112,8 +112,8 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     id: 6,
     label: '6',
     name: 'Corte de Gás',
-    timeStart: 18.5,
-    timeEnd: 21.0,
+    timeStart: 27.0,
+    timeEnd: 32.0,
     camPos: [0.65, 1.45, 1.55],
     camLook: [0.65, 1.05, 0],
     camPosMobile: [0.65, 1.45, 2.0],
@@ -126,28 +126,28 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     id: 7,
     label: '7',
     name: 'Quadro Elétrico',
-    timeStart: 21.0,
-    timeEnd: 23.5,
-    camPos: [-2.2, 1.95, 1.4],
-    camLook: [-2.6, 1.9, -0.4],
-    camPosMobile: [-2.0, 1.95, 1.8],
-    camLookMobile: [-2.6, 1.9, -0.4],
+    timeStart: 32.0,
+    timeEnd: 37.0,
+    camPos: [-2.1, 2.0, 0.9],
+    camLook: [-2.6, 2.0, -0.58],
+    camPosMobile: [-1.9, 2.0, 1.2],
+    camLookMobile: [-2.6, 2.0, -0.58],
     badgeTitle: '7. Intertravamento Elétrico: Exaustão & Fritadeira Desenergizadas',
-    badgeDesc: 'Luzes verdes do painel desligam: motor do exaustor e resistências das fritadeiras são cortados para evitar reignição.',
+    badgeDesc: 'Luzes verdes do painel cinza industrial apagam: motor da exaustão e resistências elétricas são cortados para cessar a oxigenação.',
     icon: 'electrical',
   },
   {
     id: 8,
     label: '8',
     name: 'Extinção Total',
-    timeStart: 23.5,
-    timeEnd: 27.0,
+    timeStart: 37.0,
+    timeEnd: 44.0,
     camPos: [0, 1.8, 3.2],
     camLook: [-0.1, 1.25, 0],
     camPosMobile: [0, 1.8, 3.9],
     camLookMobile: [-0.1, 1.25, 0],
     badgeTitle: '8. Supressão Ativa com Saponificante Classe K & CO2',
-    badgeDesc: 'Manta espumosa cobre o óleo e isola o oxigênio. Fogo 100% extinto! Cozinha protegida conforme NBR 14518.',
+    badgeDesc: 'Bicos aspersores lançam saponificante de alta pressão criando manta espumosa no óleo. Fogo 100% extinto (NBR 14518)!',
     icon: 'droplets',
   },
 ];
@@ -293,13 +293,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       try {
         officialAudioRef.current.pause();
         officialAudioRef.current.currentTime = 0;
-      } catch {}
+      } catch { }
       officialAudioRef.current = null;
     }
     if (sirenStopFnRef.current) {
       try {
         sirenStopFnRef.current();
-      } catch {}
+      } catch { }
       sirenStopFnRef.current = null;
     }
     soundEffects.stopAll();
@@ -447,9 +447,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setManualAdvanced(true);
     manualAdvancedRef.current = true;
 
-    // Salta a simulação direto para a fase de extinção imediata (23.5s)
-    simTimeRef.current = 23.5;
-    setSimTime(23.5);
+    // Salta a simulação direto para a fase de extinção imediata (37.0s)
+    simTimeRef.current = 37.0;
+    setSimTime(37.0);
     setCountdown(0);
     countdownRef.current = 0;
     setSimStage('SUPPRESSION');
@@ -473,11 +473,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     stopAllAudioCycles();
     setActiveScenario('accidental_discharge');
     activeScenarioRef.current = 'accidental_discharge';
-    
+
     // Inicia na Etapa 1: Cozinha Completa (visão ampla panorâmica)
     setAccidentalStep('wide_kitchen');
     accidentalStepRef.current = 'wide_kitchen';
-    
+
     setShowAbortedModal(false);
     setActiveCameraView('geral');
     setManualAdvanced(false);
@@ -611,10 +611,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     if (activeScenarioRef.current === 'real_fire') {
       // Se o usuário pular para trás antes do alarme, reseta áudios
-      if (clamped < 6.8) {
+      if (clamped < 9.5) {
         hasPlayedDamperSnapRef.current = false;
       }
-      if (clamped < 10.5) {
+      if (clamped < 19.0) {
         hasPlayedAlarmAudioRef.current = false;
         hasPlayedGasCutoffRef.current = false;
         hasPlayedSuppressionRef.current = false;
@@ -1278,117 +1278,292 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     indicatorArmGroup.add(indicatorArm);
     damperIndicatorArmRef.current = indicatorArmGroup;
 
-    // Sensor Blindado Térmico 145°C instalado na Coifa (NBR 14518)
+    // =========================================================================
+    // SENSOR BLINDADO TÉRMICO 145°C INSTALADO NA COIFA (NBR 14518)
+    // Reprodução hiper-realista da foto real: media_1794595050101_6888e920.jpg
+    // - Capa plástica superior branca estriada/ranhurada (isolador NPT)
+    // - Porca sextavada de montagem usinada em aço inox espelhado
+    // - Corpo rosqueado usinado cônico NPT com anéis de filetes de rosca
+    // - Flange com cordão de solda TIG circular
+    // - Haste tubular cilíndrica sensora polida em inox
+    // - Ponta chanfrada com fecho hermético soldado
+    // =========================================================================
     const sensorGroup = new THREE.Group();
-    sensorGroup.position.set(-0.55, -0.22, 0.08);
+    sensorGroup.position.set(-0.55, -0.16, 0.10);
+    sensorGroup.rotation.x = 0.08; // Ligeira inclinação realista para a zona de convecção de calor
     hoodGroup.add(sensorGroup);
     shieldedSensorGroupRef.current = sensorGroup;
     sensorGroup.userData = { interactiveType: 'sensor', name: 'Sensor Blindado Térmico 145°C (NBR 14518)' };
 
+    // Suporte / Abraçadeira de fixação no teto/parede da coifa em inox
     const sensorBracket = new THREE.Mesh(
-      new THREE.BoxGeometry(0.04, 0.06, 0.04),
+      new THREE.BoxGeometry(0.045, 0.035, 0.045),
       matStainlessSteel
     );
+    sensorBracket.position.set(0, 0.032, 0);
     sensorGroup.add(sensorBracket);
 
-    const sensorTube = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.007, 0.007, 0.12, 16),
-      matStainlessSteel
-    );
-    sensorTube.position.set(0, -0.06, 0);
-    sensorGroup.add(sensorTube);
+    // 1. Capa plástica superior branca estriada (bucha protetora isolante NPT)
+    const capWhiteMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.35,
+      metalness: 0.05,
+    });
+    const capBase = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.024, 24), capWhiteMat);
+    capBase.position.set(0, 0.012, 0);
+    sensorGroup.add(capBase);
 
-    const sensorBulb = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.015, 0.015, 0.05, 16),
-      new THREE.MeshStandardMaterial({
-        color: 0xd4af37,
-        metalness: 0.9,
-        roughness: 0.2,
-        emissive: 0x000000,
-        emissiveIntensity: 0
-      })
-    );
-    sensorBulb.position.set(0, -0.13, 0);
-    sensorGroup.add(sensorBulb);
-    sensorGlowMeshRef.current = sensorBulb;
+    // Caneluras verticais na capa branca (estrias de aperto do conector)
+    for (let r = 0; r < 12; r++) {
+      const angle = (r / 12) * Math.PI * 2;
+      const rib = new THREE.Mesh(new THREE.BoxGeometry(0.002, 0.022, 0.002), capWhiteMat);
+      rib.position.set(Math.cos(angle) * 0.0165, 0.012, Math.sin(angle) * 0.0165);
+      sensorGroup.add(rib);
+    }
 
-    const sensorGuard = new THREE.Mesh(
-      new THREE.TorusGeometry(0.022, 0.004, 8, 16),
-      matStainlessSteel
-    );
-    sensorGuard.rotation.x = Math.PI / 2;
-    sensorGuard.position.set(0, -0.13, 0);
-    sensorGroup.add(sensorGuard);
+    const capDome = new THREE.Mesh(new THREE.SphereGeometry(0.016, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), capWhiteMat);
+    capDome.position.set(0, 0.024, 0);
+    sensorGroup.add(capDome);
 
-    // 10. Quadro Elétrico Industrial de Intertravamento na Parede
+    // 2. Porca Sextavada Usinada em Aço Inox (corpo principal com 6 faces)
+    const matHexNut = new THREE.MeshStandardMaterial({
+      color: 0xf1f5f9,
+      metalness: 0.94,
+      roughness: 0.12,
+    });
+    const sensorHexNut = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.025, 0.025, 0.020, 6), // 6 lados = Sextavada!
+      matHexNut
+    );
+    sensorHexNut.position.set(0, -0.010, 0);
+    sensorGroup.add(sensorHexNut);
+
+    // Chanfros superior e inferior da porca sextavada
+    const hexChamferTop = new THREE.Mesh(
+      new THREE.TorusGeometry(0.023, 0.002, 6, 24),
+      matHexNut
+    );
+    hexChamferTop.rotation.x = Math.PI / 2;
+    hexChamferTop.position.set(0, -0.001, 0);
+    sensorGroup.add(hexChamferTop);
+
+    // 3. Seção Rosqueada Usinada NPT em Aço Inox
+    const matThread = new THREE.MeshStandardMaterial({
+      color: 0xcbd5e1,
+      metalness: 0.90,
+      roughness: 0.25,
+    });
+    const threadCore = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.019, 0.021, 0.034, 24),
+      matThread
+    );
+    threadCore.position.set(0, -0.033, 0);
+    sensorGroup.add(threadCore);
+
+    // Filetes de rosca usinados (ranhuras mecânicas torneadas)
+    for (let th = 0; th < 6; th++) {
+      const threadRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.0205 - th * 0.0004, 0.0016, 6, 24),
+        matThread
+      );
+      threadRing.rotation.x = Math.PI / 2;
+      threadRing.position.set(0, -0.020 - th * 0.005, 0);
+      sensorGroup.add(threadRing);
+    }
+
+    // 4. Flange Circular com Cordão de Solda TIG
+    const flangeDisc = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.021, 0.021, 0.006, 24),
+      matHexNut
+    );
+    flangeDisc.position.set(0, -0.052, 0);
+    sensorGroup.add(flangeDisc);
+
+    const weldBead = new THREE.Mesh(
+      new THREE.TorusGeometry(0.013, 0.0035, 8, 24),
+      new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85, roughness: 0.35 })
+    );
+    weldBead.rotation.x = Math.PI / 2;
+    weldBead.position.set(0, -0.055, 0);
+    sensorGroup.add(weldBead);
+
+    // 5. Haste Sensora Cilíndrica Sólida em Inox (Sensor Probe Stem)
+    const matSensorStem = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      metalness: 0.96,
+      roughness: 0.08,
+      emissive: 0x000000,
+      emissiveIntensity: 0,
+    });
+    const sensorStem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.0065, 0.0065, 0.13, 24),
+      matSensorStem
+    );
+    sensorStem.position.set(0, -0.122, 0);
+    sensorGroup.add(sensorStem);
+    sensorGlowMeshRef.current = sensorStem;
+
+    // 6. Ponta Soldada e Hermética da Haste
+    const sensorTip = new THREE.Mesh(
+      new THREE.SphereGeometry(0.0065, 16, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+      matSensorStem
+    );
+    sensorTip.position.set(0, -0.187, 0);
+    sensorGroup.add(sensorTip);
+
+    // =========================================================================
+    // 10. QUADRO ELÉTRICO INDUSTRIAL DE INTERTRAVAMENTO (CINZA INDUSTRIAL RAL 7035)
+    // Acabamento cinza industrial padrão com lâmpadas piloto 22mm e intertravamento
+    // =========================================================================
     const elecPanel = new THREE.Group();
     elecPanel.position.set(-2.6, 2.0, -0.58);
     scene.add(elecPanel);
     electricalPanelGroupRef.current = elecPanel;
-    elecPanel.userData = { interactiveType: 'quadro', name: 'Quadro Elétrico de Intertravamento' };
+    elecPanel.userData = { interactiveType: 'quadro', name: 'Quadro Elétrico de Comando & Intertravamento (NBR 14518)' };
+
+    // Carcaça metálica em Cinza Industrial RAL 7035 (Pintura eletrostática semi-fosca)
+    const matPanelBox = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8, // RAL 7035 Cinza Industrial
+      metalness: 0.35,
+      roughness: 0.45,
+    });
+    const matPanelDoor = new THREE.MeshStandardMaterial({
+      color: 0xa1a1aa, // Cinza destacado
+      metalness: 0.38,
+      roughness: 0.40,
+    });
 
     const panelBox = new THREE.Mesh(
-      new THREE.BoxGeometry(0.48, 0.65, 0.12),
-      new THREE.MeshStandardMaterial({ color: 0x1e242d, metalness: 0.8, roughness: 0.35 })
+      new THREE.BoxGeometry(0.50, 0.68, 0.12),
+      matPanelBox
     );
     panelBox.castShadow = true;
     elecPanel.add(panelBox);
 
+    // Porta com rebaixo perimetral
     const panelDoor = new THREE.Mesh(
-      new THREE.BoxGeometry(0.45, 0.62, 0.02),
-      new THREE.MeshStandardMaterial({ color: 0x28303d, metalness: 0.85, roughness: 0.3 })
+      new THREE.BoxGeometry(0.47, 0.65, 0.02),
+      matPanelDoor
     );
     panelDoor.position.set(0, 0, 0.065);
     elecPanel.add(panelDoor);
 
+    // Dobradiças laterais pretas industriais
+    const matHinge = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7, roughness: 0.3 });
+    const hinge1 = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.05, 0.02), matHinge);
+    hinge1.position.set(-0.24, 0.22, 0.065);
+    const hinge2 = hinge1.clone();
+    hinge2.position.set(-0.24, -0.22, 0.065);
+    elecPanel.add(hinge1, hinge2);
+
+    // Fecho giratório de 1/4 de volta com miolo cromado para chave
+    const latchBezel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.018, 0.008, 16),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 })
+    );
+    latchBezel.rotation.x = Math.PI / 2;
+    latchBezel.position.set(0.20, 0, 0.076);
+    elecPanel.add(latchBezel);
+
+    const latchCore = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.012, 0.012, 0.010, 16),
+      new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.15 })
+    );
+    latchCore.rotation.x = Math.PI / 2;
+    latchCore.position.set(0.20, 0, 0.078);
+    elecPanel.add(latchCore);
+
+    // Eletrodutos superiores em aço galvanizado/inox entrando pelo topo
+    for (let c = -0.14; c <= 0.14; c += 0.14) {
+      const gland = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.018, 0.018, 0.025, 6), // Prensa-cabo sextavado
+        matStainlessSteel
+      );
+      gland.position.set(c, 0.35, 0);
+      elecPanel.add(gland);
+
+      const conduit = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.013, 0.013, 0.24, 16),
+        matStainlessSteel
+      );
+      conduit.position.set(c, 0.48, 0);
+      elecPanel.add(conduit);
+    }
+
+    // Plaqueta de identificação industrial (NR-10 & NBR 14518)
     const panelLabel = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.34, 0.08),
+      new THREE.PlaneGeometry(0.38, 0.075),
       new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.85, roughness: 0.25 })
     );
     panelLabel.position.set(0, 0.22, 0.078);
     elecPanel.add(panelLabel);
 
-    const ledGeo = new THREE.SphereGeometry(0.022, 16, 16);
+    // 3 Lâmpadas Piloto Industriais 22mm com anel cromado
+    const pilotBezelGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.008, 16);
+    const matPilotBezel = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.15 });
 
-    // LED Exaustão (Verde)
+    const pilotPositions = [
+      { x: -0.13, name: 'EXAUSTÃO' },
+      { x: 0.0, name: 'FRITADEIRA' },
+      { x: 0.13, name: 'INTERTRAVADO' }
+    ];
+
+    pilotPositions.forEach(p => {
+      const bezel = new THREE.Mesh(pilotBezelGeo, matPilotBezel);
+      bezel.rotation.x = Math.PI / 2;
+      bezel.position.set(p.x, 0.06, 0.076);
+      elecPanel.add(bezel);
+
+      // Mini plaqueta preta com legenda gravada abaixo de cada lâmpada
+      const tag = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.09, 0.022),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 })
+      );
+      tag.position.set(p.x, 0.008, 0.077);
+      elecPanel.add(tag);
+    });
+
+    const ledGeo = new THREE.SphereGeometry(0.020, 16, 16);
+
+    // LED Exaustão (Verde brilhante em standby / Lente escura preta apagada no intertravamento)
     const ledExhaust = new THREE.Mesh(
       ledGeo,
       new THREE.MeshStandardMaterial({
         color: 0x22c55e,
         emissive: 0x22c55e,
-        emissiveIntensity: 1.0,
-        roughness: 0.1
+        emissiveIntensity: 1.2,
+        roughness: 0.15
       })
     );
-    ledExhaust.position.set(-0.12, 0.05, 0.078);
+    ledExhaust.position.set(-0.13, 0.06, 0.082);
     elecPanel.add(ledExhaust);
     panelLedExhaustRef.current = ledExhaust;
 
-    // LED Fritadeira (Verde)
+    // LED Fritadeira (Verde brilhante em standby / Lente escura preta apagada no intertravamento)
     const ledFryer = new THREE.Mesh(
       ledGeo,
       new THREE.MeshStandardMaterial({
         color: 0x22c55e,
         emissive: 0x22c55e,
-        emissiveIntensity: 1.0,
-        roughness: 0.1
+        emissiveIntensity: 1.2,
+        roughness: 0.15
       })
     );
-    ledFryer.position.set(0, 0.05, 0.078);
+    ledFryer.position.set(0.0, 0.06, 0.082);
     elecPanel.add(ledFryer);
     panelLedFryerRef.current = ledFryer;
 
-    // LED Falha / Intertravamento (Âmbar)
+    // LED Falha / Intertravamento (Âmbar piscando no intertravamento / Escuro em standby)
     const ledAmber = new THREE.Mesh(
       ledGeo,
       new THREE.MeshStandardMaterial({
-        color: 0x451a03,
+        color: 0x1c1204, // lente âmbar fumê escura
         emissive: 0x000000,
         emissiveIntensity: 0.0,
-        roughness: 0.1
+        roughness: 0.15
       })
     );
-    ledAmber.position.set(0.12, 0.05, 0.078);
+    ledAmber.position.set(0.13, 0.06, 0.082);
     elecPanel.add(ledAmber);
     panelLedAmberRef.current = ledAmber;
 
@@ -1402,27 +1577,199 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     backsplash.position.set(0, 1.6, -0.6);
     scene.add(backsplash);
 
-    // Tubulação de saponificante e bicos
-    const pipeMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.8, roughness: 0.3 });
-    const nozzleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.9, roughness: 0.2 });
+    // =========================================================================
+    // TUBULAÇÃO DE SAPONIFICANTE & BICOS COM CAPA PROTETORA + LUMINÁRIAS TARTARUGA
+    // Reprodução hiper-realista da foto real: media_1794595094513_3076e272.jpg
+    // - Luminárias navais tipo "tartaruga" com grade no teto da coifa
+    // - Tubo horizontal coletor em aço inox polido no teto da coifa
+    // - Tubos verticais descendentes em inox cromado
+    // - Uniões de compressão sextavadas duplas em aço inox usinado
+    // - Bicos aspersores Classe K com orifício de alta pressão
+    // - Capas protetoras brancas de borracha/silicone na ponta dos bicos
+    // =========================================================================
+    
+    // 1. Duas Luminárias Navais Herméticas Tipo Tartaruga no Teto da Coifa
+    const matBulkheadBase = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.6, roughness: 0.4 });
+    const matBulkheadGlass = new THREE.MeshStandardMaterial({
+      color: 0xfffbeb,
+      transparent: true,
+      opacity: 0.78,
+      roughness: 0.15,
+      metalness: 0.1,
+      emissive: 0xfef08a,
+      emissiveIntensity: 0.35,
+    });
+    const matWireCage = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.3 });
 
-    const mainPipe = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 2.4), pipeMat);
-    mainPipe.rotation.z = Math.PI / 2;
-    mainPipe.position.set(0, -0.28, -0.2);
-    hoodGroup.add(mainPipe);
+    [-0.75, 0.75].forEach(lx => {
+      const tartarugaGroup = new THREE.Group();
+      tartarugaGroup.position.set(lx, 0.22, -0.22);
+      hoodGroup.add(tartarugaGroup);
 
-    const nozzlePositions = [
-      [-0.7, -0.32, 0.0],
-      [-0.35, -0.32, 0.0],
-      [0.45, -0.32, 0.0],
-      [0.85, -0.32, 0.0],
+      // Base oval de alumínio naval fundido
+      const bBase = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.070, 0.035, 16), matBulkheadBase);
+      bBase.scale.set(1.35, 1, 0.9);
+      tartarugaGroup.add(bBase);
+
+      // Globo de vidro prismático estriado
+      const bGlass = new THREE.Mesh(new THREE.SphereGeometry(0.055, 16, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), matBulkheadGlass);
+      bGlass.scale.set(1.35, 0.7, 0.9);
+      bGlass.position.set(0, -0.015, 0);
+      tartarugaGroup.add(bGlass);
+
+      // Grade metálica de proteção (arame cruzado)
+      const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.0035, 8, 16), matWireCage);
+      ring1.rotation.x = Math.PI / 2;
+      ring1.position.set(0, -0.025, 0);
+      tartarugaGroup.add(ring1);
+
+      const crossRib = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.0035, 8, 16, Math.PI), matWireCage);
+      crossRib.rotation.y = Math.PI / 2;
+      crossRib.rotation.z = Math.PI;
+      crossRib.position.set(0, -0.015, 0);
+      tartarugaGroup.add(crossRib);
+
+      // Luz interna suave sob a coifa
+      const tartarugaLight = new THREE.PointLight(0xfff7ed, 0.8, 1.8);
+      tartarugaLight.position.set(0, -0.06, 0);
+      tartarugaGroup.add(tartarugaLight);
+    });
+
+    // 2. Tubo Coletor Horizontal de Saponificante no Teto da Coifa (Aço Inox Polido)
+    const headerPipe = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.0085, 0.0085, 2.35, 24),
+      matStainlessSteel
+    );
+    headerPipe.rotation.z = Math.PI / 2;
+    headerPipe.position.set(0, 0.18, -0.12);
+    hoodGroup.add(headerPipe);
+
+    // Abraçadeiras de fixação do tubo ao teto da coifa
+    for (let cl = -0.95; cl <= 0.95; cl += 0.63) {
+      const clamp = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, 0.022, 16),
+        matStainlessSteel
+      );
+      clamp.position.set(cl, 0.20, -0.12);
+      hoodGroup.add(clamp);
+    }
+
+    // 3. Quatro Tubos Verticais Descendentes com União Sextavada e Bicos com Capa de Borracha
+    const nozzleDropSpecs = [
+      { x: -0.70, z: 0.08, angleX: 0.12, target: 'Fritadeira (Esquerda)' },
+      { x: -0.38, z: 0.08, angleX: 0.10, target: 'Fritadeira (Centro)' },
+      { x: 0.48, z: 0.08, angleX: 0.08, target: 'Fogão / Panela' },
+      { x: 0.85, z: 0.08, angleX: 0.08, target: 'Chapa / Cooktop' },
     ];
 
-    nozzlePositions.forEach(([nx, ny, nz]) => {
-      const noz = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.06, 16), nozzleMat);
-      noz.position.set(nx, ny, nz);
-      noz.rotation.x = Math.PI;
-      hoodGroup.add(noz);
+    const matWhiteCap = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.45,
+      metalness: 0.05,
+    });
+
+    nozzleDropSpecs.forEach(spec => {
+      const dropAssembly = new THREE.Group();
+      dropAssembly.position.set(spec.x, 0.18, -0.12);
+      hoodGroup.add(dropAssembly);
+
+      // Conexão em "Tee" de aço inox cromado
+      const teeFitting = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.013, 0.013, 0.028, 16),
+        matStainlessSteel
+      );
+      teeFitting.rotation.z = Math.PI / 2;
+      dropAssembly.add(teeFitting);
+
+      // Cotovelo superior direcionando para a frente
+      const elbow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.012, 16, 16),
+        matStainlessSteel
+      );
+      dropAssembly.add(elbow);
+
+      // Tubo de avanço superior horizontal
+      const horizSub = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.007, 0.007, 0.20, 16),
+        matStainlessSteel
+      );
+      horizSub.rotation.x = Math.PI / 2;
+      horizSub.position.set(0, 0, 0.10);
+      dropAssembly.add(horizSub);
+
+      // Tubo Vertical Descendente em Aço Inox (Drop Pipe)
+      const vertDropGroup = new THREE.Group();
+      vertDropGroup.position.set(0, 0, 0.20);
+      dropAssembly.add(vertDropGroup);
+
+      const dropPipe = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.007, 0.007, 0.38, 16),
+        matStainlessSteel
+      );
+      dropPipe.position.set(0, -0.19, 0);
+      vertDropGroup.add(dropPipe);
+
+      // UNIÃO SEXTAVADA DUPLA DE COMPRESSÃO (Exatamente como na foto real!)
+      const upperHexNut = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.013, 0.013, 0.015, 6),
+        matStainlessSteel
+      );
+      upperHexNut.position.set(0, -0.375, 0);
+      vertDropGroup.add(upperHexNut);
+
+      const unionBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.010, 0.010, 0.012, 16),
+        matStainlessSteel
+      );
+      unionBody.position.set(0, -0.387, 0);
+      vertDropGroup.add(unionBody);
+
+      const lowerHexNut = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.013, 0.013, 0.015, 6),
+        matStainlessSteel
+      );
+      lowerHexNut.position.set(0, -0.399, 0);
+      vertDropGroup.add(lowerHexNut);
+
+      // CORPO USINADO DO BICO ASPERSOR CLASSE K
+      const nozzleBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.011, 0.008, 0.024, 6),
+        matStainlessSteel
+      );
+      nozzleBody.position.set(0, -0.415, 0);
+      vertDropGroup.add(nozzleBody);
+
+      // Orifício de descarga de alta pressão
+      const nozzleOrifice = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0035, 0.0035, 0.008, 16),
+        new THREE.MeshBasicMaterial({ color: 0x0f172a })
+      );
+      nozzleOrifice.position.set(0, -0.428, 0);
+      vertDropGroup.add(nozzleOrifice);
+
+      // CAPA PROTETORA BRANCA DE BORRACHA/SILICONE (Blow-off Cap na foto real!)
+      const blowOffCap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.010, 0.010, 0.018, 16),
+        matWhiteCap
+      );
+      blowOffCap.position.set(0, -0.426, 0);
+      vertDropGroup.add(blowOffCap);
+
+      const capTipDome = new THREE.Mesh(
+        new THREE.SphereGeometry(0.010, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+        matWhiteCap
+      );
+      capTipDome.position.set(0, -0.435, 0);
+      vertDropGroup.add(capTipDome);
+
+      // Tira flexível de borracha de retenção da capa
+      const capStrap = new THREE.Mesh(
+        new THREE.TorusGeometry(0.012, 0.002, 6, 16),
+        matWhiteCap
+      );
+      capStrap.rotation.x = Math.PI / 2;
+      capStrap.position.set(0, -0.410, 0.006);
+      vertDropGroup.add(capStrap);
     });
 
     // 11. CENTRAL OUTFIRE 3D COM ARTE OFICIAL
@@ -1954,7 +2301,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         let zoomIdx = 0;
         const isMobile = window.innerWidth < 768;
 
-        if (curTime < 3.5) {
+        if (curTime < 4.5) {
           // ETAPA 1: STANDBY
           zoomIdx = 0;
           setSimStage('STANDBY');
@@ -1968,12 +2315,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             systemStatus: 'PRONTIDÃO',
             countdown: 60,
           });
-        } else if (curTime < 6.8) {
+        } else if (curTime < 9.5) {
           // ETAPA 2: PRINCÍPIO DE INCÊNDIO
           zoomIdx = 1;
           setSimStage('HEATING');
           simStageRef.current = 'HEATING';
-          const prog = (curTime - 3.5) / 3.3;
+          const prog = (curTime - 4.5) / 5.0;
           const t = Math.round(180 + prog * 165);
           setTelemetry({
             temp: t,
@@ -1982,8 +2329,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             systemStatus: 'AQUECIMENTO',
             countdown: 60,
           });
-        } else if (curTime < 10.0) {
-          // ETAPA 3: SENSOR 145°C (Aciona o Damper Imediatamente no Duto)
+        } else if (curTime < 14.5) {
+          // ETAPA 3: SENSOR BLINDADO 145°C DETECTA CALOR
           zoomIdx = 2;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
@@ -1996,8 +2343,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             systemStatus: 'SENSOR 145°C / DAMPER',
             countdown: 55,
           });
-        } else if (curTime < 13.0) {
-          // ETAPA 4: DAMPER CORTA-FOGO 100% SELADO NO DUTO
+        } else if (curTime < 19.0) {
+          // ETAPA 4: DAMPER CORTA-FOGO 100% SELADO NO DUTO (NBR 14518)
           zoomIdx = 3;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
@@ -2010,12 +2357,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             systemStatus: 'DUTO ISOLADO (NBR 14518)',
             countdown: 45,
           });
-        } else if (curTime < 18.5) {
+        } else if (curTime < 27.0) {
           // ETAPA 5: CENTRAL OUTFIRE IHM
           zoomIdx = 4;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
-          const cDown = Math.max(1, Math.round(15 - ((curTime - 13.0) / 5.5) * 14));
+          const cDown = Math.max(1, Math.round(15 - ((curTime - 19.0) / 8.0) * 14));
           setCountdown(cDown);
           countdownRef.current = cDown;
           setTelemetry({
@@ -2030,7 +2377,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             hasPlayedAlarmAudioRef.current = true;
             startOfficialAlarmAudioCycle();
           }
-        } else if (curTime < 21.0) {
+        } else if (curTime < 32.0) {
           // ETAPA 6: CORTE DE GÁS
           zoomIdx = 5;
           setSimStage('FIRE_ALARM');
@@ -2049,7 +2396,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             hasPlayedGasCutoffRef.current = true;
             soundEffects.playGasCutoff();
           }
-        } else if (curTime < 23.5) {
+        } else if (curTime < 37.0) {
           // ETAPA 7: QUADRO ELÉTRICO INTERTRAVADO (Luzes verdes apagam AGORA)
           zoomIdx = 6;
           setSimStage('FIRE_ALARM');
@@ -2066,7 +2413,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         } else {
           // ETAPA 8: EXTINÇÃO TOTAL COM SAPONIFICANTE E CO2
           zoomIdx = 7;
-          if (curTime < 24.8) {
+          if (curTime < 39.5) {
             setSimStage('SUPPRESSION');
             simStageRef.current = 'SUPPRESSION';
           } else {
@@ -2118,7 +2465,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         foamSprayGroupRef.current!.visible = false;
         co2FogGroupRef.current!.visible = false;
 
-        const intensity = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (curTime - 3.5) / 3.5);
+        const intensity = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (curTime - 4.5) / 5.0);
 
         if (fireLightRef.current) {
           fireLightRef.current.intensity = (2.5 + Math.sin(time * 20) * 1.5) * intensity;
@@ -2234,19 +2581,19 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 6)
+      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 6 aos 27.0s)
       if (blueFlameGroupRef.current) {
-        const isGasCut = (activeScenarioRef.current === 'real_fire' && curTime >= 18.5) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isGasCut = (activeScenarioRef.current === 'real_fire' && curTime >= 27.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
         blueFlameGroupRef.current.visible = !isGasCut;
         if (blueFlameLightRef.current) {
           blueFlameLightRef.current.intensity = isGasCut ? 0 : 0.75 + Math.sin(time * 30) * 0.25;
         }
       }
 
-      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 6.8s)
+      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 9.5s)
       if (sensorGlowMeshRef.current) {
         const mat = sensorGlowMeshRef.current.material as THREE.MeshStandardMaterial;
-        const isSensorTripped = (activeScenarioRef.current === 'real_fire' && curTime >= 6.8 && curTime < 23.5) || stage === 'FIRE_ALARM';
+        const isSensorTripped = (activeScenarioRef.current === 'real_fire' && curTime >= 9.5 && curTime < 37.0) || stage === 'FIRE_ALARM';
         if (isSensorTripped) {
           mat.emissive.setHex(0xef4444);
           mat.emissiveIntensity = 1.0 + Math.sin(time * 18) * 0.8;
@@ -2256,8 +2603,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 4. Damper Corta-Fogo Motorizado no Duto: aciona ASSIM que o sensor detecta >= 145°C (curTime >= 6.8s)
-      const isDamperClosed = (activeScenarioRef.current === 'real_fire' && curTime >= 6.8) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+      // 4. Damper Corta-Fogo Motorizado no Duto: aciona ASSIM que o sensor detecta >= 145°C (curTime >= 9.5s)
+      const isDamperClosed = (activeScenarioRef.current === 'real_fire' && curTime >= 9.5) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
 
       if (damperFlapMeshRef.current) {
         const targetRot = isDamperClosed ? 0 : Math.PI / 2;
@@ -2290,35 +2637,49 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // Som mecânico imediato do desarme da solenoide e batida do damper aos 145°C (6.8s)
-      if (activeScenarioRef.current === 'real_fire' && curTime >= 6.8 && !hasPlayedDamperSnapRef.current) {
+      // Som mecânico imediato do desarme da solenoide e batida do damper aos 145°C (9.5s)
+      if (activeScenarioRef.current === 'real_fire' && curTime >= 9.5 && !hasPlayedDamperSnapRef.current) {
         hasPlayedDamperSnapRef.current = true;
         if (!isMutedRef.current) {
           soundEffects.playDamperSnap();
         }
       }
 
-      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes SÓ apagam na Etapa 7 / 21.0s)
+      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes APAGAM COMPLETAMENTE na Etapa 7 / 32.0s)
       if (panelLedExhaustRef.current && panelLedFryerRef.current && panelLedAmberRef.current) {
-        const isInterlocked = (activeScenarioRef.current === 'real_fire' && curTime >= 21.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isInterlocked = (activeScenarioRef.current === 'real_fire' && curTime >= 32.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
         const matExhaust = panelLedExhaustRef.current.material as THREE.MeshStandardMaterial;
         const matFryer = panelLedFryerRef.current.material as THREE.MeshStandardMaterial;
         const matAmber = panelLedAmberRef.current.material as THREE.MeshStandardMaterial;
 
         if (isInterlocked) {
-          matExhaust.emissive.setHex(0x052e16);
-          matExhaust.emissiveIntensity = 0.1;
-          matFryer.emissive.setHex(0x052e16);
-          matFryer.emissiveIntensity = 0.1;
+          // LUZES VERDES 100% APAGADAS: Lente escura fumê/preta sem reflexo verde e sem emissão!
+          matExhaust.color.setHex(0x0f172a);
+          matExhaust.emissive.setHex(0x000000);
+          matExhaust.emissiveIntensity = 0.0;
+
+          matFryer.color.setHex(0x0f172a);
+          matFryer.emissive.setHex(0x000000);
+          matFryer.emissiveIntensity = 0.0;
+
+          // LUZ ÂMBAR ACESA & PISCANDO (Intertravamento elétrico ativo!)
+          matAmber.color.setHex(0xf59e0b);
           matAmber.emissive.setHex(0xf59e0b);
-          matAmber.emissiveIntensity = 1.2 + Math.sin(time * 12) * 0.5;
+          matAmber.emissiveIntensity = 1.4 + Math.sin(time * 12) * 0.6;
         } else {
+          // STANDBY / NORMAL: Exaustão e Fritadeira energizadas
+          matExhaust.color.setHex(0x22c55e);
           matExhaust.emissive.setHex(0x22c55e);
-          matExhaust.emissiveIntensity = 1.0;
+          matExhaust.emissiveIntensity = 1.2;
+
+          matFryer.color.setHex(0x22c55e);
           matFryer.emissive.setHex(0x22c55e);
-          matFryer.emissiveIntensity = 1.0;
+          matFryer.emissiveIntensity = 1.2;
+
+          // LUZ ÂMBAR APAGADA
+          matAmber.color.setHex(0x1c1204);
           matAmber.emissive.setHex(0x000000);
-          matAmber.emissiveIntensity = 0;
+          matAmber.emissiveIntensity = 0.0;
         }
       }
 
@@ -2369,7 +2730,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             countdown: 60,
           });
 
-        // ETAPA 2: FUNCIONÁRIO DESAJEITADO ENTRA COM A PILHA DE PRATOS (3.2s a 7.8s)
+          // ETAPA 2: FUNCIONÁRIO DESAJEITADO ENTRA COM A PILHA DE PRATOS (3.2s a 7.8s)
         } else if (curTime < 7.8) {
           if (accidentalStepRef.current !== 'worker_entering') {
             setAccidentalStep('worker_entering');
@@ -2403,7 +2764,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             iconType: 'plates',
           });
 
-        // ETAPA 3: O FUNCIONÁRIO DERRUBA OS PRATOS NA BOTOEIRA (7.8s a 10.2s)
+          // ETAPA 3: O FUNCIONÁRIO DERRUBA OS PRATOS NA BOTOEIRA (7.8s a 10.2s)
         } else if (curTime < 10.2) {
           if (accidentalStepRef.current !== 'plates_falling') {
             setAccidentalStep('plates_falling');
@@ -2445,7 +2806,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             iconType: 'flame',
           });
 
-        // ETAPA 4: DISPARO DO SISTEMA & ZOOM NA CENTRAL IHM (10.2s em diante)
+          // ETAPA 4: DISPARO DO SISTEMA & ZOOM NA CENTRAL IHM (10.2s em diante)
         } else {
           if (accidentalStepRef.current !== 'alarm_waiting_click' && accidentalStepRef.current !== 'aborted') {
             setAccidentalStep('alarm_waiting_click');
@@ -2637,7 +2998,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           {/* 2. TOP FLOATING HUD: OS 2 GRANDES BOTÕES QUE SUBSTITUEM O POPUP ANTIGO */}
           <div className="relative z-20 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 flex flex-col gap-2 pointer-events-none">
             <div className="w-full flex flex-wrap items-center justify-between gap-2.5 pointer-events-auto">
-              
+
               {/* Left: Badge NBR 14518 */}
               <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-[#d4af37]/50 shadow-glow-gold text-xs font-bold text-[#f3e5ab]">
                 <Radio className="w-3.5 h-3.5 text-[#d4af37] animate-pulse" />
@@ -2664,11 +3025,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <button
                   type="button"
                   onClick={startRealFireScenario}
-                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wide flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md shadow-md ${
-                    activeScenario === 'real_fire' && isPlaying
-                      ? 'bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black shadow-[0_0_20px_rgba(239,68,68,0.7)] scale-105 border-2 border-white'
-                      : 'bg-black/85 hover:bg-red-950/80 text-white border border-red-500/60 hover:border-red-400'
-                  }`}
+                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wide flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md shadow-md ${activeScenario === 'real_fire' && isPlaying
+                    ? 'bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black shadow-[0_0_20px_rgba(239,68,68,0.7)] scale-105 border-2 border-white'
+                    : 'bg-black/85 hover:bg-red-950/80 text-white border border-red-500/60 hover:border-red-400'
+                    }`}
                   title="Executar simulação de incêndio real automatizada como um vídeo do começo ao fim"
                 >
                   <Flame className={`w-4 h-4 ${activeScenario === 'real_fire' && isPlaying ? 'fill-black text-black' : 'text-red-400'}`} />
@@ -2679,11 +3039,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <button
                   type="button"
                   onClick={startAccidentalDischargeScenario}
-                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wide flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md shadow-md ${
-                    activeScenario === 'accidental_discharge'
-                      ? 'bg-gradient-to-r from-[#d4af37] via-amber-400 to-[#b89628] text-black shadow-[0_0_20px_rgba(212,175,55,0.7)] scale-105 border-2 border-white'
-                      : 'bg-black/85 hover:bg-amber-950/80 text-[#f3e5ab] border border-[#d4af37]/60 hover:border-[#f3e5ab]'
-                  }`}
+                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wide flex items-center gap-2 transition-all cursor-pointer backdrop-blur-md shadow-md ${activeScenario === 'accidental_discharge'
+                    ? 'bg-gradient-to-r from-[#d4af37] via-amber-400 to-[#b89628] text-black shadow-[0_0_20px_rgba(212,175,55,0.7)] scale-105 border-2 border-white'
+                    : 'bg-black/85 hover:bg-amber-950/80 text-[#f3e5ab] border border-[#d4af37]/60 hover:border-[#f3e5ab]'
+                    }`}
                   title="Simular queda de pratos na botoeira e abortar na tela da central para economizar R$ 15.000"
                 >
                   <UtensilsCrossed className="w-4 h-4 text-[#d4af37]" />
@@ -2696,11 +3055,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                 <button
                   type="button"
                   onClick={toggleMute}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer backdrop-blur-md ${
-                    isMuted
-                      ? 'bg-red-950/70 border-red-500/50 text-red-300'
-                      : 'bg-black/80 border-[#d4af37]/60 text-[#f3e5ab] shadow-[0_0_15px_rgba(212,175,55,0.3)]'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border cursor-pointer backdrop-blur-md ${isMuted
+                    ? 'bg-red-950/70 border-red-500/50 text-red-300'
+                    : 'bg-black/80 border-[#d4af37]/60 text-[#f3e5ab] shadow-[0_0_15px_rgba(212,175,55,0.3)]'
+                    }`}
                   title={isMuted ? 'Ativar voz oficial da central e efeitos sonoros' : 'Silenciar áudio'}
                 >
                   {isMuted ? (
@@ -2722,17 +3080,16 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             {/* Linha de Telemetria Resumida */}
             <div className="flex items-center justify-between gap-2 pointer-events-none">
               <div className="flex items-center gap-2 pointer-events-auto">
-                <span className={`px-2.5 py-1 rounded-lg text-xs font-black tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md border ${
-                  simStage === 'STANDBY'
-                    ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300'
-                    : simStage === 'HEATING'
-                      ? 'bg-amber-950/80 border-amber-500/50 text-amber-300'
-                      : simStage === 'FIRE_ALARM'
-                        ? 'bg-red-950/90 border-red-500 text-red-200 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.5)]'
-                        : simStage === 'SUPPRESSION'
-                          ? 'bg-cyan-950/90 border-cyan-500 text-cyan-200 shadow-[0_0_20px_rgba(6,182,212,0.5)]'
-                          : 'bg-emerald-900/90 border-emerald-400 text-emerald-200'
-                }`}>
+                <span className={`px-2.5 py-1 rounded-lg text-xs font-black tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md border ${simStage === 'STANDBY'
+                  ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300'
+                  : simStage === 'HEATING'
+                    ? 'bg-amber-950/80 border-amber-500/50 text-amber-300'
+                    : simStage === 'FIRE_ALARM'
+                      ? 'bg-red-950/90 border-red-500 text-red-200 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.5)]'
+                      : simStage === 'SUPPRESSION'
+                        ? 'bg-cyan-950/90 border-cyan-500 text-cyan-200 shadow-[0_0_20px_rgba(6,182,212,0.5)]'
+                        : 'bg-emerald-900/90 border-emerald-400 text-emerald-200'
+                  }`}>
                   {simStage === 'STANDBY' && <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />}
                   {simStage === 'HEATING' && <Flame className="w-3.5 h-3.5 text-amber-400 animate-pulse" />}
                   {simStage === 'FIRE_ALARM' && <Flame className="w-3.5 h-3.5 text-red-400 animate-bounce" />}
@@ -3084,21 +3441,20 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
           {/* 4. VIDEO PLAYER CONTROL BAR & 4 BOTÕES DOURADOS DE CONVERSÃO */}
           <div className="relative z-20 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-3 sm:pb-4 flex flex-col items-center gap-2 pointer-events-none">
-            
+
             {/* Barra de Controle de Vídeo (Play/Pause, Linha do Tempo e 8 Etapas) */}
             <div className="w-full flex flex-col gap-2 bg-black/90 backdrop-blur-md px-3.5 sm:px-5 py-2.5 rounded-2xl border border-[#d4af37]/40 shadow-[0_10px_35px_rgba(0,0,0,0.9)] pointer-events-auto">
-              
+
               {/* Linha Superior: Play/Pause, Scrubber da Linha do Tempo e Câmeras Rápidas */}
               <div className="flex items-center gap-2.5 sm:gap-3">
                 {/* Play/Pause */}
                 <button
                   type="button"
                   onClick={togglePlayPause}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-black transition-all cursor-pointer shrink-0 ${
-                    isPlaying
-                      ? 'bg-amber-400 text-black shadow-[0_0_15px_rgba(245,158,11,0.8)] scale-105'
-                      : 'bg-white/10 hover:bg-[#d4af37] text-white hover:text-black border border-white/20'
-                  }`}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center font-black transition-all cursor-pointer shrink-0 ${isPlaying
+                    ? 'bg-amber-400 text-black shadow-[0_0_15px_rgba(245,158,11,0.8)] scale-105'
+                    : 'bg-white/10 hover:bg-[#d4af37] text-white hover:text-black border border-white/20'
+                    }`}
                   title={isPlaying ? 'Pausar simulação' : 'Reproduzir simulação'}
                 >
                   {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
@@ -3148,11 +3504,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                         key={stop.id}
                         type="button"
                         onClick={() => jumpToStage(idx)}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-                          isActive
-                            ? 'bg-[#d4af37] text-black font-extrabold shadow-[0_0_12px_rgba(212,175,55,0.8)] scale-105'
-                            : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
-                        }`}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${isActive
+                          ? 'bg-[#d4af37] text-black font-extrabold shadow-[0_0_12px_rgba(212,175,55,0.8)] scale-105'
+                          : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                          }`}
                         title={stop.badgeTitle}
                       >
                         <span className="font-mono">{stop.label}.</span>
@@ -3172,11 +3527,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                         key={stop.id}
                         type="button"
                         onClick={() => jumpToTime(stop.time)}
-                        className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-                          stop.active
-                            ? 'bg-amber-400 text-black font-extrabold shadow-[0_0_12px_rgba(245,158,11,0.8)] scale-105'
-                            : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
-                        }`}
+                        className={`px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${stop.active
+                          ? 'bg-amber-400 text-black font-extrabold shadow-[0_0_12px_rgba(245,158,11,0.8)] scale-105'
+                          : 'bg-black/60 hover:bg-white/10 text-gray-400 hover:text-white border border-white/5'
+                          }`}
                       >
                         <span className="font-mono">{stop.label}.</span>
                         <span>{stop.name}</span>
