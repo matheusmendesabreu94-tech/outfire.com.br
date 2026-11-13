@@ -2042,33 +2042,191 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     scene.add(dwGroup);
     dishwasherGroupRef.current = dwGroup;
 
-    const matChefCoat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.5 });
-    const matDarkPants = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
-    const matSkin = new THREE.MeshStandardMaterial({ color: 0xe0ac69, roughness: 0.7 });
+    // Materiais de alta qualidade estilizados (estilo chef clássico)
+    const matChefCoat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.45, metalness: 0.05 });
+    const matApron = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+    const matPants = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 });
+    const matShoes = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.2 });
+    const matSkin = new THREE.MeshStandardMaterial({ color: 0xf6c8a1, roughness: 0.55 });
+    const matNitrileGloves = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.3, metalness: 0.1 });
+    const matScarf = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.5 });
+    const matButtons = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 });
+    const matHair = new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 0.8 });
 
-    const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.65, 12), matDarkPants);
-    legL.position.set(-0.09, 0.325, 0);
+    // 1. Sapatos antiderrapantes de cozinha (com bico arredondado e solado)
+    [-0.10, 0.10].forEach(sx => {
+      const shoeGroup = new THREE.Group();
+      shoeGroup.position.set(sx, 0.04, 0.04);
+      dwGroup.add(shoeGroup);
+
+      const shoeBody = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.08, 0.18), matShoes);
+      shoeGroup.add(shoeBody);
+
+      const shoeToe = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.08, 16), matShoes);
+      shoeToe.position.set(0, 0, 0.09);
+      shoeGroup.add(shoeToe);
+
+      const shoeSole = new THREE.Mesh(
+        new THREE.BoxGeometry(0.095, 0.02, 0.22),
+        new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 })
+      );
+      shoeSole.position.set(0, -0.04, 0.02);
+      shoeGroup.add(shoeSole);
+    });
+
+    // 2. Pernas com calça de chef profissional
+    const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.60, 16), matPants);
+    legL.position.set(-0.10, 0.35, 0);
     dwGroup.add(legL);
 
-    const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.65, 12), matDarkPants);
-    legR.position.set(0.09, 0.325, 0);
+    const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.60, 16), matPants);
+    legR.position.set(0.10, 0.35, 0);
     dwGroup.add(legR);
 
-    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.15, 0.55, 12), matChefCoat);
-    torso.position.set(0, 0.925, 0);
-    dwGroup.add(torso);
+    // 3. Tronco: Dólmã Branco de Chef com Avental na Cintura
+    const torsoGroup = new THREE.Group();
+    torsoGroup.position.set(0, 0.92, 0);
+    dwGroup.add(torsoGroup);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.10, 16, 16), matSkin);
-    head.position.set(0, 1.32, 0);
-    dwGroup.add(head);
+    const torso = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.16, 0.54, 16),
+      matChefCoat
+    );
+    torsoGroup.add(torso);
 
-    const chefHat = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.10, 0.16, 16), matChefCoat);
-    chefHat.position.set(0, 1.45, 0);
-    dwGroup.add(chefHat);
+    // Avental na metade inferior do tronco
+    const apron = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.185, 0.175, 0.30, 16, 1, false, -Math.PI * 0.75, Math.PI * 1.5),
+      matApron
+    );
+    apron.position.set(0, -0.12, 0);
+    torsoGroup.add(apron);
 
-    // Pilha Gigante de 12 Pratos de Cerâmica Branca
+    // Botões pretos duplos do dólmã (6 botões)
+    for (let row = 0; row < 3; row++) {
+      const by = 0.16 - row * 0.08;
+      const btnL = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.008, 12), matButtons);
+      btnL.rotation.x = Math.PI / 2;
+      btnL.position.set(-0.05, by, 0.175);
+      torsoGroup.add(btnL);
+
+      const btnR = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.008, 12), matButtons);
+      btnR.rotation.x = Math.PI / 2;
+      btnR.position.set(0.05, by, 0.175);
+      torsoGroup.add(btnR);
+    }
+
+    // Lenço vermelho triangular no colarinho (estilo chef clássico)
+    const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.025, 8, 20), matScarf);
+    scarf.rotation.x = Math.PI / 2;
+    scarf.position.set(0, 0.25, 0);
+    torsoGroup.add(scarf);
+
+    // 4. Braços flexionados segurando a bandeja com luvas azuis de nitrila
+    const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.32, 12), matChefCoat);
+    armL.position.set(-0.21, 0.10, 0.10);
+    armL.rotation.x = Math.PI / 3;
+    armL.rotation.z = -Math.PI / 10;
+    torsoGroup.add(armL);
+
+    const forearmL = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.035, 0.24, 12), matNitrileGloves);
+    forearmL.position.set(-0.18, 0.02, 0.26);
+    forearmL.rotation.x = Math.PI / 2;
+    torsoGroup.add(forearmL);
+
+    const handL = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 12), matNitrileGloves);
+    handL.position.set(-0.16, 0.02, 0.36);
+    torsoGroup.add(handL);
+
+    const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.32, 12), matChefCoat);
+    armR.position.set(0.21, 0.10, 0.10);
+    armR.rotation.x = Math.PI / 3;
+    armR.rotation.z = Math.PI / 10;
+    torsoGroup.add(armR);
+
+    const forearmR = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.035, 0.24, 12), matNitrileGloves);
+    forearmR.position.set(0.18, 0.02, 0.26);
+    forearmR.rotation.x = Math.PI / 2;
+    torsoGroup.add(forearmR);
+
+    const handR = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 12), matNitrileGloves);
+    handR.position.set(0.16, 0.02, 0.36);
+    torsoGroup.add(handR);
+
+    // 5. Bandeja de Servir em Inox Cromado
+    const tray = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.24, 0.22, 0.015, 24),
+      matStainlessSteel
+    );
+    tray.position.set(0, 0.02, 0.36);
+    torsoGroup.add(tray);
+
+    // 6. Cabeça e Rosto Expressivo (Olhos Arregalados e Boca de Susto!)
+    const headGroup = new THREE.Group();
+    headGroup.position.set(0, 1.34, 0);
+    dwGroup.add(headGroup);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.12, 24, 20), matSkin);
+    headGroup.add(head);
+
+    const hair = new THREE.Mesh(
+      new THREE.SphereGeometry(0.125, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.65),
+      matHair
+    );
+    hair.rotation.x = -0.3;
+    headGroup.add(hair);
+
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.024, 12, 12), matSkin);
+    nose.position.set(0, 0.01, 0.125);
+    headGroup.add(nose);
+
+    // Olhos Expressivos Arregalados de Susto
+    const matEyeWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+    const matPupil = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.2 });
+
+    [-0.045, 0.045].forEach(ex => {
+      const eyeBall = new THREE.Mesh(new THREE.SphereGeometry(0.026, 16, 16), matEyeWhite);
+      eyeBall.position.set(ex, 0.04, 0.11);
+      headGroup.add(eyeBall);
+
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.012, 12, 12), matPupil);
+      pupil.position.set(ex, 0.045, 0.132);
+      headGroup.add(pupil);
+
+      const brow = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.008, 0.008), matHair);
+      brow.position.set(ex, 0.075, 0.12);
+      brow.rotation.z = ex > 0 ? 0.35 : -0.35;
+      headGroup.add(brow);
+    });
+
+    // Boca aberta em "O" de surpresa/pânico cômico!
+    const mouth = new THREE.Mesh(
+      new THREE.TorusGeometry(0.022, 0.008, 8, 16),
+      new THREE.MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.6 })
+    );
+    mouth.position.set(0, -0.045, 0.115);
+    headGroup.add(mouth);
+
+    // 7. Chapéu de Chef (Toque Blanche Clássico com Dobras)
+    const hatGroup = new THREE.Group();
+    hatGroup.position.set(0, 0.10, 0);
+    headGroup.add(hatGroup);
+
+    const hatBand = new THREE.Mesh(new THREE.CylinderGeometry(0.125, 0.125, 0.05, 24), matChefCoat);
+    hatBand.position.set(0, 0.025, 0);
+    hatGroup.add(hatBand);
+
+    const hatPuff = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.125, 0.18, 24), matChefCoat);
+    hatPuff.position.set(0, 0.13, 0);
+    hatGroup.add(hatPuff);
+
+    const hatDome = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), matChefCoat);
+    hatDome.position.set(0, 0.22, 0);
+    hatGroup.add(hatDome);
+
+    // 8. Pilha Gigante de 12 Pratos de Cerâmica Branca sobre a Bandeja
     const platesGroup = new THREE.Group();
-    platesGroup.position.set(0, 0.98, 0.32);
+    platesGroup.position.set(0, 0.96, 0.36);
     dwGroup.add(platesGroup);
     platesStackGroupRef.current = platesGroup;
 
@@ -2462,9 +2620,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
       // --- VISUAL ELEMENTS ANIMATION ---
       const stage = simStageRef.current;
+      const isRealFire = activeScenarioRef.current === 'real_fire';
 
-      // 1. Chamas e Fumaça da Fritadeira
-      if (stage === 'HEATING' || stage === 'FIRE_ALARM') {
+      // 1. Chamas e Fumaça da Fritadeira (ESTRITAMENTE NO CENÁRIO DE INCÊNDIO REAL!)
+      // No disparo acidental por pratos, NÃO HÁ FOGO e NÃO HÁ FUMAÇA na cozinha!
+      if (isRealFire && (stage === 'HEATING' || stage === 'FIRE_ALARM')) {
         fireGroup.visible = true;
         smokeGroup.visible = true;
         foamSprayGroupRef.current!.visible = false;
@@ -2501,18 +2661,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             sm.position.x = -0.55 + (Math.random() - 0.5) * 0.4;
           }
         });
-
-        // Strobe Siren Flash in Fire Alarm
-        if (stage === 'FIRE_ALARM') {
-          const strobe = Math.sin(time * 24) > 0;
-          if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
-            centralStrobeLightRef.current.intensity = strobe ? 5.0 : 0.0;
-            (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = strobe
-              ? new THREE.Color(0xff0000)
-              : new THREE.Color(0x000000);
-          }
-        }
-      } else if (stage === 'SUPPRESSION') {
+      } else if (isRealFire && stage === 'SUPPRESSION') {
         fireGroup.visible = true;
         foamSprayGroupRef.current!.visible = true;
         co2FogGroupRef.current!.visible = true;
@@ -2548,15 +2697,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           c.position.y += Math.sin(time * 3 + idx) * 0.004;
           c.position.x += Math.cos(time * 2 + idx) * 0.004;
         });
-
-        const strobe = Math.sin(time * 30) > 0;
-        if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
-          centralStrobeLightRef.current.intensity = strobe ? 4.0 : 0.2;
-          (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = strobe
-            ? new THREE.Color(0xff0000)
-            : new THREE.Color(0x330000);
-        }
-      } else if (stage === 'EXTINGUISHED') {
+      } else if (isRealFire && stage === 'EXTINGUISHED') {
         fireGroup.visible = false;
         smokeGroup.visible = false;
         foamSprayGroupRef.current!.visible = false;
@@ -2567,38 +2708,54 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           foamBlanketMeshRef.current.visible = true;
           foamBlanketMeshRef.current.scale.set(1, 1, 1);
         }
-
-        if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
-          centralStrobeLightRef.current.intensity = 0;
-          (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0x000000);
-        }
       } else {
-        // STANDBY
+        // STANDBY ou DISPARO ACIDENTAL (ZERO FOGO, ZERO FUMAÇA, ZERO ESPUMA!)
         fireGroup.visible = false;
         smokeGroup.visible = false;
         foamSprayGroupRef.current!.visible = false;
         co2FogGroupRef.current!.visible = false;
         if (fireLightRef.current) fireLightRef.current.intensity = 0;
         if (foamBlanketMeshRef.current) foamBlanketMeshRef.current.visible = false;
+      }
+
+      // Flash da Sirene Estroboscópica da Central (Ativa em Alarme Real E em Alarme Acidental!)
+      const isAlarmActive = (isRealFire && stage === 'FIRE_ALARM') || (!isRealFire && accidentalStepRef.current === 'alarm_waiting_click');
+      if (isAlarmActive) {
+        const strobe = Math.sin(time * 24) > 0;
+        if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
+          centralStrobeLightRef.current.intensity = strobe ? 5.0 : 0.0;
+          (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = strobe
+            ? new THREE.Color(0xff0000)
+            : new THREE.Color(0x000000);
+        }
+      } else if (isRealFire && stage === 'SUPPRESSION') {
+        const strobe = Math.sin(time * 30) > 0;
+        if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
+          centralStrobeLightRef.current.intensity = strobe ? 4.0 : 0.2;
+          (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = strobe
+            ? new THREE.Color(0xff0000)
+            : new THREE.Color(0x330000);
+        }
+      } else {
         if (centralStrobeLightRef.current && centralStrobeMeshRef.current) {
           centralStrobeLightRef.current.intensity = 0;
           (centralStrobeMeshRef.current.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(0x000000);
         }
       }
 
-      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 6 aos 27.0s)
+      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 6 aos 27.0s em Incêndio Real)
       if (blueFlameGroupRef.current) {
-        const isGasCut = (activeScenarioRef.current === 'real_fire' && curTime >= 27.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isGasCut = isRealFire && (curTime >= 27.0 || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED');
         blueFlameGroupRef.current.visible = !isGasCut;
         if (blueFlameLightRef.current) {
           blueFlameLightRef.current.intensity = isGasCut ? 0 : 0.75 + Math.sin(time * 30) * 0.25;
         }
       }
 
-      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 9.5s)
+      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 9.5s APENAS em Incêndio Real!)
       if (sensorGlowMeshRef.current) {
         const mat = sensorGlowMeshRef.current.material as THREE.MeshStandardMaterial;
-        const isSensorTripped = (activeScenarioRef.current === 'real_fire' && curTime >= 9.5 && curTime < 37.0) || stage === 'FIRE_ALARM';
+        const isSensorTripped = isRealFire && curTime >= 9.5 && curTime < 37.0;
         if (isSensorTripped) {
           mat.emissive.setHex(0xef4444);
           mat.emissiveIntensity = 1.0 + Math.sin(time * 18) * 0.8;
@@ -2608,8 +2765,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 4. Damper Corta-Fogo Motorizado no Duto: aciona ASSIM que o sensor detecta >= 145°C (curTime >= 9.5s)
-      const isDamperClosed = (activeScenarioRef.current === 'real_fire' && curTime >= 9.5) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+      // 4. Damper Corta-Fogo Motorizado no Duto: aciona ASSIM que o sensor detecta >= 145°C (curTime >= 9.5s) em Incêndio Real
+      const isDamperClosed = isRealFire && curTime >= 9.5;
 
       if (damperFlapMeshRef.current) {
         const targetRot = isDamperClosed ? 0 : Math.PI / 2;
@@ -2642,23 +2799,22 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // Som mecânico imediato do desarme da solenoide e batida do damper aos 145°C (9.5s)
-      if (activeScenarioRef.current === 'real_fire' && curTime >= 9.5 && !hasPlayedDamperSnapRef.current) {
+      // Som mecânico imediato do desarme da solenoide e batida do damper aos 145°C (9.5s) em Incêndio Real
+      if (isRealFire && curTime >= 9.5 && !hasPlayedDamperSnapRef.current) {
         hasPlayedDamperSnapRef.current = true;
         if (!isMutedRef.current) {
           soundEffects.playDamperSnap();
         }
       }
 
-      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes APAGAM COMPLETAMENTE na Etapa 7 / 32.0s)
+      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes APAGAM COMPLETAMENTE na Etapa 7 / 32.0s em Incêndio Real)
       if (panelLedExhaustRef.current && panelLedFryerRef.current && panelLedAmberRef.current) {
-        const isInterlocked = (activeScenarioRef.current === 'real_fire' && curTime >= 32.0) || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED';
+        const isInterlocked = isRealFire && curTime >= 32.0;
         const matExhaust = panelLedExhaustRef.current.material as THREE.MeshStandardMaterial;
         const matFryer = panelLedFryerRef.current.material as THREE.MeshStandardMaterial;
         const matAmber = panelLedAmberRef.current.material as THREE.MeshStandardMaterial;
 
         if (isInterlocked) {
-          // LUZES VERDES 100% APAGADAS: Lente escura fumê/preta sem reflexo verde e sem emissão!
           matExhaust.color.setHex(0x0f172a);
           matExhaust.emissive.setHex(0x000000);
           matExhaust.emissiveIntensity = 0.0;
@@ -2667,12 +2823,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           matFryer.emissive.setHex(0x000000);
           matFryer.emissiveIntensity = 0.0;
 
-          // LUZ ÂMBAR ACESA & PISCANDO (Intertravamento elétrico ativo!)
           matAmber.color.setHex(0xf59e0b);
           matAmber.emissive.setHex(0xf59e0b);
           matAmber.emissiveIntensity = 1.4 + Math.sin(time * 12) * 0.6;
         } else {
-          // STANDBY / NORMAL: Exaustão e Fritadeira energizadas
           matExhaust.color.setHex(0x22c55e);
           matExhaust.emissive.setHex(0x22c55e);
           matExhaust.emissiveIntensity = 1.2;
@@ -2681,7 +2835,6 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           matFryer.emissive.setHex(0x22c55e);
           matFryer.emissiveIntensity = 1.2;
 
-          // LUZ ÂMBAR APAGADA
           matAmber.color.setHex(0x1c1204);
           matAmber.emissive.setHex(0x000000);
           matAmber.emissiveIntensity = 0.0;
