@@ -35,7 +35,7 @@ export interface CinematicZoomPoint {
   icon: string;
 }
 
-export const TOTAL_SIM_DURATION = 15.0; // 15 segundos de simulação ágil e cinematográfica
+export const TOTAL_SIM_DURATION = 20.0; // 20 segundos: 8 etapas cinematográficas onde cada ação ocorre quando a câmera foca no objeto
 
 export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
   {
@@ -63,7 +63,7 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     camPosMobile: [-0.55, 1.45, 2.7],
     camLookMobile: [-0.55, 1.15, 0],
     badgeTitle: '2. Princípio de Incêndio na Fritadeira',
-    badgeDesc: 'Gordura e óleo vegetal/animal superaquecem até autoignição (>340°C). Chamas e fumaça sobem em direção à coifa.',
+    badgeDesc: 'Câmera foca na fritadeira: gordura superaquece (>340°C) e chamas vivas sobem em direção à coifa.',
     icon: 'flame',
   },
   {
@@ -72,14 +72,14 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     name: 'Sensor 145°C',
     timeStart: 5.0,
     timeEnd: 7.5,
-    // Zoom diminuído e enquadramento elevado focado na coifa e no sensor (sem ficar preso no fogo)
-    camPos: [-0.50, 2.35, 2.2],
-    camLook: [-0.55, 2.25, 0.20],
-    camPosMobile: [-0.50, 2.35, 2.8],
-    camLookMobile: [-0.55, 2.25, 0.20],
+    // Zoom diminuído e enquadramento elevado focado na coifa, teto e sensor (sem ficar preso no fogo)
+    camPos: [-0.55, 2.00, 2.55],
+    camLook: [-0.55, 2.28, 0.12],
+    camPosMobile: [-0.55, 2.05, 3.10],
+    camLookMobile: [-0.55, 2.28, 0.12],
     badgeTitle: '3. Sensor Blindado 145°C Detecta Calor Crítico (NBR 14518)',
-    badgeDesc: 'Ao atingir 145°C na coifa, o sensor térmico blindado emite sinal eletrônico instantâneo para disparo!',
-    icon: 'damper',
+    badgeDesc: 'Câmera foca na coifa: sensor térmico blindado atinge 145°C e emite sinal eletrônico instantâneo!',
+    icon: 'sensor',
   },
   {
     id: 4,
@@ -87,42 +87,74 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
     name: 'Damper 90°',
     timeStart: 7.5,
     timeEnd: 10.0,
-    // Câmera focada 100% no damper e duto (o som toca aqui quando o damper estiver visível na imagem!)
+    // Câmera focada 100% no duto e damper
     camPos: [0, 2.85, 1.35],
     camLook: [0, 2.85, 0],
     camPosMobile: [0, 2.85, 1.70],
     camLookMobile: [0, 2.85, 0],
-    badgeTitle: '4. Duto Predial 100% Hermético & Isolado (NBR 14518)',
-    badgeDesc: 'Solenoide desarma e a lâmina do damper fecha em 90° no duto, impedindo propagação de fogo ao prédio.',
+    badgeTitle: '4. Damper Corta-Fogo Fecha em 90° (Duto Isolado)',
+    badgeDesc: 'Câmera no duto: solenoide desarma e a lâmina mecânica fecha com estalo metálico, selando o duto predial.',
     icon: 'damper',
   },
   {
     id: 5,
     label: '5',
-    name: 'Central IHM & Corte',
+    name: 'Quadro Elétrico',
     timeStart: 10.0,
     timeEnd: 12.5,
-    camPos: [2.1, 1.8, 0.70],
-    camLook: [2.1, 1.8, 0.15],
-    camPosMobile: [2.05, 1.8, 0.95],
-    camLookMobile: [2.1, 1.8, 0.15],
-    badgeTitle: '5. Central Outfire VTS em Alarme & Intertravamento',
-    badgeDesc: 'Sirene estroboscópica e voz oficial Outfire! Gás cortado e exaustão desenergizada automaticamente.',
-    icon: 'central',
+    // Câmera no painel elétrico cinza industrial RAL 7035
+    camPos: [-2.05, 2.0, 0.95],
+    camLook: [-2.6, 2.0, -0.58],
+    camPosMobile: [-1.90, 2.0, 1.30],
+    camLookMobile: [-2.6, 2.0, -0.58],
+    badgeTitle: '5. Intertravamento Elétrico: Exaustor & Fritadeira Desenergizados',
+    badgeDesc: 'Câmera no quadro cinza: luzes verdes apagam e o motor da exaustão desliga imediatamente para cessar oxigênio.',
+    icon: 'electrical',
   },
   {
     id: 6,
     label: '6',
-    name: 'Extinção Total',
+    name: 'Central IHM & Corte',
     timeStart: 12.5,
     timeEnd: 15.0,
-    camPos: [0, 1.8, 3.2],
-    camLook: [-0.1, 1.25, 0],
-    camPosMobile: [0, 1.8, 3.9],
-    camLookMobile: [-0.1, 1.25, 0],
-    badgeTitle: '6. Supressão Ativa com Saponificante Classe K & CO2',
-    badgeDesc: 'Bicos aspersores lançam saponificante criando manta espumosa no óleo. Fogo 100% extinto (NBR 14518)!',
+    // Câmera na Central Outfire VTS touch e fogão
+    camPos: [2.1, 1.8, 0.70],
+    camLook: [2.1, 1.8, 0.15],
+    camPosMobile: [2.05, 1.8, 0.95],
+    camLookMobile: [2.1, 1.8, 0.15],
+    badgeTitle: '6. Central Outfire VTS em Alarme & Corte de Gás GN/GLP',
+    badgeDesc: 'Câmera na central: voz oficial Outfire e sirene tocam. Válvula solenoide fecha e apaga as chamas do fogão.',
+    icon: 'central',
+  },
+  {
+    id: 7,
+    label: '7',
+    name: 'Saponificante',
+    timeStart: 15.0,
+    timeEnd: 17.5,
+    // Câmera focada nos bicos aspersores e na fritadeira
+    camPos: [-0.45, 1.75, 1.95],
+    camLook: [-0.55, 1.35, 0.15],
+    camPosMobile: [-0.45, 1.75, 2.45],
+    camLookMobile: [-0.55, 1.35, 0.15],
+    badgeTitle: '7. Supressão Ativa com Saponificante Classe K na Fritadeira',
+    badgeDesc: 'Câmera nos bicos: aspersores lançam saponificante de alta pressão sobre a cuba, formando manta espumosa e extinguindo o óleo.',
     icon: 'droplets',
+  },
+  {
+    id: 8,
+    label: '8',
+    name: 'Injeção CO2',
+    timeStart: 17.5,
+    timeEnd: 20.0,
+    // Câmera sobe para o duto predial e o cilindro de CO2 vermelho
+    camPos: [0.65, 3.1, 1.45],
+    camLook: [0.35, 2.95, -0.1],
+    camPosMobile: [0.65, 3.1, 1.85],
+    camLookMobile: [0.35, 2.95, -0.1],
+    badgeTitle: '8. Injeção de CO2 no Duto Predial & Inertização Total',
+    badgeDesc: 'Câmera no duto e cilindro de CO2: descarga de CO2 inunda o interior do duto, eliminando vapores residuais.',
+    icon: 'wind',
   },
 ];
 
@@ -136,52 +168,74 @@ interface TelemetryData {
   countdown: number;
 }
 
-// Gerador procedural em memória de texturas de chamas, fagulhas e fumaça hiper-realistas
-function createRealisticFlameTexture(type: 'flame' | 'spark' | 'smoke'): THREE.CanvasTexture {
+// Gerador procedural em memória de texturas de chamas, núcleo incandescente, fagulhas e fumaça hiper-realistas
+function createRealisticFlameTexture(type: 'flame' | 'flame_core' | 'spark' | 'smoke'): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
-  canvas.width = 128;
-  canvas.height = 128;
+  canvas.width = 256;
+  canvas.height = 256;
   const ctx = canvas.getContext('2d')!;
 
   if (type === 'flame') {
-    // Gradiente orgânico hiper-realista: núcleo superaquecido branco-amarelo, corpo dourado/laranja ardente, bordas avermelhadas
-    const grad = ctx.createRadialGradient(64, 82, 3, 64, 72, 54);
-    grad.addColorStop(0, 'rgba(255, 255, 245, 1.0)');  // Núcleo branco puro de alta temperatura (>800°C)
-    grad.addColorStop(0.18, 'rgba(254, 240, 138, 0.98)'); // Amarelo incandescente
-    grad.addColorStop(0.42, 'rgba(249, 115, 22, 0.85)');  // Laranja vivo intenso de óleo vegetal
-    grad.addColorStop(0.72, 'rgba(220, 38, 38, 0.45)');   // Vermelho vivo nas labaredas
-    grad.addColorStop(1, 'rgba(153, 27, 27, 0)');        // Transparência suave nas bordas
+    // Labareda dinâmica com base de autoignição ultra-quente (>900°C), corpo incandescente e línguas de fogo turbulentas
+    const grad = ctx.createLinearGradient(128, 252, 128, 12);
+    grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');   // Núcleo branco incandescente
+    grad.addColorStop(0.12, 'rgba(254, 240, 138, 0.98)'); // Amarelo de alta temperatura
+    grad.addColorStop(0.35, 'rgba(249, 115, 22, 0.92)');  // Laranja ardente de vapor de óleo Classe K
+    grad.addColorStop(0.68, 'rgba(220, 38, 38, 0.60)');   // Vermelho vivo nas labaredas ascendentes
+    grad.addColorStop(0.90, 'rgba(153, 27, 27, 0.20)');   // Tonalidade de queima
+    grad.addColorStop(1.0, 'rgba(120, 20, 20, 0)');
 
     ctx.fillStyle = grad;
-    // Desenha perfil orgânico de gota/língua de fogo pontiaguda
     ctx.beginPath();
-    ctx.moveTo(64, 8);
-    ctx.bezierCurveTo(92, 32, 116, 68, 108, 96);
-    ctx.bezierCurveTo(100, 122, 28, 122, 20, 96);
-    ctx.bezierCurveTo(12, 68, 36, 32, 64, 8);
+    ctx.moveTo(128, 14);
+    ctx.bezierCurveTo(172, 64, 228, 124, 212, 186);
+    ctx.bezierCurveTo(196, 246, 60, 246, 44, 186);
+    ctx.bezierCurveTo(28, 124, 84, 64, 128, 14);
     ctx.closePath();
+    ctx.fill();
+
+    // Hot interior core (núcleo interno de alta luminosidade)
+    const coreGrad = ctx.createRadialGradient(128, 178, 6, 128, 168, 68);
+    coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.96)');
+    coreGrad.addColorStop(0.40, 'rgba(254, 249, 195, 0.75)');
+    coreGrad.addColorStop(1, 'rgba(254, 215, 170, 0)');
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath();
+    ctx.arc(128, 170, 64, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (type === 'flame_core') {
+    // Núcleo volumétrico esférico incandescente de calor na superfície do óleo
+    const grad = ctx.createRadialGradient(128, 128, 8, 128, 128, 115);
+    grad.addColorStop(0, 'rgba(255, 255, 245, 1.0)');
+    grad.addColorStop(0.22, 'rgba(254, 240, 138, 0.88)');
+    grad.addColorStop(0.50, 'rgba(249, 115, 22, 0.58)');
+    grad.addColorStop(0.82, 'rgba(220, 38, 38, 0.22)');
+    grad.addColorStop(1, 'rgba(180, 20, 20, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(128, 128, 115, 0, Math.PI * 2);
     ctx.fill();
   } else if (type === 'spark') {
     // Fagulha / Centelha incandescente com corona estelar pontual
-    const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 48);
+    const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 96);
     grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-    grad.addColorStop(0.2, 'rgba(254, 215, 170, 0.95)');
-    grad.addColorStop(0.5, 'rgba(249, 115, 22, 0.65)');
-    grad.addColorStop(1, 'rgba(185, 28, 28, 0)');
+    grad.addColorStop(0.18, 'rgba(254, 240, 138, 0.95)');
+    grad.addColorStop(0.46, 'rgba(249, 115, 22, 0.65)');
+    grad.addColorStop(1, 'rgba(220, 38, 38, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(64, 64, 48, 0, Math.PI * 2);
+    ctx.arc(128, 128, 96, 0, Math.PI * 2);
     ctx.fill();
   } else if (type === 'smoke') {
-    // Fumaça volumétrica macia e difusa
-    const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 58);
-    grad.addColorStop(0, 'rgba(30, 27, 24, 0.50)');
-    grad.addColorStop(0.35, 'rgba(45, 40, 36, 0.35)');
-    grad.addColorStop(0.70, 'rgba(65, 60, 55, 0.15)');
-    grad.addColorStop(1, 'rgba(65, 60, 55, 0)');
+    // Fumaça volumétrica orgânica com vórtices
+    const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 120);
+    grad.addColorStop(0, 'rgba(32, 28, 24, 0.58)');
+    grad.addColorStop(0.35, 'rgba(48, 42, 38, 0.38)');
+    grad.addColorStop(0.72, 'rgba(70, 64, 58, 0.16)');
+    grad.addColorStop(1, 'rgba(70, 64, 58, 0)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(64, 64, 58, 0, Math.PI * 2);
+    ctx.arc(128, 128, 120, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -242,6 +296,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const hasPlayedAlarmAudioRef = useRef<boolean>(false);
   const hasPlayedGasCutoffRef = useRef<boolean>(false);
   const hasPlayedSuppressionRef = useRef<boolean>(false);
+  const hasPlayedPanelCutoffRef = useRef<boolean>(false);
+  const hasPlayedCo2DischargeRef = useRef<boolean>(false);
 
   // Simulation Stage
   const [simStage, setSimStage] = useState<SimStage>('STANDBY');
@@ -421,6 +477,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setShowAbortedModal(false);
     setShowRealFireWarningModal(false);
     hasPlayedDamperSnapRef.current = false;
+    hasPlayedAlarmAudioRef.current = false;
+    hasPlayedGasCutoffRef.current = false;
+    hasPlayedSuppressionRef.current = false;
+    hasPlayedPanelCutoffRef.current = false;
+    hasPlayedCo2DischargeRef.current = false;
     setActiveCameraView('geral');
     setManualAdvanced(false);
     manualAdvancedRef.current = false;
@@ -429,6 +490,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     hasPlayedGasCutoffRef.current = false;
     hasPlayedSuppressionRef.current = false;
     hasPlayedDamperSnapRef.current = false;
+    hasPlayedPanelCutoffRef.current = false;
+    hasPlayedCo2DischargeRef.current = false;
 
     if (dishwasherGroupRef.current) {
       dishwasherGroupRef.current.visible = false;
@@ -477,9 +540,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setManualAdvanced(true);
     manualAdvancedRef.current = true;
 
-    // Salta a simulação direto para a fase de extinção imediata (12.5s)
-    simTimeRef.current = 12.5;
-    setSimTime(12.5);
+    // Salta a simulação direto para a fase de supressão por saponificante (15.5s)
+    simTimeRef.current = 15.5;
+    setSimTime(15.5);
     setCountdown(0);
     countdownRef.current = 0;
     setSimStage('SUPPRESSION');
@@ -518,6 +581,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     hasPlayedGasCutoffRef.current = false;
     hasPlayedSuppressionRef.current = false;
     hasPlayedDamperSnapRef.current = false;
+    hasPlayedPanelCutoffRef.current = false;
+    hasPlayedCo2DischargeRef.current = false;
 
     // Reseta o tempo da simulação para o início (0.0s)
     simTimeRef.current = 0.0;
@@ -652,16 +717,22 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     if (activeScenarioRef.current === 'real_fire') {
       // Se o usuário pular para trás antes das etapas, reseta estados de áudio
-      if (clamped < 7.8) {
+      if (clamped < 8.0) {
         hasPlayedDamperSnapRef.current = false;
       }
-      if (clamped < 10.0) {
+      if (clamped < 10.5) {
+        hasPlayedPanelCutoffRef.current = false;
+      }
+      if (clamped < 13.0) {
         hasPlayedAlarmAudioRef.current = false;
         hasPlayedGasCutoffRef.current = false;
         stopAllAudioCycles();
       }
-      if (clamped < 12.5) {
+      if (clamped < 15.5) {
         hasPlayedSuppressionRef.current = false;
+      }
+      if (clamped < 18.0) {
+        hasPlayedCo2DischargeRef.current = false;
       }
     } else {
       // Disparo acidental
@@ -701,6 +772,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setShowAbortedModal(false);
     setShowRealFireWarningModal(false);
     hasPlayedDamperSnapRef.current = false;
+    hasPlayedAlarmAudioRef.current = false;
+    hasPlayedGasCutoffRef.current = false;
+    hasPlayedSuppressionRef.current = false;
+    hasPlayedPanelCutoffRef.current = false;
+    hasPlayedCo2DischargeRef.current = false;
 
     setSimStage('STANDBY');
     simStageRef.current = 'STANDBY';
@@ -1162,35 +1238,36 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     hoodGroup.add(hoodRoof);
 
     // Parede traseira encostada na alvenaria
-    const hoodBack = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.56, 0.03), matStainlessSteel);
-    hoodBack.position.set(0, 0.0, -0.58);
+    const hoodBack = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.42, 0.03), matStainlessSteel);
+    hoodBack.position.set(0, 0.07, -0.58);
     hoodGroup.add(hoodBack);
 
     // Laterais esquerda e direita com acabamento cromado
-    const hoodSideL = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.56, 1.2), matStainlessSteel);
-    hoodSideL.position.set(-1.38, 0.0, 0);
+    // Formato de coifa industrial: perfil com testeira frontal elegante de 0.16m
+    const hoodSideL = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.32, 1.2), matStainlessSteel);
+    hoodSideL.position.set(-1.38, 0.12, 0);
     hoodGroup.add(hoodSideL);
 
-    const hoodSideR = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.56, 1.2), matStainlessSteel);
-    hoodSideR.position.set(1.38, 0.0, 0);
+    const hoodSideR = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.32, 1.2), matStainlessSteel);
+    hoodSideR.position.set(1.38, 0.12, 0);
     hoodGroup.add(hoodSideR);
 
-    // Aba frontal / Testeira da coifa (altura de 0.28m, deixando vão inferior 100% aberto para livre visualização)
-    const hoodFront = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.28, 0.03), matStainlessSteel);
-    hoodFront.position.set(0, 0.14, 0.58);
+    // Aba frontal / Testeira da coifa (altura de 0.16m, deixando todo o vão inferior 100% aberto para livre visualização interna)
+    const hoodFront = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.16, 0.03), matStainlessSteel);
+    hoodFront.position.set(0, 0.20, 0.58);
     hoodFront.castShadow = true;
     hoodGroup.add(hoodFront);
 
-    // Moldura inferior em inox (calha perimetral de acabamento)
+    // Moldura inferior em inox (calha perimetral coletora de gordura NBR 14518)
     const hoodRim = new THREE.Mesh(new THREE.BoxGeometry(2.82, 0.025, 0.04), matStainlessSteel);
-    hoodRim.position.set(0, 0.0, 0.58);
+    hoodRim.position.set(0, 0.12, 0.58);
     hoodGroup.add(hoodRim);
 
     // Baffle Filters (Filtros inerciais colmeia de aço inox inclinados a 45° na bancada traseira)
-    const filterMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.92, roughness: 0.22 });
+    const filterMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.94, roughness: 0.18 });
     for (let f = -1.0; f <= 1.0; f += 0.5) {
-      const filter = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.38, 0.04), filterMat);
-      filter.position.set(f, 0.04, -0.32);
+      const filter = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.36, 0.04), filterMat);
+      filter.position.set(f, 0.07, -0.32);
       filter.rotation.x = -Math.PI / 4;
       hoodGroup.add(filter);
     }
@@ -1354,50 +1431,50 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     // SENSOR BLINDADO TÉRMICO 145°C INSTALADO NA COIFA (NBR 14518)
     // Reprodução hiper-realista da foto real: media_1794595050101_6888e920.jpg
     // - Capa plástica superior branca estriada/ranhurada (isolador NPT)
-    // - Porca sextavada de montagem usinada em aço inox espelhado
-    // - Corpo rosqueado usinado cônico NPT com anéis de filetes de rosca
-    // - Flange com cordão de solda TIG circular
+    // - Porca sextavada usinada em inox com faces paralelas ao teto da coifa
+    // - Seção rosqueada usinada NPT embutida no teto
+    // - Flange circular com cordão de solda TIG
     // - Haste tubular cilíndrica sensora polida em inox
-    // - Ponta chanfrada com fecho hermético soldado
+    // - Ponta hermética soldada
     // =========================================================================
     const sensorGroup = new THREE.Group();
-    sensorGroup.position.set(-0.55, 0.26, 0.20); // Recolhido: rosca paralela e embutida no teto da coifa
-    sensorGroup.rotation.x = 0.08; // Ligeira inclinação realista para a zona de convecção de calor
+    sensorGroup.position.set(-0.55, 0.25, 0.08); // Rosca e porca paralelas e embutidas no teto da coifa
+    sensorGroup.rotation.x = 0.05; // Leve inclinação para a coluna de calor convectivo da fritadeira
     hoodGroup.add(sensorGroup);
     shieldedSensorGroupRef.current = sensorGroup;
     sensorGroup.userData = { interactiveType: 'sensor', name: 'Sensor Blindado Térmico 145°C (NBR 14518)' };
 
     // Suporte / Flange de montagem no teto da coifa em inox
     const sensorBracket = new THREE.Mesh(
-      new THREE.BoxGeometry(0.045, 0.020, 0.045),
+      new THREE.BoxGeometry(0.048, 0.016, 0.048),
       matStainlessSteel
     );
-    sensorBracket.position.set(0, 0.010, 0);
+    sensorBracket.position.set(0, 0.012, 0);
     sensorGroup.add(sensorBracket);
 
-    // 1. Capa plástica superior branca estriada (bucha protetora isolante NPT)
+    // 1. Capa plástica superior branca estriada (bucha protetora isolante NPT - topo)
     const capWhiteMat = new THREE.MeshStandardMaterial({
       color: 0xf8fafc,
       roughness: 0.35,
       metalness: 0.05,
     });
     const capBase = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.024, 24), capWhiteMat);
-    capBase.position.set(0, 0.012, 0);
+    capBase.position.set(0, 0.022, 0);
     sensorGroup.add(capBase);
 
     // Caneluras verticais na capa branca (estrias de aperto do conector)
     for (let r = 0; r < 12; r++) {
       const angle = (r / 12) * Math.PI * 2;
       const rib = new THREE.Mesh(new THREE.BoxGeometry(0.002, 0.022, 0.002), capWhiteMat);
-      rib.position.set(Math.cos(angle) * 0.0165, 0.012, Math.sin(angle) * 0.0165);
+      rib.position.set(Math.cos(angle) * 0.0165, 0.022, Math.sin(angle) * 0.0165);
       sensorGroup.add(rib);
     }
 
     const capDome = new THREE.Mesh(new THREE.SphereGeometry(0.016, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), capWhiteMat);
-    capDome.position.set(0, 0.024, 0);
+    capDome.position.set(0, 0.034, 0);
     sensorGroup.add(capDome);
 
-    // 2. Porca Sextavada Usinada em Aço Inox (corpo principal com 6 faces)
+    // 2. Porca Sextavada Usinada em Aço Inox (corpo principal com 6 faces, paralelo ao teto)
     const matHexNut = new THREE.MeshStandardMaterial({
       color: 0xf1f5f9,
       metalness: 0.94,
@@ -1407,16 +1484,16 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       new THREE.CylinderGeometry(0.025, 0.025, 0.020, 6), // 6 lados = Sextavada!
       matHexNut
     );
-    sensorHexNut.position.set(0, -0.010, 0);
+    sensorHexNut.position.set(0, 0.00, 0);
     sensorGroup.add(sensorHexNut);
 
-    // Chanfros superior e inferior da porca sextavada
+    // Chanfros da porca sextavada
     const hexChamferTop = new THREE.Mesh(
       new THREE.TorusGeometry(0.023, 0.002, 6, 24),
       matHexNut
     );
     hexChamferTop.rotation.x = Math.PI / 2;
-    hexChamferTop.position.set(0, -0.001, 0);
+    hexChamferTop.position.set(0, 0.009, 0);
     sensorGroup.add(hexChamferTop);
 
     // 3. Seção Rosqueada Usinada NPT em Aço Inox
@@ -1426,29 +1503,29 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       roughness: 0.25,
     });
     const threadCore = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.019, 0.021, 0.034, 24),
+      new THREE.CylinderGeometry(0.018, 0.020, 0.024, 24),
       matThread
     );
-    threadCore.position.set(0, -0.033, 0);
+    threadCore.position.set(0, -0.018, 0);
     sensorGroup.add(threadCore);
 
     // Filetes de rosca usinados (ranhuras mecânicas torneadas)
-    for (let th = 0; th < 6; th++) {
+    for (let th = 0; th < 5; th++) {
       const threadRing = new THREE.Mesh(
-        new THREE.TorusGeometry(0.0205 - th * 0.0004, 0.0016, 6, 24),
+        new THREE.TorusGeometry(0.0195 - th * 0.0004, 0.0016, 6, 24),
         matThread
       );
       threadRing.rotation.x = Math.PI / 2;
-      threadRing.position.set(0, -0.020 - th * 0.005, 0);
+      threadRing.position.set(0, -0.010 - th * 0.004, 0);
       sensorGroup.add(threadRing);
     }
 
     // 4. Flange Circular com Cordão de Solda TIG
     const flangeDisc = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.021, 0.021, 0.006, 24),
+      new THREE.CylinderGeometry(0.020, 0.020, 0.006, 24),
       matHexNut
     );
-    flangeDisc.position.set(0, -0.052, 0);
+    flangeDisc.position.set(0, -0.034, 0);
     sensorGroup.add(flangeDisc);
 
     const weldBead = new THREE.Mesh(
@@ -1456,10 +1533,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.85, roughness: 0.35 })
     );
     weldBead.rotation.x = Math.PI / 2;
-    weldBead.position.set(0, -0.055, 0);
+    weldBead.position.set(0, -0.037, 0);
     sensorGroup.add(weldBead);
 
-    // 5. Haste Sensora Cilíndrica Sólida em Inox (Sensor Probe Stem)
+    // 5. Haste Sensora Cilíndrica Sólida em Inox (Sensor Probe Stem - Foto 1)
     const matSensorStem = new THREE.MeshStandardMaterial({
       color: 0xf8fafc,
       metalness: 0.96,
@@ -1468,10 +1545,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       emissiveIntensity: 0,
     });
     const sensorStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.007, 0.007, 0.24, 24),
+      new THREE.CylinderGeometry(0.007, 0.007, 0.26, 24),
       matSensorStem
     );
-    sensorStem.position.set(0, -0.175, 0);
+    sensorStem.position.set(0, -0.165, 0);
     sensorGroup.add(sensorStem);
     sensorGlowMeshRef.current = sensorStem;
 
@@ -1480,7 +1557,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       new THREE.SphereGeometry(0.007, 16, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
       matSensorStem
     );
-    sensorTip.position.set(0, -0.298, 0);
+    sensorTip.position.set(0, -0.295, 0);
     sensorGroup.add(sensorTip);
 
     // =========================================================================
@@ -1713,7 +1790,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       matStainlessSteel
     );
     headerPipe.rotation.z = Math.PI / 2;
-    headerPipe.position.set(0, 0.22, -0.10);
+    headerPipe.position.set(0, 0.24, -0.12);
     hoodGroup.add(headerPipe);
 
     // Abraçadeiras de fixação do tubo ao teto da coifa
@@ -1722,17 +1799,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         new THREE.CylinderGeometry(0.013, 0.013, 0.022, 16),
         matStainlessSteel
       );
-      clamp.position.set(cl, 0.24, -0.10);
+      clamp.position.set(cl, 0.25, -0.12);
       hoodGroup.add(clamp);
     }
 
     // 3. Quatro Tubos Verticais Descendentes com União Sextavada e Bicos com Capa de Borracha
-    // Recolhidos proporcionalmente em harmonia com o teto da coifa e o sensor (NBR 14518 / NFPA 96)
+    // Desser eles para baixo da linha da coifa para poder visualizar perfeitamente (conforme foto real Outfire: media_1794595094513_3076e272.jpg)
     const nozzleDropSpecs = [
-      { x: -0.70, z: 0.20, target: 'Fritadeira (Esquerda)' },
-      { x: -0.38, z: 0.20, target: 'Fritadeira (Centro)' },
-      { x: 0.48, z: 0.20, target: 'Fogão / Panela' },
-      { x: 0.85, z: 0.20, target: 'Chapa / Cooktop' },
+      { x: -0.70, z: 0.08, target: 'Fritadeira (Esquerda)' },
+      { x: -0.38, z: 0.08, target: 'Fritadeira (Centro)' },
+      { x: 0.45, z: 0.08, target: 'Fogão / Panela' },
+      { x: 0.85, z: 0.08, target: 'Chapa / Cooktop' },
     ];
 
     const matWhiteCap = new THREE.MeshStandardMaterial({
@@ -1743,10 +1820,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     nozzleDropSpecs.forEach(spec => {
       const dropAssembly = new THREE.Group();
-      dropAssembly.position.set(spec.x, 0.22, -0.10);
+      dropAssembly.position.set(spec.x, 0.24, -0.12);
       hoodGroup.add(dropAssembly);
 
-      // Conexão em "Tee" de aço inox cromado
+      // Conexão em "Tee" de aço inox cromado no tubo coletor
       const teeFitting = new THREE.Mesh(
         new THREE.CylinderGeometry(0.014, 0.014, 0.030, 16),
         matStainlessSteel
@@ -1754,56 +1831,64 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       teeFitting.rotation.z = Math.PI / 2;
       dropAssembly.add(teeFitting);
 
-      // Cotovelo superior direcionando para a frente
+      // Cotovelo superior direcionando para a frente (em direção aos equipamentos)
       const elbow = new THREE.Mesh(
         new THREE.SphereGeometry(0.013, 16, 16),
         matStainlessSteel
       );
       dropAssembly.add(elbow);
 
-      // Tubo de avanço superior horizontal
+      // Tubo de avanço superior horizontal (vai de z=-0.12 até a vertical em z=0.08)
       const horizSub = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.008, 0.008, 0.30, 16),
+        new THREE.CylinderGeometry(0.008, 0.008, 0.20, 16),
         matStainlessSteel
       );
       horizSub.rotation.x = Math.PI / 2;
-      horizSub.position.set(0, 0, 0.15);
+      horizSub.position.set(0, 0, 0.10);
       dropAssembly.add(horizSub);
 
-      // Tubo Vertical Descendente em Aço Inox (Drop Pipe)
-      // Recolhido proporcionalmente em harmonia com o teto da coifa e o sensor
-      const vertDropGroup = new THREE.Group();
-      vertDropGroup.position.set(0, 0, 0.30);
-      dropAssembly.add(vertDropGroup);
-
-      // Tubo descendente proporcional (0.38m de comprimento)
-      const dropPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.008, 0.008, 0.38, 16),
+      // Cotovelo de descida vertical em 90 graus
+      const elbowDown = new THREE.Mesh(
+        new THREE.SphereGeometry(0.013, 16, 16),
         matStainlessSteel
       );
-      dropPipe.position.set(0, -0.19, 0);
+      elbowDown.position.set(0, 0, 0.20);
+      dropAssembly.add(elbowDown);
+
+      // Tubo Vertical Descendente em Aço Inox (Drop Pipe)
+      // Desce da cota de teto (y=0.24) passando abaixo da linha da coifa (y=0.12) até y=-0.06
+      const vertDropGroup = new THREE.Group();
+      vertDropGroup.position.set(0, 0, 0.20);
+      dropAssembly.add(vertDropGroup);
+
+      // Tubo descendente polido (0.30m de comprimento)
+      const dropPipe = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.008, 0.008, 0.30, 16),
+        matStainlessSteel
+      );
+      dropPipe.position.set(0, -0.15, 0);
       vertDropGroup.add(dropPipe);
 
-      // UNIÃO SEXTAVADA DUPLA DE COMPRESSÃO (Exatamente como na foto real!)
+      // UNIÃO SEXTAVADA DUPLA DE COMPRESSÃO (Exatamente como na foto real da Outfire!)
       const upperHexNut = new THREE.Mesh(
         new THREE.CylinderGeometry(0.016, 0.016, 0.018, 6),
         matStainlessSteel
       );
-      upperHexNut.position.set(0, -0.385, 0);
+      upperHexNut.position.set(0, -0.30, 0);
       vertDropGroup.add(upperHexNut);
 
       const unionBody = new THREE.Mesh(
         new THREE.CylinderGeometry(0.012, 0.012, 0.015, 16),
         matStainlessSteel
       );
-      unionBody.position.set(0, -0.398, 0);
+      unionBody.position.set(0, -0.313, 0);
       vertDropGroup.add(unionBody);
 
       const lowerHexNut = new THREE.Mesh(
         new THREE.CylinderGeometry(0.016, 0.016, 0.018, 6),
         matStainlessSteel
       );
-      lowerHexNut.position.set(0, -0.412, 0);
+      lowerHexNut.position.set(0, -0.327, 0);
       vertDropGroup.add(lowerHexNut);
 
       // CORPO USINADO DO BICO ASPERSOR CLASSE K
@@ -1811,7 +1896,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         new THREE.CylinderGeometry(0.013, 0.009, 0.026, 6),
         matStainlessSteel
       );
-      nozzleBody.position.set(0, -0.430, 0);
+      nozzleBody.position.set(0, -0.345, 0);
       vertDropGroup.add(nozzleBody);
 
       // Orifício de descarga de alta pressão
@@ -1819,7 +1904,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         new THREE.CylinderGeometry(0.004, 0.004, 0.008, 16),
         new THREE.MeshBasicMaterial({ color: 0x0f172a })
       );
-      nozzleOrifice.position.set(0, -0.444, 0);
+      nozzleOrifice.position.set(0, -0.358, 0);
       vertDropGroup.add(nozzleOrifice);
 
       // CAPA PROTETORA BRANCA DE BORRACHA/SILICONE (Blow-off Cap na foto real!)
@@ -1827,14 +1912,14 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         new THREE.CylinderGeometry(0.012, 0.012, 0.020, 16),
         matWhiteCap
       );
-      blowOffCap.position.set(0, -0.442, 0);
+      blowOffCap.position.set(0, -0.356, 0);
       vertDropGroup.add(blowOffCap);
 
       const capTipDome = new THREE.Mesh(
         new THREE.SphereGeometry(0.012, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
         matWhiteCap
       );
-      capTipDome.position.set(0, -0.452, 0);
+      capTipDome.position.set(0, -0.366, 0);
       vertDropGroup.add(capTipDome);
 
       // Tira flexível de borracha de retenção da capa
@@ -1843,7 +1928,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         matWhiteCap
       );
       capStrap.rotation.x = Math.PI / 2;
-      capStrap.position.set(0, -0.422, 0.008);
+      capStrap.position.set(0, -0.338, 0.008);
       vertDropGroup.add(capStrap);
     });
 
@@ -2331,8 +2416,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     foamBlanketMeshRef.current = foamBlanket;
 
     // 17. SISTEMA DE FOGO, FAGULHAS E FUMAÇA HIPER-REALISTA CLASSE K
-    // Texturas procedurais com AdditiveBlending e dinâmica de convecção térmica real
+    // Texturas procedurais HD em alta resolução com AdditiveBlending e dinâmica de convecção térmica real
     const flameTexture = createRealisticFlameTexture('flame');
+    const flameCoreTexture = createRealisticFlameTexture('flame_core');
     const sparkTexture = createRealisticFlameTexture('spark');
     const smokeTexture = createRealisticFlameTexture('smoke');
 
@@ -2340,43 +2426,72 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     scene.add(fireGroup);
     fireParticlesGroupRef.current = fireGroup;
 
-    // A. Labaredas Orgânicas Centrais (Tongues of Flame com AdditiveBlending)
-    const flameMat = new THREE.MeshBasicMaterial({
-      map: flameTexture,
+    // A. Núcleos Volumétricos de Calor Incandescente na Superfície do Óleo
+    const coreFlameMat = new THREE.MeshBasicMaterial({
+      map: flameCoreTexture,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.95,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       side: THREE.DoubleSide,
     });
-    const flameGeo = new THREE.PlaneGeometry(0.24, 0.40);
+    const coreGeo = new THREE.PlaneGeometry(0.35, 0.35);
+    const coreMeshes: THREE.Mesh[] = [];
+    for (let c = 0; c < 8; c++) {
+      const cm = new THREE.Mesh(coreGeo, coreFlameMat);
+      const cx = -0.55 + (Math.random() - 0.5) * 0.35;
+      const cz = 0.0 + (Math.random() - 0.5) * 0.24;
+      cm.position.set(cx, 1.05 + Math.random() * 0.12, cz);
+      cm.userData = {
+        baseX: cx,
+        baseZ: cz,
+        baseY: 1.05,
+        pulseSpeed: 14 + Math.random() * 12,
+        phase: Math.random() * Math.PI * 2,
+      };
+      fireGroup.add(cm);
+      coreMeshes.push(cm);
+    }
+
+    // B. Labaredas Orgânicas Centrais (Tongues of Flame com AdditiveBlending)
+    const flameMat = new THREE.MeshBasicMaterial({
+      map: flameTexture,
+      transparent: true,
+      opacity: 0.94,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const flameGeo = new THREE.PlaneGeometry(0.26, 0.46);
     const fireMeshes: THREE.Mesh[] = [];
 
-    const flameCount = 42;
+    const flameCount = 48;
     for (let i = 0; i < flameCount; i++) {
       const fl = new THREE.Mesh(flameGeo, flameMat);
       const angle = Math.random() * Math.PI * 2;
-      const radius = Math.random() * 0.20;
+      const radius = Math.random() * 0.22;
+      const fx = -0.55 + Math.cos(angle) * (radius * 1.1);
+      const fz = 0.0 + Math.sin(angle) * radius;
       fl.position.set(
-        -0.55 + Math.cos(angle) * radius,
-        1.05 + Math.random() * 0.35,
-        0.16 + Math.sin(angle) * radius
+        fx,
+        1.03 + Math.random() * 0.35,
+        fz
       );
       fl.userData = {
-        baseX: -0.55 + Math.cos(angle) * radius,
-        baseZ: 0.16 + Math.sin(angle) * radius,
-        baseY: 1.05,
-        speedY: 1.2 + Math.random() * 1.8,
-        swaySpeed: 10 + Math.random() * 12,
+        baseX: fx,
+        baseZ: fz,
+        baseY: 1.03,
+        speedY: 1.3 + Math.random() * 1.9,
+        swaySpeed: 11 + Math.random() * 12,
         phase: Math.random() * Math.PI * 2,
-        scaleX: 0.7 + Math.random() * 0.7,
-        scaleY: 0.9 + Math.random() * 0.9,
+        scaleX: 0.8 + Math.random() * 0.7,
+        scaleY: 1.0 + Math.random() * 0.9,
       };
       fireGroup.add(fl);
       fireMeshes.push(fl);
     }
 
-    // B. Fagulhas e Centelhas Incandescentes Espiralantes (Flying Embers)
+    // C. Fagulhas e Centelhas Incandescentes Espiralantes (Flying Embers)
     const sparkMat = new THREE.MeshBasicMaterial({
       map: sparkTexture,
       transparent: true,
@@ -2384,30 +2499,30 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    const sparkGeo = new THREE.PlaneGeometry(0.04, 0.04);
+    const sparkGeo = new THREE.PlaneGeometry(0.045, 0.045);
     const sparkMeshes: THREE.Mesh[] = [];
 
-    const sparkCount = 28;
+    const sparkCount = 30;
     for (let i = 0; i < sparkCount; i++) {
       const spk = new THREE.Mesh(sparkGeo, sparkMat);
       spk.position.set(
         -0.55 + (Math.random() - 0.5) * 0.35,
-        1.10 + Math.random() * 0.8,
-        0.16 + (Math.random() - 0.5) * 0.30
+        1.08 + Math.random() * 0.8,
+        0.0 + (Math.random() - 0.5) * 0.26
       );
       spk.userData = {
-        baseY: 1.05,
-        speedY: 2.2 + Math.random() * 2.6,
-        spiralSpeed: 8 + Math.random() * 8,
+        baseY: 1.04,
+        speedY: 2.2 + Math.random() * 2.8,
+        spiralSpeed: 9 + Math.random() * 8,
         phase: Math.random() * Math.PI * 2,
-        radius: 0.05 + Math.random() * 0.15,
+        radius: 0.05 + Math.random() * 0.16,
         maxH: 2.25,
       };
       fireGroup.add(spk);
       sparkMeshes.push(spk);
     }
 
-    // C. Fumaça Volumétrica Acinzentada com Expansão e Vórtice
+    // D. Fumaça Volumétrica Acinzentada com Expansão e Vórtice
     const smokeGroup = new THREE.Group();
     scene.add(smokeGroup);
     smokeParticlesGroupRef.current = smokeGroup;
@@ -2419,7 +2534,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       depthWrite: false,
       side: THREE.DoubleSide,
     });
-    const smokeGeo = new THREE.PlaneGeometry(0.36, 0.36);
+    const smokeGeo = new THREE.PlaneGeometry(0.38, 0.38);
     const smokeMeshes: THREE.Mesh[] = [];
 
     const smokeCount = 36;
@@ -2428,11 +2543,11 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       sm.position.set(
         -0.55 + (Math.random() - 0.5) * 0.45,
         1.25 + Math.random() * 0.9,
-        0.16 + (Math.random() - 0.5) * 0.35
+        0.0 + (Math.random() - 0.5) * 0.30
       );
       sm.userData = {
         baseY: 1.25,
-        speedY: 0.65 + Math.random() * 0.85,
+        speedY: 0.70 + Math.random() * 0.85,
         rotSpeed: (Math.random() - 0.5) * 0.8,
         maxH: 2.30,
       };
@@ -2440,39 +2555,63 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       smokeMeshes.push(sm);
     }
 
-    // Foam Spray
+    // Foam Spray (Descarga de Saponificante Classe K pelos 2 Bicos da Fritadeira)
     const sprayGroup = new THREE.Group();
     scene.add(sprayGroup);
     foamSprayGroupRef.current = sprayGroup;
 
     const sprayCount = 80;
-    const sprayGeo = new THREE.SphereGeometry(0.025, 8, 8);
+    const sprayGeo = new THREE.SphereGeometry(0.022, 8, 8);
     const sprayMeshes: THREE.Mesh[] = [];
 
     for (let i = 0; i < sprayCount; i++) {
-      const sp = new THREE.Mesh(sprayGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 }));
-      sp.position.set(-0.55, 2.07, 0.20);
+      const sp = new THREE.Mesh(sprayGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.92 }));
+      const isLeftNozzle = i % 2 === 0;
+      const nozzleX = isLeftNozzle ? -0.70 : -0.38;
+      const nozzleZ = 0.08;
+      const startY = 2.11; // Altura do orifício do bico aspersor
+      sp.position.set(nozzleX, startY, nozzleZ);
       sp.userData = {
-        origY: 2.07,
-        speed: 3.5 + Math.random() * 2.0,
-        spread: (Math.random() - 0.5) * 0.4,
+        origX: nozzleX,
+        origY: startY,
+        origZ: nozzleZ,
+        speed: 3.8 + Math.random() * 2.2,
+        spreadX: (Math.random() - 0.5) * 0.16,
+        spreadZ: (Math.random() - 0.5) * 0.16,
       };
       sprayGroup.add(sp);
       sprayMeshes.push(sp);
     }
 
-    // CO2 Fog
+    // CO2 Fog (Injeção de Gás CO2 no Duto Predial)
     const co2Group = new THREE.Group();
     scene.add(co2Group);
     co2FogGroupRef.current = co2Group;
 
-    const co2Count = 35;
-    const co2Geo = new THREE.SphereGeometry(0.16, 8, 8);
+    const co2Count = 45;
+    const co2Geo = new THREE.SphereGeometry(0.14, 8, 8);
     const co2Meshes: THREE.Mesh[] = [];
 
     for (let i = 0; i < co2Count; i++) {
-      const c = new THREE.Mesh(co2Geo, new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.4 }));
-      c.position.set((Math.random() - 0.5) * 0.4, 2.7 + Math.random() * 0.5, (Math.random() - 0.5) * 0.3);
+      const c = new THREE.Mesh(
+        co2Geo,
+        new THREE.MeshBasicMaterial({ color: 0xf1f5f9, transparent: true, opacity: 0.65, depthWrite: false })
+      );
+      const isPipeStream = i < 15;
+      const prog = i / 15;
+      const px = isPipeStream ? THREE.MathUtils.lerp(0.43, 0.0, prog) : (Math.random() - 0.5) * 0.35;
+      const py = isPipeStream ? 3.36 + (Math.random() - 0.5) * 0.05 : 2.9 + Math.random() * 0.85;
+      const pz = (Math.random() - 0.5) * 0.28;
+      c.position.set(px, py, pz);
+      c.userData = {
+        baseX: px,
+        baseY: py,
+        baseZ: pz,
+        isPipeStream,
+        speedX: isPipeStream ? -1.8 - Math.random() * 1.2 : (Math.random() - 0.5) * 0.3,
+        speedY: 0.9 + Math.random() * 1.4,
+        origScale: 0.6 + Math.random() * 0.8,
+      };
       co2Group.add(c);
       co2Meshes.push(c);
     }
@@ -2588,13 +2727,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         camera.lookAt(targetCamLook.current);
       }
 
-      // --- CENÁRIO 1: INCÊNDIO REAL (6 ETAPAS CINEMATOGRÁFICAS - 15 SEGUNDOS TOTAIS) ---
+      // --- CENÁRIO 1: INCÊNDIO REAL (8 ETAPAS CINEMATOGRÁFICAS SINCRONIZADAS COM A CÂMERA) ---
       if (activeScenarioRef.current === 'real_fire') {
         let zoomIdx = 0;
         const isMobile = window.innerWidth < 768;
 
         if (curTime < 2.5) {
-          // ETAPA 1: STANDBY (0.0s - 2.5s)
+          // ETAPA 1: STANDBY (0.0s - 2.5s) - Visão ampla da cozinha
           zoomIdx = 0;
           setSimStage('STANDBY');
           simStageRef.current = 'STANDBY';
@@ -2608,7 +2747,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             countdown: 10,
           });
         } else if (curTime < 5.0) {
-          // ETAPA 2: PRINCÍPIO DE INCÊNDIO (2.5s - 5.0s)
+          // ETAPA 2: PRINCÍPIO DE INCÊNDIO (2.5s - 5.0s) - Câmera na fritadeira (fogo surge após a câmera chegar)
           zoomIdx = 1;
           setSimStage('HEATING');
           simStageRef.current = 'HEATING';
@@ -2622,7 +2761,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             countdown: 10,
           });
         } else if (curTime < 7.5) {
-          // ETAPA 3: SENSOR BLINDADO 145°C DETECTA CALOR (5.0s - 7.5s)
+          // ETAPA 3: SENSOR BLINDADO 145°C (5.0s - 7.5s) - Câmera na coifa/sensor (sensor aciona aos 5.5s)
           zoomIdx = 2;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
@@ -2632,74 +2771,92 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             temp: 145,
             gasStatus: 'ABERTO',
             exhaustStatus: 'LIGADO',
-            systemStatus: 'SENSOR 145°C DETECTADO',
+            systemStatus: curTime >= 5.5 ? 'SENSOR 145°C DETECTADO' : 'MONITORANDO COIFA',
             countdown: 8,
           });
         } else if (curTime < 10.0) {
-          // ETAPA 4: DAMPER CORTA-FOGO 90° NO DUTO (7.5s - 10.0s)
+          // ETAPA 4: DAMPER CORTA-FOGO 90° (7.5s - 10.0s) - Câmera no duto (damper bate fechado aos 8.0s)
           zoomIdx = 3;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
-          setCountdown(5);
-          countdownRef.current = 5;
+          setCountdown(6);
+          countdownRef.current = 6;
           setTelemetry({
             temp: 340,
             gasStatus: 'ABERTO',
-            exhaustStatus: 'DAMPER FECHADO (90°)',
-            systemStatus: 'DUTO ISOLADO (NBR 14518)',
-            countdown: 5,
+            exhaustStatus: curTime >= 8.0 ? 'DAMPER FECHADO (90°)' : 'LIGADO',
+            systemStatus: curTime >= 8.0 ? 'DUTO ISOLADO (NBR 14518)' : 'FECHANDO DAMPER',
+            countdown: 6,
           });
         } else if (curTime < 12.5) {
-          // ETAPA 5: CENTRAL IHM & CORTE DE GÁS / ELÉTRICO (10.0s - 12.5s)
+          // ETAPA 5: QUADRO ELÉTRICO INDUSTRIAL (10.0s - 12.5s) - Câmera no quadro cinza (luzes apagam aos 10.5s)
           zoomIdx = 4;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
-          const cDown = Math.max(1, Math.round(3 - ((curTime - 10.0) / 2.5) * 2));
+          setCountdown(4);
+          countdownRef.current = 4;
+          setTelemetry({
+            temp: 350,
+            gasStatus: 'ABERTO',
+            exhaustStatus: curTime >= 10.5 ? 'INTERTRAVADO' : 'DAMPER FECHADO (90°)',
+            systemStatus: curTime >= 10.5 ? 'EXAUSTÃO DESENERGIZADA' : 'QUADRO DE COMANDO',
+            countdown: 4,
+          });
+        } else if (curTime < 15.0) {
+          // ETAPA 6: CENTRAL IHM & CORTE DE GÁS (12.5s - 15.0s) - Câmera na central e fogão (gás corta aos 13.0s)
+          zoomIdx = 5;
+          setSimStage('FIRE_ALARM');
+          simStageRef.current = 'FIRE_ALARM';
+          const cDown = Math.max(1, Math.round(3 - ((curTime - 12.5) / 2.5) * 2));
           setCountdown(cDown);
           countdownRef.current = cDown;
           setTelemetry({
             temp: 360,
-            gasStatus: 'CORTADO',
+            gasStatus: curTime >= 13.0 ? 'CORTADO' : 'ABERTO',
             exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA & CORTE DE GÁS',
+            systemStatus: curTime >= 13.0 ? 'GÁS CORTADO & ALARME' : 'CENTRAL OUTFIRE VTS',
             countdown: cDown,
           });
 
-          if (!hasPlayedAlarmAudioRef.current && !isMutedRef.current) {
+          if (curTime >= 13.0 && !hasPlayedAlarmAudioRef.current && !isMutedRef.current) {
             hasPlayedAlarmAudioRef.current = true;
             startOfficialAlarmAudioCycle();
           }
 
-          if (!hasPlayedGasCutoffRef.current && !isMutedRef.current) {
+          if (curTime >= 13.0 && !hasPlayedGasCutoffRef.current && !isMutedRef.current) {
             hasPlayedGasCutoffRef.current = true;
             soundEffects.playGasCutoff();
           }
+        } else if (curTime < 17.5) {
+          // ETAPA 7: SAPONIFICANTE CLASSE K (15.0s - 17.5s) - Câmera nos bicos e fritadeira (aspersores disparam aos 15.5s)
+          zoomIdx = 6;
+          setSimStage('SUPPRESSION');
+          simStageRef.current = 'SUPPRESSION';
+          setCountdown(0);
+          countdownRef.current = 0;
+          const coolProg = (curTime - 15.0) / 2.5;
+          const t = Math.max(80, Math.round(360 - coolProg * 280));
+          setTelemetry({
+            temp: t,
+            gasStatus: 'CORTADO',
+            exhaustStatus: 'INTERTRAVADO',
+            systemStatus: curTime >= 15.5 ? 'SAPONIFICANTE ATIVO' : 'ENQUADRANDO BICOS',
+            countdown: 0,
+          });
         } else {
-          // ETAPA 6: SUPRESSÃO ATIVA E EXTINÇÃO TOTAL (12.5s - 15.0s)
-          zoomIdx = 5;
-          if (curTime < 14.0) {
-            setSimStage('SUPPRESSION');
-            simStageRef.current = 'SUPPRESSION';
-          } else {
-            setSimStage('EXTINGUISHED');
-            simStageRef.current = 'EXTINGUISHED';
-          }
-
+          // ETAPA 8: INJEÇÃO DE CO2 NO DUTO & EXTINÇÃO TOTAL (17.5s - 20.0s) - Câmera no duto e cilindro de CO2
+          zoomIdx = 7;
+          setSimStage('EXTINGUISHED');
+          simStageRef.current = 'EXTINGUISHED';
           setCountdown(0);
           countdownRef.current = 0;
           setTelemetry({
             temp: 38,
             gasStatus: 'CORTADO',
             exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'INCÊNDIO EXTINTO',
+            systemStatus: 'DUTO INERTIZADO & EXTINÇÃO TOTAL',
             countdown: 0,
           });
-
-          if (!hasPlayedSuppressionRef.current && !isMutedRef.current) {
-            hasPlayedSuppressionRef.current = true;
-            soundEffects.playSuppressionHiss(3.5);
-          }
-          stopAllAudioCycles();
         }
 
         setActiveZoomIndex(zoomIdx);
@@ -2725,13 +2882,20 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
       // 1. Chamas e Fumaça da Fritadeira (ESTRITAMENTE NO CENÁRIO DE INCÊNDIO REAL!)
       // No disparo acidental por pratos, NÃO HÁ FOGO e NÃO HÁ FUMAÇA na cozinha!
-      if (isRealFire && (stage === 'HEATING' || stage === 'FIRE_ALARM')) {
+      // Inicia aos 2.9s quando a câmera foca na fritadeira e diminui na supressão aos 15.5s
+      const isFireActive = isRealFire && curTime >= 2.9 && curTime < 17.0;
+      if (isFireActive) {
         fireGroup.visible = true;
         smokeGroup.visible = true;
-        foamSprayGroupRef.current!.visible = false;
-        co2FogGroupRef.current!.visible = false;
 
-        const intensity = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (curTime - 2.5) / 2.5);
+        let intensity = 1.0;
+        if (curTime < 5.0) {
+          // Curva suave de início de ignição ao focalizar a fritadeira
+          intensity = Math.max(0.1, (curTime - 2.9) / 2.1);
+        } else if (curTime >= 15.5) {
+          // Extinção acelerada das chamas com saponificante cobrindo o óleo
+          intensity = Math.max(0.01, 1.0 - ((curTime - 15.5) / 1.4));
+        }
 
         // Luz dinâmica estocástica hiper-realista de chamas vivas (flicker rico)
         if (fireLightRef.current) {
@@ -2740,31 +2904,42 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           fireLightRef.current.color.setHex(Math.sin(time * 15) > 0 ? 0xffaa00 : 0xff4500);
         }
 
-        // Animação das labaredas ascendentes com ondulação orgânica e estiramento de calor
+        // A. Núcleos volumétricos incandescentes na superfície do óleo
+        coreMeshes.forEach((cm) => {
+          cm.quaternion.copy(camera.quaternion);
+          cm.visible = true;
+          const pulse = 0.90 + Math.sin(time * cm.userData.pulseSpeed + cm.userData.phase) * 0.15;
+          cm.scale.setScalar(pulse * intensity);
+          (cm.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 0.92 * intensity);
+        });
+
+        // B. Animação das labaredas ascendentes com billboarding dinâmico, ondulação orgânica e estiramento térmico
         fireMeshes.forEach((mesh) => {
+          mesh.quaternion.copy(camera.quaternion); // Billboarding: chamas sempre volumétricas viradas para a câmera
           mesh.visible = true;
           mesh.position.y += mesh.userData.speedY * delta;
-          mesh.position.x = mesh.userData.baseX + Math.sin(time * mesh.userData.swaySpeed + mesh.userData.phase) * 0.04;
-          mesh.position.z = mesh.userData.baseZ + Math.cos(time * mesh.userData.swaySpeed * 0.8 + mesh.userData.phase) * 0.03;
-          mesh.rotation.z = Math.sin(time * mesh.userData.swaySpeed + mesh.userData.phase) * 0.18;
+          mesh.position.x = mesh.userData.baseX + Math.sin(time * mesh.userData.swaySpeed + mesh.userData.phase) * 0.045;
+          mesh.position.z = mesh.userData.baseZ + Math.cos(time * mesh.userData.swaySpeed * 0.85 + mesh.userData.phase) * 0.035;
+          mesh.rotation.z = Math.sin(time * mesh.userData.swaySpeed + mesh.userData.phase) * 0.20;
 
-          const prog = (mesh.position.y - mesh.userData.baseY) / 0.85;
+          const prog = (mesh.position.y - mesh.userData.baseY) / 0.90;
           if (prog < 1.0) {
-            mesh.scale.x = Math.max(0.01, (1 - prog * 0.65) * mesh.userData.scaleX * intensity);
-            mesh.scale.y = Math.max(0.01, (1 + prog * 0.45) * mesh.userData.scaleY * intensity);
-            (mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, (1 - prog * 0.85) * 0.95);
+            mesh.scale.x = Math.max(0.01, (1 - prog * 0.60) * mesh.userData.scaleX * intensity);
+            mesh.scale.y = Math.max(0.01, (1 + prog * 0.50) * mesh.userData.scaleY * intensity);
+            (mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, (1 - prog * 0.82) * 0.96);
           } else {
             mesh.position.y = mesh.userData.baseY;
           }
         });
 
-        // Animação das fagulhas / centelhas incandescentes espiralando na convecção térmica
+        // C. Animação das fagulhas / centelhas incandescentes espiralando na convecção térmica
         sparkMeshes.forEach((spk) => {
-          spk.visible = true;
+          spk.quaternion.copy(camera.quaternion);
+          spk.visible = curTime < 15.5; // fagulhas somem imediatamente ao descarregar saponificante
           spk.position.y += spk.userData.speedY * delta;
           spk.position.x = -0.55 + Math.cos(time * spk.userData.spiralSpeed + spk.userData.phase) * spk.userData.radius;
-          spk.position.z = 0.16 + Math.sin(time * spk.userData.spiralSpeed + spk.userData.phase) * spk.userData.radius;
-          const prog = (spk.position.y - spk.userData.baseY) / 1.2;
+          spk.position.z = 0.0 + Math.sin(time * spk.userData.spiralSpeed + spk.userData.phase) * spk.userData.radius;
+          const prog = (spk.position.y - spk.userData.baseY) / 1.25;
           spk.scale.setScalar(Math.max(0.01, (1 - prog) * intensity));
 
           if (spk.position.y > spk.userData.maxH) {
@@ -2772,82 +2947,98 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           }
         });
 
-        // Animação da fumaça volumétrica com expansão e rotação
+        // D. Animação da fumaça volumétrica com expansão e rotação
         smokeMeshes.forEach((sm) => {
+          sm.quaternion.copy(camera.quaternion);
           sm.visible = true;
           sm.position.y += sm.userData.speedY * delta;
           sm.rotation.z += sm.userData.rotSpeed * delta;
           const prog = (sm.position.y - sm.userData.baseY) / (sm.userData.maxH - sm.userData.baseY);
-          sm.scale.setScalar(Math.max(0.1, (0.5 + prog * 1.5) * intensity));
-          (sm.material as THREE.MeshBasicMaterial).opacity = Math.max(0.05, (1 - prog * 0.7) * 0.40);
+          sm.scale.setScalar(Math.max(0.1, (0.5 + prog * 1.6) * intensity));
+          (sm.material as THREE.MeshBasicMaterial).opacity = Math.max(0.05, (1 - prog * 0.7) * 0.42);
 
           if (sm.position.y > sm.userData.maxH) {
             sm.position.y = sm.userData.baseY;
             sm.position.x = -0.55 + (Math.random() - 0.5) * 0.45;
           }
         });
-      } else if (isRealFire && stage === 'SUPPRESSION') {
-        fireGroup.visible = true;
+      } else {
+        fireGroup.visible = false;
+        smokeGroup.visible = false;
+        if (fireLightRef.current) fireLightRef.current.intensity = 0;
+      }
+
+      // 7. Saponificante Classe K: solta quando a câmera focar nos bicos e na fritadeira (15.5s a 17.5s)
+      const isSaponificanteSpraying = isRealFire && curTime >= 15.5 && curTime < 18.0;
+      if (isSaponificanteSpraying) {
         foamSprayGroupRef.current!.visible = true;
-        co2FogGroupRef.current!.visible = true;
-
-        fireMeshes.forEach((mesh) => {
-          mesh.scale.multiplyScalar(0.90);
-          if (mesh.scale.x < 0.02) mesh.visible = false;
-        });
-        sparkMeshes.forEach((spk) => {
-          spk.visible = false;
-        });
-        smokeMeshes.forEach((sm) => {
-          sm.position.y += sm.userData.speedY * delta * 1.2;
-          sm.scale.multiplyScalar(0.97);
-        });
-        if (fireLightRef.current) {
-          fireLightRef.current.intensity = Math.max(0, fireLightRef.current.intensity - delta * 4);
-        }
-
-        // Foam spray streams
         sprayMeshes.forEach((sp, idx) => {
           sp.visible = true;
           sp.position.y -= sp.userData.speed * delta;
-          sp.position.x += Math.sin(time * 15 + idx) * 0.01;
+          sp.position.x += Math.sin(time * 18 + idx) * 0.008;
+          sp.position.z += Math.cos(time * 15 + idx) * 0.008;
           if (sp.position.y < 1.05) {
             sp.position.y = sp.userData.origY;
-            sp.position.x = -0.55 + sp.userData.spread;
+            sp.position.x = sp.userData.origX + sp.userData.spreadX;
+            sp.position.z = sp.userData.origZ + sp.userData.spreadZ;
           }
         });
 
-        // Expand foam blanket
         if (foamBlanketMeshRef.current) {
           foamBlanketMeshRef.current.visible = true;
-          foamBlanketMeshRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.08);
+          foamBlanketMeshRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.12);
         }
 
-        // CO2 fog
-        co2Meshes.forEach((c, idx) => {
-          c.visible = true;
-          c.position.y += Math.sin(time * 3 + idx) * 0.004;
-          c.position.x += Math.cos(time * 2 + idx) * 0.004;
-        });
-      } else if (isRealFire && stage === 'EXTINGUISHED') {
-        fireGroup.visible = false;
-        smokeGroup.visible = false;
-        foamSprayGroupRef.current!.visible = false;
-        co2FogGroupRef.current!.visible = false;
-        if (fireLightRef.current) fireLightRef.current.intensity = 0;
-
-        if (foamBlanketMeshRef.current) {
-          foamBlanketMeshRef.current.visible = true;
-          foamBlanketMeshRef.current.scale.set(1, 1, 1);
+        if (!hasPlayedSuppressionRef.current && !isMutedRef.current) {
+          hasPlayedSuppressionRef.current = true;
+          soundEffects.playSuppressionHiss(2.5);
         }
       } else {
-        // STANDBY ou DISPARO ACIDENTAL (ZERO FOGO, ZERO FUMAÇA, ZERO ESPUMA!)
-        fireGroup.visible = false;
-        smokeGroup.visible = false;
         foamSprayGroupRef.current!.visible = false;
+        if (isRealFire && curTime >= 18.0 && foamBlanketMeshRef.current) {
+          foamBlanketMeshRef.current.visible = true;
+          foamBlanketMeshRef.current.scale.set(1, 1, 1);
+        } else if (!isRealFire || curTime < 15.5) {
+          if (foamBlanketMeshRef.current) foamBlanketMeshRef.current.visible = false;
+        }
+      }
+
+      // 8. Injeção de CO2 no Duto: a câmera vai para o duto e o CO2 e solta o CO2 quando a câmera estiver nele (18.0s em diante)
+      const isCo2Discharging = isRealFire && curTime >= 18.0;
+      if (isCo2Discharging) {
+        co2FogGroupRef.current!.visible = true;
+
+        co2Meshes.forEach((c, idx) => {
+          c.visible = true;
+          if (c.userData.isPipeStream) {
+            // Jato veloz disparando do bocal da tubulação diretamente para dentro do duto
+            c.position.x += c.userData.speedX * delta;
+            c.scale.multiplyScalar(1.03);
+            if (c.position.x < -0.12) {
+              c.position.x = 0.43;
+              c.position.y = 3.36 + (Math.random() - 0.5) * 0.05;
+              c.scale.setScalar(c.userData.origScale);
+            }
+          } else {
+            // Nuvem de CO2 em expansão turbulenta dentro da coluna do duto
+            c.position.y += c.userData.speedY * delta;
+            c.position.x = c.userData.baseX + Math.sin(time * 8 + idx) * 0.04;
+            c.position.z = c.userData.baseZ + Math.cos(time * 8 + idx) * 0.04;
+            if (c.position.y > 3.85) {
+              c.position.y = 2.85;
+            }
+          }
+        });
+
+        if (!hasPlayedCo2DischargeRef.current) {
+          hasPlayedCo2DischargeRef.current = true;
+          if (!isMutedRef.current) {
+            soundEffects.playSuppressionHiss(2.2);
+          }
+          stopAllAudioCycles();
+        }
+      } else {
         co2FogGroupRef.current!.visible = false;
-        if (fireLightRef.current) fireLightRef.current.intensity = 0;
-        if (foamBlanketMeshRef.current) foamBlanketMeshRef.current.visible = false;
       }
 
       // Flash da Sirene Estroboscópica da Central (Ativa em Alarme Real E em Alarme Acidental!)
@@ -2875,19 +3066,19 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 5 aos 10.0s em Incêndio Real)
+      // 6. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás aos 13.0s quando a câmera foca na central/fogão)
       if (blueFlameGroupRef.current) {
-        const isGasCut = isRealFire && (curTime >= 10.0 || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED');
+        const isGasCut = isRealFire && (curTime >= 13.0 || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED');
         blueFlameGroupRef.current.visible = !isGasCut;
         if (blueFlameLightRef.current) {
           blueFlameLightRef.current.intensity = isGasCut ? 0 : 0.75 + Math.sin(time * 30) * 0.25;
         }
       }
 
-      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 5.0s APENAS em Incêndio Real!)
+      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 5.5s quando a câmera foca no sensor!)
       if (sensorGlowMeshRef.current) {
         const mat = sensorGlowMeshRef.current.material as THREE.MeshStandardMaterial;
-        const isSensorTripped = isRealFire && curTime >= 5.0 && curTime < 12.5;
+        const isSensorTripped = isRealFire && curTime >= 5.5 && curTime < 17.5;
         if (isSensorTripped) {
           mat.emissive.setHex(0xef4444);
           mat.emissiveIntensity = 1.0 + Math.sin(time * 18) * 0.8;
@@ -2897,8 +3088,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 4. Damper Corta-Fogo Motorizado no Duto: fecha e toca som quando o damper estiver visível na imagem (curTime >= 7.8s)
-      const isDamperClosed = isRealFire && curTime >= 7.8;
+      // 4. Damper Corta-Fogo Motorizado no Duto: fecha e toca som quando o damper estiver visível na imagem aos 8.0s!
+      const isDamperClosed = isRealFire && curTime >= 8.0;
 
       if (damperFlapMeshRef.current) {
         const targetRot = isDamperClosed ? 0 : Math.PI / 2;
@@ -2931,17 +3122,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // Som mecânico do damper batendo: EXECUTADO SOMENTE QUANDO O DAMPER ESTIVER VISÍVEL NA IMAGEM (7.8s)
-      if (isRealFire && curTime >= 7.8 && !hasPlayedDamperSnapRef.current) {
+      // Som mecânico do damper batendo: EXECUTADO SOMENTE QUANDO A CÂMERA FOCAR NO DAMPER (8.0s)
+      if (isRealFire && curTime >= 8.0 && !hasPlayedDamperSnapRef.current) {
         hasPlayedDamperSnapRef.current = true;
         if (!isMutedRef.current) {
           soundEffects.playDamperSnap();
         }
       }
 
-      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes apagam aos 10.0s na Etapa 5 em Incêndio Real)
+      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes apagam aos 10.5s quando a câmera foca no quadro!)
       if (panelLedExhaustRef.current && panelLedFryerRef.current && panelLedAmberRef.current) {
-        const isInterlocked = isRealFire && curTime >= 10.0;
+        const isInterlocked = isRealFire && curTime >= 10.5;
         const matExhaust = panelLedExhaustRef.current.material as THREE.MeshStandardMaterial;
         const matFryer = panelLedFryerRef.current.material as THREE.MeshStandardMaterial;
         const matAmber = panelLedAmberRef.current.material as THREE.MeshStandardMaterial;
@@ -2958,6 +3149,14 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
           matAmber.color.setHex(0xf59e0b);
           matAmber.emissive.setHex(0xf59e0b);
           matAmber.emissiveIntensity = 1.4 + Math.sin(time * 12) * 0.6;
+
+          // Som mecânico de desarme do contator elétrico na câmera
+          if (isRealFire && !hasPlayedPanelCutoffRef.current) {
+            hasPlayedPanelCutoffRef.current = true;
+            if (!isMutedRef.current) {
+              soundEffects.playClackImpact();
+            }
+          }
         } else {
           matExhaust.color.setHex(0x22c55e);
           matExhaust.emissive.setHex(0x22c55e);
