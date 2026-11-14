@@ -232,6 +232,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
   const [cinematicBadge, setCinematicBadge] = useState<{ title: string; desc: string; iconType: string } | null>(null);
   const [activeZoomIndex, setActiveZoomIndex] = useState<number>(0);
   const [showAbortedModal, setShowAbortedModal] = useState<boolean>(false);
+  const [showRealFireWarningModal, setShowRealFireWarningModal] = useState<boolean>(false);
 
   // Pop-up Principal de Escolha de Cenários (Incêndio Real vs Disparo Falso)
   const [showEntryModal, setShowEntryModal] = useState<boolean>(false);
@@ -418,6 +419,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setAccidentalStep('idle');
     accidentalStepRef.current = 'idle';
     setShowAbortedModal(false);
+    setShowRealFireWarningModal(false);
     hasPlayedDamperSnapRef.current = false;
     setActiveCameraView('geral');
     setManualAdvanced(false);
@@ -507,6 +509,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     accidentalStepRef.current = 'wide_kitchen';
 
     setShowAbortedModal(false);
+    setShowRealFireWarningModal(false);
     setActiveCameraView('geral');
     setManualAdvanced(false);
     manualAdvancedRef.current = false;
@@ -573,18 +576,28 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     isPlayingRef.current = true;
   }, [stopAllAudioCycles]);
 
+  // --- TENTATIVA DE ABORTAR EM INCÊNDIO REAL: ADVERTÊNCIA CRÍTICA ---
+  const handleRealFireAbortAttempt = useCallback(() => {
+    soundEffects.playBuzzError();
+    setIsPlaying(false);
+    isPlayingRef.current = false;
+    setShowRealFireWarningModal(true);
+  }, []);
+
   // --- ABORTAR DISPARO (ANULAR DISPARO EM FALSO E POUPAR R$ 15.000) ---
   const handleAbortDisparo = useCallback(() => {
+    // Se for incêndio real, BLOQUEIA e abre o modal de aviso crítico!
+    if (activeScenarioRef.current === 'real_fire') {
+      handleRealFireAbortAttempt();
+      return;
+    }
+
     stopAllAudioCycles();
     soundEffects.playSuccessChime();
 
-    if (activeScenarioRef.current === 'accidental_discharge') {
-      setAccidentalStep('aborted');
-      accidentalStepRef.current = 'aborted';
-      setShowAbortedModal(true);
-    } else {
-      setShowAbortedModal(true);
-    }
+    setAccidentalStep('aborted');
+    accidentalStepRef.current = 'aborted';
+    setShowAbortedModal(true);
 
     const canvas = centralScreenCanvasRef.current;
     if (canvas) {
@@ -686,6 +699,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setAccidentalStep('idle');
     accidentalStepRef.current = 'idle';
     setShowAbortedModal(false);
+    setShowRealFireWarningModal(false);
     hasPlayedDamperSnapRef.current = false;
 
     setSimStage('STANDBY');
@@ -2509,11 +2523,13 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             handleManualAdvanceDischarge();
           }
         } else if (root?.userData?.interactiveType === 'central') {
-          // Central Outfire 3D: toque na tela anula disparo em falso!
+          // Central Outfire 3D:
           if (activeScenarioRef.current === 'accidental_discharge' && accidentalStepRef.current === 'alarm_waiting_click') {
+            // No disparo acidental, toque na tela anula disparo em falso e poupa R$ 15.000!
             handleAbortDisparo();
-          } else if (simStageRef.current === 'FIRE_ALARM') {
-            handleAbortDisparo();
+          } else if (activeScenarioRef.current === 'real_fire' && (simStageRef.current === 'FIRE_ALARM' || simStageRef.current === 'HEATING')) {
+            // Em incêndio real, abortar é estritamente proibido! Abre modal de perigo real!
+            handleRealFireAbortAttempt();
           } else {
             setCameraView('central');
           }
@@ -3679,6 +3695,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                     type="button"
                     onClick={() => {
                       setShowAbortedModal(false);
+    setShowRealFireWarningModal(false);
                       startRealFireScenario();
                     }}
                     className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-amber-500 to-[#d4af37] text-black font-black text-xs uppercase tracking-wide shadow-glow-gold hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2"
@@ -3701,12 +3718,106 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
                     type="button"
                     onClick={() => {
                       setShowAbortedModal(false);
+                      setShowRealFireWarningModal(false);
                       startAccidentalDischargeScenario();
                     }}
                     className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 text-xs font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Repetir</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL DE ADVERTÊNCIA CRÍTICA: NUNCA ABORTAR EM INCÊNDIO REAL */}
+          {showRealFireWarningModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-fadeIn pointer-events-auto">
+              <div className="relative w-full max-w-2xl bg-[#090b0e] border-2 border-red-500 rounded-3xl p-5 sm:p-7 shadow-[0_0_80px_rgba(239,68,68,0.7)] text-white overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowRealFireWarningModal(false);
+                    setIsPlaying(true);
+                    isPlayingRef.current = true;
+                  }}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white flex items-center justify-center text-sm transition-all cursor-pointer z-10"
+                  title="Fechar advertência e retomar combate"
+                >
+                  ✕
+                </button>
+
+                <div className="text-center mb-5">
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-600/25 border border-red-500/80 text-red-300 text-xs font-black uppercase tracking-wider mb-2.5 animate-pulse">
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    <span>Ação Bloqueada: Incêndio Real Confirmado</span>
+                  </div>
+                  <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+                    🚫 Você <span className="text-red-500 underline decoration-red-500/50">NÃO deve fazer isso</span>! <br className="hidden sm:inline" />
+                    <span className="text-amber-400">Existe um incêndio real em andamento!</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-300 mt-2 max-w-lg mx-auto">
+                    O cancelamento eletrônico foi criado exclusivamente para <strong>disparos acidentais</strong> (louças ou batidas). Em incêndio real, abortar o sistema colocaria vidas em risco e destruiria o restaurante!
+                  </p>
+                </div>
+
+                {/* Comparativo de Risco vs Ação do Sistema */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-red-950/40 border border-red-500/40 flex flex-col gap-2">
+                    <span className="text-xs font-black uppercase text-red-400 flex items-center gap-1.5">
+                      <Flame className="w-4 h-4 text-red-400 shrink-0" />
+                      Por Que Não Abortar?
+                    </span>
+                    <p className="text-[11px] text-gray-300 leading-relaxed">
+                      • Óleo vegetal/animal superaquecido (&gt;340°C) <strong>reinflama instantaneamente</strong>.<br />
+                      • As chamas sobem pelos filtros e invadem o <strong>duto predial</strong>.<br />
+                      • Abortar desativa a supressão e permite que o fogo destrua a edificação.<br />
+                      • <strong>Perigo iminente de explosão e perdas irreparáveis.</strong>
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-950/30 border border-amber-500/50 flex flex-col gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                    <span className="text-xs font-black uppercase text-amber-300 flex items-center gap-1.5">
+                      <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+                      Proteção Automática Outfire (NBR 14518)
+                    </span>
+                    <p className="text-[11px] text-gray-200 leading-relaxed">
+                      • <strong>Damper 90°</strong> fecha o duto impedindo propagação ao prédio.<br />
+                      • Válvula solenoide <strong>corta o gás combustível GN/GLP</strong>.<br />
+                      • Quadro elétrico desenergiza a exaustão para cessar oxigênio.<br />
+                      • <strong>Saponificante Classe K</strong> extingue as chamas e resfria o óleo.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowRealFireWarningModal(false);
+                      handleManualAdvanceDischarge();
+                      setIsPlaying(true);
+                      isPlayingRef.current = true;
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 text-white font-black text-xs uppercase tracking-wide shadow-[0_0_25px_rgba(239,68,68,0.8)] hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <AlertOctagon className="w-4 h-4 fill-white text-red-600" />
+                    <span>⚡ Adiantar Extinção Imediata</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowRealFireWarningModal(false);
+                      setIsPlaying(true);
+                      isPlayingRef.current = true;
+                    }}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-gray-200 font-bold text-xs uppercase tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <Play className="w-4 h-4 fill-current ml-0.5" />
+                    <span>Continuar Simulação de Combate</span>
                   </button>
                 </div>
               </div>

@@ -308,6 +308,32 @@ class SoundEffectsController {
     noise.start(ctx.currentTime);
     noise.stop(ctx.currentTime + 0.13);
   }
+
+  // 8. Som de Advertência / Ação Proibida (Buzzer duplo grave)
+  public playBuzzError() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const playBeep = (delay: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(160, ctx.currentTime + delay);
+      gain.gain.setValueAtTime(0.22, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.16);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.18);
+    };
+
+    playBeep(0);
+    playBeep(0.12);
+  }
 }
 
 export const soundEffects = new SoundEffectsController();
