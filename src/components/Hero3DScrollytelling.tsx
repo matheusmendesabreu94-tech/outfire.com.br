@@ -35,15 +35,15 @@ export interface CinematicZoomPoint {
   icon: string;
 }
 
-export const TOTAL_SIM_DURATION = 44.0; // 44 segundos de simulação cinematográfica contínua
+export const TOTAL_SIM_DURATION = 15.0; // 15 segundos de simulação ágil e cinematográfica
 
 export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
   {
     id: 1,
     label: '1',
-    name: 'Cozinha Standby',
+    name: 'Standby',
     timeStart: 0.0,
-    timeEnd: 4.5,
+    timeEnd: 2.5,
     camPos: [0, 2.2, 4.4],
     camLook: [0, 1.4, 0],
     camPosMobile: [0.5, 2.1, 6.8],
@@ -55,13 +55,13 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
   {
     id: 2,
     label: '2',
-    name: 'Início do Fogo',
-    timeStart: 4.5,
-    timeEnd: 9.5,
-    camPos: [-0.55, 1.45, 1.8],
-    camLook: [-0.55, 1.05, 0],
-    camPosMobile: [-0.55, 1.45, 2.2],
-    camLookMobile: [-0.55, 1.05, 0],
+    name: 'Fogo',
+    timeStart: 2.5,
+    timeEnd: 5.0,
+    camPos: [-0.55, 1.45, 2.3],
+    camLook: [-0.55, 1.15, 0],
+    camPosMobile: [-0.55, 1.45, 2.7],
+    camLookMobile: [-0.55, 1.15, 0],
     badgeTitle: '2. Princípio de Incêndio na Fritadeira',
     badgeDesc: 'Gordura e óleo vegetal/animal superaquecem até autoignição (>340°C). Chamas e fumaça sobem em direção à coifa.',
     icon: 'flame',
@@ -69,85 +69,59 @@ export const CINEMATIC_ZOOM_STOPS: CinematicZoomPoint[] = [
   {
     id: 3,
     label: '3',
-    name: 'Sensor 145°C + Damper',
-    timeStart: 9.5,
-    timeEnd: 14.5,
-    camPos: [-0.45, 1.95, 0.85],
-    camLook: [-0.55, 1.85, 0.20],
-    camPosMobile: [-0.45, 1.95, 1.10],
-    camLookMobile: [-0.55, 1.85, 0.20],
+    name: 'Sensor 145°C',
+    timeStart: 5.0,
+    timeEnd: 7.5,
+    // Zoom diminuído e enquadramento elevado focado na coifa e no sensor (sem ficar preso no fogo)
+    camPos: [-0.50, 2.35, 2.2],
+    camLook: [-0.55, 2.25, 0.20],
+    camPosMobile: [-0.50, 2.35, 2.8],
+    camLookMobile: [-0.55, 2.25, 0.20],
     badgeTitle: '3. Sensor Blindado 145°C Detecta Calor Crítico (NBR 14518)',
-    badgeDesc: 'Ao atingir 145°C na coifa, o sensor térmico blindado emite sinal eletrônico instantâneo para disparo do damper e central!',
+    badgeDesc: 'Ao atingir 145°C na coifa, o sensor térmico blindado emite sinal eletrônico instantâneo para disparo!',
     icon: 'damper',
   },
   {
     id: 4,
     label: '4',
-    name: 'Damper 100% Selado',
-    timeStart: 14.5,
-    timeEnd: 19.0,
-    camPos: [0.05, 2.85, 1.05],
+    name: 'Damper 90°',
+    timeStart: 7.5,
+    timeEnd: 10.0,
+    // Câmera focada 100% no damper e duto (o som toca aqui quando o damper estiver visível na imagem!)
+    camPos: [0, 2.85, 1.35],
     camLook: [0, 2.85, 0],
-    camPosMobile: [0.05, 2.85, 1.45],
+    camPosMobile: [0, 2.85, 1.70],
     camLookMobile: [0, 2.85, 0],
     badgeTitle: '4. Duto Predial 100% Hermético & Isolado (NBR 14518)',
-    badgeDesc: 'Solenoide desarma e a lâmina do damper fecha em 90° com vedação de alta temperatura, impedindo propagação de fogo ao prédio.',
+    badgeDesc: 'Solenoide desarma e a lâmina do damper fecha em 90° no duto, impedindo propagação de fogo ao prédio.',
     icon: 'damper',
   },
   {
     id: 5,
     label: '5',
-    name: 'Central Outfire IHM',
-    timeStart: 19.0,
-    timeEnd: 27.0,
+    name: 'Central IHM & Corte',
+    timeStart: 10.0,
+    timeEnd: 12.5,
     camPos: [2.1, 1.8, 0.70],
     camLook: [2.1, 1.8, 0.15],
     camPosMobile: [2.05, 1.8, 0.95],
     camLookMobile: [2.1, 1.8, 0.15],
-    badgeTitle: '5. Central Outfire VTS 32S3 em Alarme (IHM Touch)',
-    badgeDesc: 'Voz oficial de disparo ativada com cronômetro regressivo. Opção: Puxe o Acionador Manual para adiantar o despejo!',
+    badgeTitle: '5. Central Outfire VTS em Alarme & Intertravamento',
+    badgeDesc: 'Sirene estroboscópica e voz oficial Outfire! Gás cortado e exaustão desenergizada automaticamente.',
     icon: 'central',
   },
   {
     id: 6,
     label: '6',
-    name: 'Corte de Gás',
-    timeStart: 27.0,
-    timeEnd: 32.0,
-    camPos: [0.65, 1.45, 1.55],
-    camLook: [0.65, 1.05, 0],
-    camPosMobile: [0.65, 1.45, 2.0],
-    camLookMobile: [0.65, 1.05, 0],
-    badgeTitle: '6. Corte Imediato de Gás GN/GLP por Válvula Solenoide',
-    badgeDesc: 'Válvula solenoide fecha instantaneamente o gás, apagando as chamas sob a panela e eliminando o combustível.',
-    icon: 'gas',
-  },
-  {
-    id: 7,
-    label: '7',
-    name: 'Quadro Elétrico',
-    timeStart: 32.0,
-    timeEnd: 37.0,
-    camPos: [-2.1, 2.0, 0.9],
-    camLook: [-2.6, 2.0, -0.58],
-    camPosMobile: [-1.9, 2.0, 1.2],
-    camLookMobile: [-2.6, 2.0, -0.58],
-    badgeTitle: '7. Intertravamento Elétrico: Exaustão & Fritadeira Desenergizadas',
-    badgeDesc: 'Luzes verdes do painel cinza industrial apagam: motor da exaustão e resistências elétricas são cortados para cessar a oxigenação.',
-    icon: 'electrical',
-  },
-  {
-    id: 8,
-    label: '8',
     name: 'Extinção Total',
-    timeStart: 37.0,
-    timeEnd: 44.0,
+    timeStart: 12.5,
+    timeEnd: 15.0,
     camPos: [0, 1.8, 3.2],
     camLook: [-0.1, 1.25, 0],
     camPosMobile: [0, 1.8, 3.9],
     camLookMobile: [-0.1, 1.25, 0],
-    badgeTitle: '8. Supressão Ativa com Saponificante Classe K & CO2',
-    badgeDesc: 'Bicos aspersores lançam saponificante de alta pressão criando manta espumosa no óleo. Fogo 100% extinto (NBR 14518)!',
+    badgeTitle: '6. Supressão Ativa com Saponificante Classe K & CO2',
+    badgeDesc: 'Bicos aspersores lançam saponificante criando manta espumosa no óleo. Fogo 100% extinto (NBR 14518)!',
     icon: 'droplets',
   },
 ];
@@ -501,9 +475,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setManualAdvanced(true);
     manualAdvancedRef.current = true;
 
-    // Salta a simulação direto para a fase de extinção imediata (37.0s)
-    simTimeRef.current = 37.0;
-    setSimTime(37.0);
+    // Salta a simulação direto para a fase de extinção imediata (12.5s)
+    simTimeRef.current = 12.5;
+    setSimTime(12.5);
     setCountdown(0);
     countdownRef.current = 0;
     setSimStage('SUPPRESSION');
@@ -664,15 +638,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     setSimTime(clamped);
 
     if (activeScenarioRef.current === 'real_fire') {
-      // Se o usuário pular para trás antes do alarme, reseta áudios
-      if (clamped < 9.5) {
+      // Se o usuário pular para trás antes das etapas, reseta estados de áudio
+      if (clamped < 7.8) {
         hasPlayedDamperSnapRef.current = false;
       }
-      if (clamped < 19.0) {
+      if (clamped < 10.0) {
         hasPlayedAlarmAudioRef.current = false;
         hasPlayedGasCutoffRef.current = false;
-        hasPlayedSuppressionRef.current = false;
         stopAllAudioCycles();
+      }
+      if (clamped < 12.5) {
+        hasPlayedSuppressionRef.current = false;
       }
     } else {
       // Disparo acidental
@@ -2596,80 +2572,80 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         camera.lookAt(targetCamLook.current);
       }
 
-      // --- CENÁRIO 1: INCÊNDIO REAL (8 ETAPAS CINEMATOGRÁFICAS) ---
+      // --- CENÁRIO 1: INCÊNDIO REAL (6 ETAPAS CINEMATOGRÁFICAS - 15 SEGUNDOS TOTAIS) ---
       if (activeScenarioRef.current === 'real_fire') {
         let zoomIdx = 0;
         const isMobile = window.innerWidth < 768;
 
-        if (curTime < 4.5) {
-          // ETAPA 1: STANDBY
+        if (curTime < 2.5) {
+          // ETAPA 1: STANDBY (0.0s - 2.5s)
           zoomIdx = 0;
           setSimStage('STANDBY');
           simStageRef.current = 'STANDBY';
-          setCountdown(60);
-          countdownRef.current = 60;
+          setCountdown(10);
+          countdownRef.current = 10;
           setTelemetry({
             temp: 180,
             gasStatus: 'ABERTO',
             exhaustStatus: 'LIGADO',
             systemStatus: 'PRONTIDÃO',
-            countdown: 60,
+            countdown: 10,
           });
-        } else if (curTime < 9.5) {
-          // ETAPA 2: PRINCÍPIO DE INCÊNDIO
+        } else if (curTime < 5.0) {
+          // ETAPA 2: PRINCÍPIO DE INCÊNDIO (2.5s - 5.0s)
           zoomIdx = 1;
           setSimStage('HEATING');
           simStageRef.current = 'HEATING';
-          const prog = (curTime - 4.5) / 5.0;
+          const prog = (curTime - 2.5) / 2.5;
           const t = Math.round(180 + prog * 165);
           setTelemetry({
             temp: t,
             gasStatus: 'ABERTO',
             exhaustStatus: 'LIGADO',
             systemStatus: 'AQUECIMENTO',
-            countdown: 60,
+            countdown: 10,
           });
-        } else if (curTime < 14.5) {
-          // ETAPA 3: SENSOR BLINDADO 145°C DETECTA CALOR
+        } else if (curTime < 7.5) {
+          // ETAPA 3: SENSOR BLINDADO 145°C DETECTA CALOR (5.0s - 7.5s)
           zoomIdx = 2;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
-          setCountdown(55);
-          countdownRef.current = 55;
+          setCountdown(8);
+          countdownRef.current = 8;
           setTelemetry({
             temp: 145,
             gasStatus: 'ABERTO',
-            exhaustStatus: 'DAMPER FECHADO (90°)',
-            systemStatus: 'SENSOR 145°C / DAMPER',
-            countdown: 55,
+            exhaustStatus: 'LIGADO',
+            systemStatus: 'SENSOR 145°C DETECTADO',
+            countdown: 8,
           });
-        } else if (curTime < 19.0) {
-          // ETAPA 4: DAMPER CORTA-FOGO 100% SELADO NO DUTO (NBR 14518)
+        } else if (curTime < 10.0) {
+          // ETAPA 4: DAMPER CORTA-FOGO 90° NO DUTO (7.5s - 10.0s)
           zoomIdx = 3;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
-          setCountdown(45);
-          countdownRef.current = 45;
+          setCountdown(5);
+          countdownRef.current = 5;
           setTelemetry({
             temp: 340,
             gasStatus: 'ABERTO',
             exhaustStatus: 'DAMPER FECHADO (90°)',
             systemStatus: 'DUTO ISOLADO (NBR 14518)',
-            countdown: 45,
+            countdown: 5,
           });
-        } else if (curTime < 27.0) {
-          // ETAPA 5: CENTRAL OUTFIRE IHM
+        } else if (curTime < 12.5) {
+          // ETAPA 5: CENTRAL IHM & CORTE DE GÁS / ELÉTRICO (10.0s - 12.5s)
           zoomIdx = 4;
           setSimStage('FIRE_ALARM');
           simStageRef.current = 'FIRE_ALARM';
-          const cDown = Math.max(1, Math.round(15 - ((curTime - 19.0) / 8.0) * 14));
+          const cDown = Math.max(1, Math.round(3 - ((curTime - 10.0) / 2.5) * 2));
           setCountdown(cDown);
           countdownRef.current = cDown;
           setTelemetry({
             temp: 360,
-            gasStatus: 'ABERTO',
+            gasStatus: 'CORTADO',
             exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
+            systemStatus: 'ALERTA & CORTE DE GÁS',
             countdown: cDown,
           });
 
@@ -2677,43 +2653,15 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
             hasPlayedAlarmAudioRef.current = true;
             startOfficialAlarmAudioCycle();
           }
-        } else if (curTime < 32.0) {
-          // ETAPA 6: CORTE DE GÁS
-          zoomIdx = 5;
-          setSimStage('FIRE_ALARM');
-          simStageRef.current = 'FIRE_ALARM';
-          setCountdown(2);
-          countdownRef.current = 2;
-          setTelemetry({
-            temp: 375,
-            gasStatus: 'CORTADO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: 2,
-          });
 
           if (!hasPlayedGasCutoffRef.current && !isMutedRef.current) {
             hasPlayedGasCutoffRef.current = true;
             soundEffects.playGasCutoff();
           }
-        } else if (curTime < 37.0) {
-          // ETAPA 7: QUADRO ELÉTRICO INTERTRAVADO (Luzes verdes apagam AGORA)
-          zoomIdx = 6;
-          setSimStage('FIRE_ALARM');
-          simStageRef.current = 'FIRE_ALARM';
-          setCountdown(1);
-          countdownRef.current = 1;
-          setTelemetry({
-            temp: 380,
-            gasStatus: 'CORTADO',
-            exhaustStatus: 'INTERTRAVADO',
-            systemStatus: 'ALERTA DE FOGO',
-            countdown: 1,
-          });
         } else {
-          // ETAPA 8: EXTINÇÃO TOTAL COM SAPONIFICANTE E CO2
-          zoomIdx = 7;
-          if (curTime < 39.5) {
+          // ETAPA 6: SUPRESSÃO ATIVA E EXTINÇÃO TOTAL (12.5s - 15.0s)
+          zoomIdx = 5;
+          if (curTime < 14.0) {
             setSimStage('SUPPRESSION');
             simStageRef.current = 'SUPPRESSION';
           } else {
@@ -2767,7 +2715,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         foamSprayGroupRef.current!.visible = false;
         co2FogGroupRef.current!.visible = false;
 
-        const intensity = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (curTime - 4.5) / 5.0);
+        const intensity = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (curTime - 2.5) / 2.5);
 
         // Luz dinâmica estocástica hiper-realista de chamas vivas (flicker rico)
         if (fireLightRef.current) {
@@ -2911,19 +2859,19 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 6 aos 27.0s em Incêndio Real)
+      // 2. Chamas Azuis e Gás no Fogão Industrial (Apaga estritamente no corte de gás / Etapa 5 aos 10.0s em Incêndio Real)
       if (blueFlameGroupRef.current) {
-        const isGasCut = isRealFire && (curTime >= 27.0 || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED');
+        const isGasCut = isRealFire && (curTime >= 10.0 || stage === 'SUPPRESSION' || stage === 'EXTINGUISHED');
         blueFlameGroupRef.current.visible = !isGasCut;
         if (blueFlameLightRef.current) {
           blueFlameLightRef.current.intensity = isGasCut ? 0 : 0.75 + Math.sin(time * 30) * 0.25;
         }
       }
 
-      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 9.5s APENAS em Incêndio Real!)
+      // 3. Sensor Blindado 145°C Glow na Coifa (Atinge 145°C aos 5.0s APENAS em Incêndio Real!)
       if (sensorGlowMeshRef.current) {
         const mat = sensorGlowMeshRef.current.material as THREE.MeshStandardMaterial;
-        const isSensorTripped = isRealFire && curTime >= 9.5 && curTime < 37.0;
+        const isSensorTripped = isRealFire && curTime >= 5.0 && curTime < 12.5;
         if (isSensorTripped) {
           mat.emissive.setHex(0xef4444);
           mat.emissiveIntensity = 1.0 + Math.sin(time * 18) * 0.8;
@@ -2933,8 +2881,8 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // 4. Damper Corta-Fogo Motorizado no Duto: aciona ASSIM que o sensor detecta >= 145°C (curTime >= 9.5s) em Incêndio Real
-      const isDamperClosed = isRealFire && curTime >= 9.5;
+      // 4. Damper Corta-Fogo Motorizado no Duto: fecha e toca som quando o damper estiver visível na imagem (curTime >= 7.8s)
+      const isDamperClosed = isRealFire && curTime >= 7.8;
 
       if (damperFlapMeshRef.current) {
         const targetRot = isDamperClosed ? 0 : Math.PI / 2;
@@ -2967,17 +2915,17 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         }
       }
 
-      // Som mecânico imediato do desarme da solenoide e batida do damper aos 145°C (9.5s) em Incêndio Real
-      if (isRealFire && curTime >= 9.5 && !hasPlayedDamperSnapRef.current) {
+      // Som mecânico do damper batendo: EXECUTADO SOMENTE QUANDO O DAMPER ESTIVER VISÍVEL NA IMAGEM (7.8s)
+      if (isRealFire && curTime >= 7.8 && !hasPlayedDamperSnapRef.current) {
         hasPlayedDamperSnapRef.current = true;
         if (!isMutedRef.current) {
           soundEffects.playDamperSnap();
         }
       }
 
-      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes APAGAM COMPLETAMENTE na Etapa 7 / 32.0s em Incêndio Real)
+      // 5. Quadro Elétrico Industrial de Intertravamento (Luzes verdes apagam aos 10.0s na Etapa 5 em Incêndio Real)
       if (panelLedExhaustRef.current && panelLedFryerRef.current && panelLedAmberRef.current) {
-        const isInterlocked = isRealFire && curTime >= 32.0;
+        const isInterlocked = isRealFire && curTime >= 10.0;
         const matExhaust = panelLedExhaustRef.current.material as THREE.MeshStandardMaterial;
         const matFryer = panelLedFryerRef.current.material as THREE.MeshStandardMaterial;
         const matAmber = panelLedAmberRef.current.material as THREE.MeshStandardMaterial;
