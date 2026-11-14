@@ -162,6 +162,60 @@ interface TelemetryData {
   countdown: number;
 }
 
+// Gerador procedural em memória de texturas de chamas, fagulhas e fumaça hiper-realistas
+function createRealisticFlameTexture(type: 'flame' | 'spark' | 'smoke'): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d')!;
+
+  if (type === 'flame') {
+    // Gradiente orgânico hiper-realista: núcleo superaquecido branco-amarelo, corpo dourado/laranja ardente, bordas avermelhadas
+    const grad = ctx.createRadialGradient(64, 82, 3, 64, 72, 54);
+    grad.addColorStop(0, 'rgba(255, 255, 245, 1.0)');  // Núcleo branco puro de alta temperatura (>800°C)
+    grad.addColorStop(0.18, 'rgba(254, 240, 138, 0.98)'); // Amarelo incandescente
+    grad.addColorStop(0.42, 'rgba(249, 115, 22, 0.85)');  // Laranja vivo intenso de óleo vegetal
+    grad.addColorStop(0.72, 'rgba(220, 38, 38, 0.45)');   // Vermelho vivo nas labaredas
+    grad.addColorStop(1, 'rgba(153, 27, 27, 0)');        // Transparência suave nas bordas
+
+    ctx.fillStyle = grad;
+    // Desenha perfil orgânico de gota/língua de fogo pontiaguda
+    ctx.beginPath();
+    ctx.moveTo(64, 8);
+    ctx.bezierCurveTo(92, 32, 116, 68, 108, 96);
+    ctx.bezierCurveTo(100, 122, 28, 122, 20, 96);
+    ctx.bezierCurveTo(12, 68, 36, 32, 64, 8);
+    ctx.closePath();
+    ctx.fill();
+  } else if (type === 'spark') {
+    // Fagulha / Centelha incandescente com corona estelar pontual
+    const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 48);
+    grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+    grad.addColorStop(0.2, 'rgba(254, 215, 170, 0.95)');
+    grad.addColorStop(0.5, 'rgba(249, 115, 22, 0.65)');
+    grad.addColorStop(1, 'rgba(185, 28, 28, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(64, 64, 48, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (type === 'smoke') {
+    // Fumaça volumétrica macia e difusa
+    const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 58);
+    grad.addColorStop(0, 'rgba(30, 27, 24, 0.50)');
+    grad.addColorStop(0.35, 'rgba(45, 40, 36, 0.35)');
+    grad.addColorStop(0.70, 'rgba(65, 60, 55, 0.15)');
+    grad.addColorStop(1, 'rgba(65, 60, 55, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(64, 64, 58, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
 interface HeroProps {
   onOpenPortal?: (mode?: 'client' | 'admin') => void;
 }
@@ -1317,26 +1371,18 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     // - Ponta chanfrada com fecho hermético soldado
     // =========================================================================
     const sensorGroup = new THREE.Group();
-    sensorGroup.position.set(-0.55, -0.40, 0.24); // Posicionado com clareza cristalina no ar livre bem abaixo da coifa
+    sensorGroup.position.set(-0.55, 0.26, 0.20); // Recolhido: rosca paralela e embutida no teto da coifa
     sensorGroup.rotation.x = 0.08; // Ligeira inclinação realista para a zona de convecção de calor
     hoodGroup.add(sensorGroup);
     shieldedSensorGroupRef.current = sensorGroup;
     sensorGroup.userData = { interactiveType: 'sensor', name: 'Sensor Blindado Térmico 145°C (NBR 14518)' };
 
-    // Tubo extensor em aço inox cromado que desce do teto da coifa até o suporte do sensor
-    const sensorDropTube = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.007, 0.007, 0.44, 16),
-      matStainlessSteel
-    );
-    sensorDropTube.position.set(0, 0.23, 0);
-    sensorGroup.add(sensorDropTube);
-
-    // Suporte / Abraçadeira de fixação no teto/parede da coifa em inox
+    // Suporte / Flange de montagem no teto da coifa em inox
     const sensorBracket = new THREE.Mesh(
-      new THREE.BoxGeometry(0.045, 0.035, 0.045),
+      new THREE.BoxGeometry(0.045, 0.020, 0.045),
       matStainlessSteel
     );
-    sensorBracket.position.set(0, 0.032, 0);
+    sensorBracket.position.set(0, 0.010, 0);
     sensorGroup.add(sensorBracket);
 
     // 1. Capa plástica superior branca estriada (bucha protetora isolante NPT)
@@ -1432,10 +1478,10 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       emissiveIntensity: 0,
     });
     const sensorStem = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.007, 0.007, 0.16, 24),
+      new THREE.CylinderGeometry(0.007, 0.007, 0.24, 24),
       matSensorStem
     );
-    sensorStem.position.set(0, -0.135, 0);
+    sensorStem.position.set(0, -0.175, 0);
     sensorGroup.add(sensorStem);
     sensorGlowMeshRef.current = sensorStem;
 
@@ -1444,7 +1490,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
       new THREE.SphereGeometry(0.007, 16, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
       matSensorStem
     );
-    sensorTip.position.set(0, -0.215, 0);
+    sensorTip.position.set(0, -0.298, 0);
     sensorGroup.add(sensorTip);
 
     // =========================================================================
@@ -1691,12 +1737,12 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     }
 
     // 3. Quatro Tubos Verticais Descendentes com União Sextavada e Bicos com Capa de Borracha
-    // Estendidos bem abaixo da linha inferior da coifa para visualização 100% clara e desobstruída (NBR 14518 / NFPA 96)
+    // Recolhidos proporcionalmente em harmonia com o teto da coifa e o sensor (NBR 14518 / NFPA 96)
     const nozzleDropSpecs = [
-      { x: -0.70, z: 0.24, target: 'Fritadeira (Esquerda)' },
-      { x: -0.38, z: 0.24, target: 'Fritadeira (Centro)' },
-      { x: 0.48, z: 0.24, target: 'Fogão / Panela' },
-      { x: 0.85, z: 0.24, target: 'Chapa / Cooktop' },
+      { x: -0.70, z: 0.20, target: 'Fritadeira (Esquerda)' },
+      { x: -0.38, z: 0.20, target: 'Fritadeira (Centro)' },
+      { x: 0.48, z: 0.20, target: 'Fogão / Panela' },
+      { x: 0.85, z: 0.20, target: 'Chapa / Cooktop' },
     ];
 
     const matWhiteCap = new THREE.MeshStandardMaterial({
@@ -1727,56 +1773,55 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
       // Tubo de avanço superior horizontal
       const horizSub = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.008, 0.008, 0.34, 16),
+        new THREE.CylinderGeometry(0.008, 0.008, 0.30, 16),
         matStainlessSteel
       );
       horizSub.rotation.x = Math.PI / 2;
-      horizSub.position.set(0, 0, 0.17);
+      horizSub.position.set(0, 0, 0.15);
       dropAssembly.add(horizSub);
 
       // Tubo Vertical Descendente em Aço Inox (Drop Pipe)
-      // Desce da linha superior até bem abaixo da borda inferior da coifa
+      // Recolhido proporcionalmente em harmonia com o teto da coifa e o sensor
       const vertDropGroup = new THREE.Group();
-      vertDropGroup.position.set(0, 0, 0.34);
+      vertDropGroup.position.set(0, 0, 0.30);
       dropAssembly.add(vertDropGroup);
 
-      // Tubo descendente longo (0.90m) que desce ~60cm abaixo da borda da coifa
+      // Tubo descendente proporcional (0.38m de comprimento)
       const dropPipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.008, 0.008, 0.90, 16),
+        new THREE.CylinderGeometry(0.008, 0.008, 0.38, 16),
         matStainlessSteel
       );
-      dropPipe.position.set(0, -0.45, 0);
+      dropPipe.position.set(0, -0.19, 0);
       vertDropGroup.add(dropPipe);
 
       // UNIÃO SEXTAVADA DUPLA DE COMPRESSÃO (Exatamente como na foto real!)
-      // Posicionada em destaque no ar livre, ~55cm abaixo da coifa
       const upperHexNut = new THREE.Mesh(
         new THREE.CylinderGeometry(0.016, 0.016, 0.018, 6),
         matStainlessSteel
       );
-      upperHexNut.position.set(0, -0.905, 0);
+      upperHexNut.position.set(0, -0.385, 0);
       vertDropGroup.add(upperHexNut);
 
       const unionBody = new THREE.Mesh(
         new THREE.CylinderGeometry(0.012, 0.012, 0.015, 16),
         matStainlessSteel
       );
-      unionBody.position.set(0, -0.922, 0);
+      unionBody.position.set(0, -0.398, 0);
       vertDropGroup.add(unionBody);
 
       const lowerHexNut = new THREE.Mesh(
         new THREE.CylinderGeometry(0.016, 0.016, 0.018, 6),
         matStainlessSteel
       );
-      lowerHexNut.position.set(0, -0.939, 0);
+      lowerHexNut.position.set(0, -0.412, 0);
       vertDropGroup.add(lowerHexNut);
 
-      // CORPO USINADO DO BICO ASPERSOR CLASSE K (60cm abaixo da coifa)
+      // CORPO USINADO DO BICO ASPERSOR CLASSE K
       const nozzleBody = new THREE.Mesh(
         new THREE.CylinderGeometry(0.013, 0.009, 0.026, 6),
         matStainlessSteel
       );
-      nozzleBody.position.set(0, -0.962, 0);
+      nozzleBody.position.set(0, -0.430, 0);
       vertDropGroup.add(nozzleBody);
 
       // Orifício de descarga de alta pressão
@@ -1784,23 +1829,22 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         new THREE.CylinderGeometry(0.004, 0.004, 0.008, 16),
         new THREE.MeshBasicMaterial({ color: 0x0f172a })
       );
-      nozzleOrifice.position.set(0, -0.978, 0);
+      nozzleOrifice.position.set(0, -0.444, 0);
       vertDropGroup.add(nozzleOrifice);
 
       // CAPA PROTETORA BRANCA DE BORRACHA/SILICONE (Blow-off Cap na foto real!)
-      // 100% destacada e visível em primeiro plano
       const blowOffCap = new THREE.Mesh(
         new THREE.CylinderGeometry(0.012, 0.012, 0.020, 16),
         matWhiteCap
       );
-      blowOffCap.position.set(0, -0.976, 0);
+      blowOffCap.position.set(0, -0.442, 0);
       vertDropGroup.add(blowOffCap);
 
       const capTipDome = new THREE.Mesh(
         new THREE.SphereGeometry(0.012, 16, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
         matWhiteCap
       );
-      capTipDome.position.set(0, -0.986, 0);
+      capTipDome.position.set(0, -0.452, 0);
       vertDropGroup.add(capTipDome);
 
       // Tira flexível de borracha de retenção da capa
@@ -1809,7 +1853,7 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         matWhiteCap
       );
       capStrap.rotation.x = Math.PI / 2;
-      capStrap.position.set(0, -0.952, 0.008);
+      capStrap.position.set(0, -0.422, 0.008);
       vertDropGroup.add(capStrap);
     });
 
@@ -2296,55 +2340,112 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
     scene.add(foamBlanket);
     foamBlanketMeshRef.current = foamBlanket;
 
-    // 17. PARTICLE SYSTEMS
-    // Fire Particles
+    // 17. SISTEMA DE FOGO, FAGULHAS E FUMAÇA HIPER-REALISTA CLASSE K
+    // Texturas procedurais com AdditiveBlending e dinâmica de convecção térmica real
+    const flameTexture = createRealisticFlameTexture('flame');
+    const sparkTexture = createRealisticFlameTexture('spark');
+    const smokeTexture = createRealisticFlameTexture('smoke');
+
     const fireGroup = new THREE.Group();
     scene.add(fireGroup);
     fireParticlesGroupRef.current = fireGroup;
 
-    const fireCount = 70;
-    const fireGeo = new THREE.DodecahedronGeometry(0.08, 1);
+    // A. Labaredas Orgânicas Centrais (Tongues of Flame com AdditiveBlending)
+    const flameMat = new THREE.MeshBasicMaterial({
+      map: flameTexture,
+      transparent: true,
+      opacity: 0.92,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const flameGeo = new THREE.PlaneGeometry(0.24, 0.40);
     const fireMeshes: THREE.Mesh[] = [];
 
-    for (let i = 0; i < fireCount; i++) {
-      const p = new THREE.Mesh(
-        fireGeo,
-        new THREE.MeshBasicMaterial({ color: 0xff4500, transparent: true, opacity: 0.85 })
+    const flameCount = 42;
+    for (let i = 0; i < flameCount; i++) {
+      const fl = new THREE.Mesh(flameGeo, flameMat);
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 0.20;
+      fl.position.set(
+        -0.55 + Math.cos(angle) * radius,
+        1.05 + Math.random() * 0.35,
+        0.16 + Math.sin(angle) * radius
       );
-      p.position.set(
-        -0.55 + (Math.random() - 0.5) * 0.5,
-        1.05 + Math.random() * 0.4,
-        (Math.random() - 0.5) * 0.4
-      );
-      p.userData = {
+      fl.userData = {
+        baseX: -0.55 + Math.cos(angle) * radius,
+        baseZ: 0.16 + Math.sin(angle) * radius,
         baseY: 1.05,
-        speedY: 0.8 + Math.random() * 1.5,
-        scale: 0.4 + Math.random() * 0.8,
+        speedY: 1.2 + Math.random() * 1.8,
+        swaySpeed: 10 + Math.random() * 12,
+        phase: Math.random() * Math.PI * 2,
+        scaleX: 0.7 + Math.random() * 0.7,
+        scaleY: 0.9 + Math.random() * 0.9,
       };
-      fireGroup.add(p);
-      fireMeshes.push(p);
+      fireGroup.add(fl);
+      fireMeshes.push(fl);
     }
 
-    // Smoke Particles
+    // B. Fagulhas e Centelhas Incandescentes Espiralantes (Flying Embers)
+    const sparkMat = new THREE.MeshBasicMaterial({
+      map: sparkTexture,
+      transparent: true,
+      opacity: 1.0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const sparkGeo = new THREE.PlaneGeometry(0.04, 0.04);
+    const sparkMeshes: THREE.Mesh[] = [];
+
+    const sparkCount = 28;
+    for (let i = 0; i < sparkCount; i++) {
+      const spk = new THREE.Mesh(sparkGeo, sparkMat);
+      spk.position.set(
+        -0.55 + (Math.random() - 0.5) * 0.35,
+        1.10 + Math.random() * 0.8,
+        0.16 + (Math.random() - 0.5) * 0.30
+      );
+      spk.userData = {
+        baseY: 1.05,
+        speedY: 2.2 + Math.random() * 2.6,
+        spiralSpeed: 8 + Math.random() * 8,
+        phase: Math.random() * Math.PI * 2,
+        radius: 0.05 + Math.random() * 0.15,
+        maxH: 2.25,
+      };
+      fireGroup.add(spk);
+      sparkMeshes.push(spk);
+    }
+
+    // C. Fumaça Volumétrica Acinzentada com Expansão e Vórtice
     const smokeGroup = new THREE.Group();
     scene.add(smokeGroup);
     smokeParticlesGroupRef.current = smokeGroup;
 
-    const smokeCount = 50;
-    const smokeGeo = new THREE.SphereGeometry(0.12, 8, 8);
+    const smokeMat = new THREE.MeshBasicMaterial({
+      map: smokeTexture,
+      transparent: true,
+      opacity: 0.40,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    const smokeGeo = new THREE.PlaneGeometry(0.36, 0.36);
     const smokeMeshes: THREE.Mesh[] = [];
 
+    const smokeCount = 36;
     for (let i = 0; i < smokeCount; i++) {
-      const sm = new THREE.Mesh(
-        smokeGeo,
-        new THREE.MeshBasicMaterial({ color: 0x1f242d, transparent: true, opacity: 0.4 })
-      );
+      const sm = new THREE.Mesh(smokeGeo, smokeMat);
       sm.position.set(
-        -0.55 + (Math.random() - 0.5) * 0.6,
-        1.3 + Math.random() * 1.0,
-        (Math.random() - 0.5) * 0.4
+        -0.55 + (Math.random() - 0.5) * 0.45,
+        1.25 + Math.random() * 0.9,
+        0.16 + (Math.random() - 0.5) * 0.35
       );
-      sm.userData = { speedY: 0.6 + Math.random() * 1.0, maxH: 2.2 };
+      sm.userData = {
+        baseY: 1.25,
+        speedY: 0.65 + Math.random() * 0.85,
+        rotSpeed: (Math.random() - 0.5) * 0.8,
+        maxH: 2.30,
+      };
       smokeGroup.add(sm);
       smokeMeshes.push(sm);
     }
@@ -2360,9 +2461,9 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
     for (let i = 0; i < sprayCount; i++) {
       const sp = new THREE.Mesh(sprayGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 }));
-      sp.position.set(-0.55, 1.53, 0.24);
+      sp.position.set(-0.55, 2.07, 0.20);
       sp.userData = {
-        origY: 1.53,
+        origY: 2.07,
         speed: 3.5 + Math.random() * 2.0,
         spread: (Math.random() - 0.5) * 0.4,
       };
@@ -2668,33 +2769,57 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
 
         const intensity = stage === 'FIRE_ALARM' ? 1.0 : Math.max(0.2, (curTime - 4.5) / 5.0);
 
+        // Luz dinâmica estocástica hiper-realista de chamas vivas (flicker rico)
         if (fireLightRef.current) {
-          fireLightRef.current.intensity = (2.5 + Math.sin(time * 20) * 1.5) * intensity;
-          fireLightRef.current.color.setHex(Math.random() > 0.3 ? 0xff4500 : 0xffaa00);
+          const flicker = 3.2 + Math.sin(time * 24) * 1.4 + Math.cos(time * 39) * 0.8;
+          fireLightRef.current.intensity = flicker * intensity;
+          fireLightRef.current.color.setHex(Math.sin(time * 15) > 0 ? 0xffaa00 : 0xff4500);
         }
 
-        fireMeshes.forEach((mesh, idx) => {
+        // Animação das labaredas ascendentes com ondulação orgânica e estiramento de calor
+        fireMeshes.forEach((mesh) => {
           mesh.visible = true;
           mesh.position.y += mesh.userData.speedY * delta;
-          mesh.position.x += Math.sin(time * 10 + idx) * 0.006;
-          const prog = (mesh.position.y - mesh.userData.baseY) / 1.0;
-          mesh.scale.setScalar(Math.max(0.01, (1 - prog) * mesh.userData.scale * intensity));
-          (mesh.material as THREE.MeshBasicMaterial).opacity = 1 - prog;
+          mesh.position.x = mesh.userData.baseX + Math.sin(time * mesh.userData.swaySpeed + mesh.userData.phase) * 0.04;
+          mesh.position.z = mesh.userData.baseZ + Math.cos(time * mesh.userData.swaySpeed * 0.8 + mesh.userData.phase) * 0.03;
+          mesh.rotation.z = Math.sin(time * mesh.userData.swaySpeed + mesh.userData.phase) * 0.18;
 
-          if (mesh.position.y > mesh.userData.baseY + 0.9) {
+          const prog = (mesh.position.y - mesh.userData.baseY) / 0.85;
+          if (prog < 1.0) {
+            mesh.scale.x = Math.max(0.01, (1 - prog * 0.65) * mesh.userData.scaleX * intensity);
+            mesh.scale.y = Math.max(0.01, (1 + prog * 0.45) * mesh.userData.scaleY * intensity);
+            (mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, (1 - prog * 0.85) * 0.95);
+          } else {
             mesh.position.y = mesh.userData.baseY;
-            mesh.position.x = -0.55 + (Math.random() - 0.5) * 0.5;
-            mesh.position.z = (Math.random() - 0.5) * 0.4;
           }
         });
 
+        // Animação das fagulhas / centelhas incandescentes espiralando na convecção térmica
+        sparkMeshes.forEach((spk) => {
+          spk.visible = true;
+          spk.position.y += spk.userData.speedY * delta;
+          spk.position.x = -0.55 + Math.cos(time * spk.userData.spiralSpeed + spk.userData.phase) * spk.userData.radius;
+          spk.position.z = 0.16 + Math.sin(time * spk.userData.spiralSpeed + spk.userData.phase) * spk.userData.radius;
+          const prog = (spk.position.y - spk.userData.baseY) / 1.2;
+          spk.scale.setScalar(Math.max(0.01, (1 - prog) * intensity));
+
+          if (spk.position.y > spk.userData.maxH) {
+            spk.position.y = spk.userData.baseY;
+          }
+        });
+
+        // Animação da fumaça volumétrica com expansão e rotação
         smokeMeshes.forEach((sm) => {
           sm.visible = true;
           sm.position.y += sm.userData.speedY * delta;
-          sm.scale.setScalar(intensity);
+          sm.rotation.z += sm.userData.rotSpeed * delta;
+          const prog = (sm.position.y - sm.userData.baseY) / (sm.userData.maxH - sm.userData.baseY);
+          sm.scale.setScalar(Math.max(0.1, (0.5 + prog * 1.5) * intensity));
+          (sm.material as THREE.MeshBasicMaterial).opacity = Math.max(0.05, (1 - prog * 0.7) * 0.40);
+
           if (sm.position.y > sm.userData.maxH) {
-            sm.position.y = 1.3;
-            sm.position.x = -0.55 + (Math.random() - 0.5) * 0.4;
+            sm.position.y = sm.userData.baseY;
+            sm.position.x = -0.55 + (Math.random() - 0.5) * 0.45;
           }
         });
       } else if (isRealFire && stage === 'SUPPRESSION') {
@@ -2703,8 +2828,15 @@ export const Hero3DScrollytelling: React.FC<HeroProps> = ({ onOpenPortal }) => {
         co2FogGroupRef.current!.visible = true;
 
         fireMeshes.forEach((mesh) => {
-          mesh.scale.multiplyScalar(0.92);
-          if (mesh.scale.x < 0.05) mesh.visible = false;
+          mesh.scale.multiplyScalar(0.90);
+          if (mesh.scale.x < 0.02) mesh.visible = false;
+        });
+        sparkMeshes.forEach((spk) => {
+          spk.visible = false;
+        });
+        smokeMeshes.forEach((sm) => {
+          sm.position.y += sm.userData.speedY * delta * 1.2;
+          sm.scale.multiplyScalar(0.97);
         });
         if (fireLightRef.current) {
           fireLightRef.current.intensity = Math.max(0, fireLightRef.current.intensity - delta * 4);
